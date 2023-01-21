@@ -193,7 +193,7 @@ public class UserService {
     public GetUserRes getUserInfo(Principal principal) throws BaseException {
         Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
         if(optionalUserEntity.isEmpty()) {
-            throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         UserEntity userEntity = optionalUserEntity.get();
         GetUserRes result = new GetUserRes(
