@@ -1,0 +1,19 @@
+spring.profiles.include: 'secret'
+
+spring:
+  jpa:
+    database: mysql
+    database-platform=org:
+      hibernate:
+        spatial:
+          dialect:
+            mysql:
+              MySQL56InnoDBSpatialDialect
+        ddl-auto:
+          create
+      generate-ddl:
+        false
+    show-sql:
+      true
+server:
+  port: 9000
