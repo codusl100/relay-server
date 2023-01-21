@@ -11,8 +11,8 @@ spring:
               MySQL56InnoDBSpatialDialect
         ddl-auto:
           create
-      generate-ddl:
-        false
+    generate-ddl:
+      false
     show-sql:
       true
 server:
