@@ -235,7 +235,7 @@ public class UserService {
         userRepository.save(userEntity);
     }
 
-    public Long addProfile(Principal principal, @RequestBody PostProfileReq profileReq) throws BaseException {
+    public Long addProfile(Principal principal, PostProfileReq profileReq) throws BaseException {
         Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
         if(optionalUserEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
