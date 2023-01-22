@@ -11,9 +11,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetProfileRes {
+    @ApiModelProperty(example = "유저 프로필 식별자")
     private Long userProfileIdx;
+    @ApiModelProperty(example = "닉네임")
     private String nickname;
+    @ApiModelProperty(example = "상태메세지")
     private String statusMsg;
+    @ApiModelProperty(example = "y")
     private String isAlarmOn;
+    @ApiModelProperty(example= "이미지 경로")
     private String imgUrl;
 }
