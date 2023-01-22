@@ -1,5 +1,6 @@
 package com.example.relayRun.user.entity;
 
+import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.util.BaseTimeEntity;
 import com.example.relayRun.util.Role;
 import lombok.AllArgsConstructor;
@@ -59,4 +60,4 @@ public class UserEntity extends BaseTimeEntity {
     public void changePwd(String pwd){
         this.pwd = pwd;
         }
-    }
+}

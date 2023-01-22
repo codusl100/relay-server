@@ -2,10 +2,7 @@ package com.example.relayRun.user.controller;
 
 
 import com.example.relayRun.jwt.dto.TokenDto;
-import com.example.relayRun.user.dto.GetUserRes;
-import com.example.relayRun.user.dto.PatchUserPwdReq;
-import com.example.relayRun.user.dto.PostLoginReq;
-import com.example.relayRun.user.dto.PostUserReq;
+import com.example.relayRun.user.dto.*;
 import com.example.relayRun.user.service.UserService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -72,6 +69,18 @@ public class UserController {
             this.userService.changePwd(principal, userPwd);
             return new BaseResponse<>("비밀번호 변경에 성공하였습니다.");
 
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+
+    @ApiOperation(value="프로필 신규 생성", notes="닉네임, 상태 메세지, 프로필 알림 설정(y or n), 프로필 사진 경로")
+    @PostMapping("/profile")
+    public BaseResponse<Long> addProfile(Principal principal, @RequestBody PostProfileReq profileReq) {
+        try{
+            Long result = this.userService.addProfile(principal, profileReq);
+            return new BaseResponse<>(result);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
