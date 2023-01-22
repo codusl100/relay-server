@@ -3,6 +3,7 @@ package com.example.relayRun.user.controller;
 
 import com.example.relayRun.jwt.dto.TokenDto;
 import com.example.relayRun.user.dto.*;
+import com.example.relayRun.user.service.UserProfileService;
 import com.example.relayRun.user.service.UserService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -20,9 +21,11 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
+    private UserProfileService userProfileService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserProfileService userProfileService) {
         this.userService = userService;
+        this.userProfileService = userProfileService;
     }
 
     @ResponseBody
