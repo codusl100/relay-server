@@ -2,10 +2,7 @@ package com.example.relayRun.user.controller;
 
 
 import com.example.relayRun.jwt.dto.TokenDto;
-import com.example.relayRun.user.dto.GetUserRes;
-import com.example.relayRun.user.dto.PatchUserPwdReq;
-import com.example.relayRun.user.dto.PostLoginReq;
-import com.example.relayRun.user.dto.PostUserReq;
+import com.example.relayRun.user.dto.*;
 import com.example.relayRun.user.service.UserService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -14,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -73,6 +71,19 @@ public class UserController {
             return new BaseResponse<>("비밀번호 변경에 성공하였습니다.");
 
         } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ResponseBody
+    @ApiOperation(value = "유저 프로필 목록 조회", notes ="유저가 생성한 프로필 리스트 조회하는 API")
+    @GetMapping("/profileList")
+    public BaseResponse<List<GetProfileRes>> viewProfile(Principal principal) {
+        try{
+            List<GetProfileRes> getProfileRes = userService.viewProfile(principal);
+            return new BaseResponse<>(getProfileRes);
+        }
+        catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }

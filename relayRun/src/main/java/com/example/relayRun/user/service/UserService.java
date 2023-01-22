@@ -4,12 +4,11 @@ import com.example.relayRun.jwt.TokenProvider;
 import com.example.relayRun.jwt.dto.TokenDto;
 import com.example.relayRun.jwt.entity.RefreshTokenEntity;
 import com.example.relayRun.jwt.repository.RefreshTokenRepository;
-import com.example.relayRun.user.dto.GetUserRes;
-import com.example.relayRun.user.dto.PatchUserPwdReq;
-import com.example.relayRun.user.dto.PostLoginReq;
-import com.example.relayRun.user.dto.PostUserReq;
+import com.example.relayRun.user.dto.*;
 import com.example.relayRun.user.entity.LoginType;
 import com.example.relayRun.user.entity.UserEntity;
+import com.example.relayRun.user.entity.UserProfileEntity;
+import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -22,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.relayRun.util.ValidationRegex.isRegexEmail;
@@ -30,6 +31,7 @@ import static com.example.relayRun.util.ValidationRegex.isRegexPwd;
 @Service
 public class UserService {
     private UserRepository userRepository;
+    private UserProfileRepository userProfileRepository;
     private PasswordEncoder passwordEncoder;
     private TokenProvider tokenProvider;
     private RefreshTokenRepository refreshTokenRepository;
@@ -37,7 +39,7 @@ public class UserService {
 
 
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+    public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository, PasswordEncoder passwordEncoder,
                        TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
                        AuthenticationManagerBuilder authenticationManagerBuilder){
         this.userRepository = userRepository;
@@ -217,6 +219,27 @@ public class UserService {
         }
         userEntity.changePwd(encodedPwd);
         userRepository.save(userEntity);
+    }
+
+    public List<GetProfileRes> viewProfile(Principal principal) throws BaseException {
+        Optional<UserEntity> optional = userRepository.findByEmail(principal.getName());
+        if(optional.isEmpty()){
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        // userIdx가 생성한 프로필 idx 다 조회
+        List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get().getUserIdx());
+        List<GetProfileRes> getProfileList = new ArrayList<>();
+        // 조회한 프로필 Id들 Dto에 담기
+        for(UserProfileEntity profile : userProfileList){
+            GetProfileRes getProfileRes = new GetProfileRes();
+            getProfileRes.setUserProfileIdx(profile.getUserProfileIdx());
+            getProfileRes.setNickname(profile.getNickName());
+            getProfileRes.setStatusMsg(profile.getStatusMsg());
+            getProfileRes.setIsAlarmOn(profile.getIsAlarmOn());
+            getProfileRes.setImgUrl(profile.getImgURL());
+            getProfileList.add(getProfileRes);
+        }
+        return getProfileList;
     }
 }
 
