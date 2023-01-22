@@ -3,6 +3,7 @@ package com.example.relayRun.user.controller;
 
 import com.example.relayRun.jwt.dto.TokenDto;
 import com.example.relayRun.user.dto.*;
+import com.example.relayRun.user.service.UserProfileService;
 import com.example.relayRun.user.service.UserService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -20,9 +21,11 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
+    private UserProfileService userProfileService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserProfileService userProfileService) {
         this.userService = userService;
+        this.userProfileService = userProfileService;
     }
 
     @ResponseBody
@@ -104,6 +107,17 @@ public class UserController {
             Long result = this.userService.addProfile(principal, profileReq);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value = "속한 그룹의 이름 가져오기", notes ="profile의 id를 query string으로 전달 해주세요")
+    @GetMapping("/clubs/accepted")
+    public BaseResponse<GetUserProfileClubRes> getUsersClub(@RequestParam("id") Long userProfileIdx) {
+        try{
+            GetUserProfileClubRes result = userProfileService.getUserProfileClub(userProfileIdx);
+            return new BaseResponse<>(result);
+        }catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }
