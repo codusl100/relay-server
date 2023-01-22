@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
+@Builder
 @Table(name = "user_profile")
 public class UserProfileEntity extends BaseTimeEntity {
 
@@ -41,8 +42,5 @@ public class UserProfileEntity extends BaseTimeEntity {
     @Column(columnDefinition = "varchar(10) default 'active'")
     private String status;
 
-    public void setUserIdx(UserEntity userEntity) {
-        this.userIdx = userEntity;
-    }
 }
 

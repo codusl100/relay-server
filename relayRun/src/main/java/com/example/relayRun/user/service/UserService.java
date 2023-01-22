@@ -81,17 +81,13 @@ public class UserService {
                 .build();
         user.setPwd(password);
 
-        UserProfileEntity userProfileEntity = new UserProfileEntity(
-                null,
-                null,
-                "기본 닉네임",
-                "기본 이미지",
-                "안녕하세요",
-                null,
-                null
-        );
         userEntity = userRepository.save(userEntity);
-        userProfileEntity.setUserIdx(userEntity);
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .nickName("기본 닉네임")
+                .imgURL("기본 이미지")
+                .statusMsg("안녕하세요")
+                .userIdx(userEntity)
+                .build();
         userProfileRepository.save(userProfileEntity);
         return token(user);
 
@@ -241,15 +237,13 @@ public class UserService {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         UserEntity userEntity = optionalUserEntity.get();
-        UserProfileEntity userProfileEntity = new UserProfileEntity(
-                null,
-                userEntity,
-                profileReq.getNickname(),
-                profileReq.getImgUrl(),
-                profileReq.getStatusMsg(),
-                profileReq.getIsAlarmOn(),
-                null
-        );
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .userIdx(userEntity)
+                .nickName(profileReq.getNickname())
+                .imgURL(profileReq.getImgUrl())
+                .isAlarmOn(profileReq.getIsAlarmOn())
+                .statusMsg(profileReq.getStatusMsg())
+                .build();
         userProfileEntity = userProfileRepository.save(userProfileEntity);
         return userProfileEntity.getUserProfileIdx();
     }
