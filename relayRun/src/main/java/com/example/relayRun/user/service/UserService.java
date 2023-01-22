@@ -238,7 +238,7 @@ public class UserService {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         // userIdx가 생성한 프로필 idx 다 조회
-        List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get().getUserIdx());
+        List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get());
         List<GetProfileRes> getProfileList = new ArrayList<>();
         // 조회한 프로필 Id들 Dto에 담기
         for (UserProfileEntity profile : userProfileList) {
