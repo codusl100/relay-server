@@ -1,4 +1,4 @@
-package com.example.relayRun.timetable.entity;
+package com.example.relayRun.user.entity;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.util.*;
