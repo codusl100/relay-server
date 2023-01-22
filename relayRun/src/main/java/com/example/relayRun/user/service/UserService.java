@@ -14,11 +14,13 @@ import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
 import com.example.relayRun.util.Role;
+import org.apache.catalina.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -39,10 +41,11 @@ public class UserService {
 
 
 
-    public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository, PasswordEncoder passwordEncoder,
-                       TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
+    public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository,
+                       PasswordEncoder passwordEncoder, TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
                        AuthenticationManagerBuilder authenticationManagerBuilder){
         this.userRepository = userRepository;
+        this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -78,7 +81,15 @@ public class UserService {
                 .role(Role.ROLE_USER)
                 .build();
         user.setPwd(password);
-        userRepository.save(userEntity);
+
+        userEntity = userRepository.save(userEntity);
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .nickName("기본 닉네임")
+                .imgURL("기본 이미지")
+                .statusMsg("안녕하세요")
+                .userIdx(userEntity)
+                .build();
+        userProfileRepository.save(userProfileEntity);
         return token(user);
 
     }
@@ -179,7 +190,7 @@ public class UserService {
     public GetUserRes getUserInfo(Principal principal) throws BaseException {
         Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
         if(optionalUserEntity.isEmpty()) {
-            throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         UserEntity userEntity = optionalUserEntity.get();
         GetUserRes result = new GetUserRes(
@@ -223,14 +234,14 @@ public class UserService {
 
     public List<GetProfileRes> viewProfile(Principal principal) throws BaseException {
         Optional<UserEntity> optional = userRepository.findByEmail(principal.getName());
-        if(optional.isEmpty()){
+        if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         // userIdx가 생성한 프로필 idx 다 조회
         List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get().getUserIdx());
         List<GetProfileRes> getProfileList = new ArrayList<>();
         // 조회한 프로필 Id들 Dto에 담기
-        for(UserProfileEntity profile : userProfileList){
+        for (UserProfileEntity profile : userProfileList) {
             GetProfileRes getProfileRes = new GetProfileRes();
             getProfileRes.setUserProfileIdx(profile.getUserProfileIdx());
             getProfileRes.setNickname(profile.getNickName());
@@ -240,6 +251,22 @@ public class UserService {
             getProfileList.add(getProfileRes);
         }
         return getProfileList;
+    }
+    public Long addProfile(Principal principal, PostProfileReq profileReq) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .userIdx(userEntity)
+                .nickName(profileReq.getNickname())
+                .imgURL(profileReq.getImgUrl())
+                .isAlarmOn(profileReq.getIsAlarmOn())
+                .statusMsg(profileReq.getStatusMsg())
+                .build();
+        userProfileEntity = userProfileRepository.save(userProfileEntity);
+        return userProfileEntity.getUserProfileIdx();
     }
 }
 

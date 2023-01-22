@@ -87,4 +87,15 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    @ApiOperation(value="프로필 신규 생성", notes="닉네임, 상태 메세지, 프로필 알림 설정(y or n), 프로필 사진 경로")
+    @PostMapping("/profile")
+    public BaseResponse<Long> addProfile(Principal principal, @RequestBody PostProfileReq profileReq) {
+        try{
+            Long result = this.userService.addProfile(principal, profileReq);
+            return new BaseResponse<>(result);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
