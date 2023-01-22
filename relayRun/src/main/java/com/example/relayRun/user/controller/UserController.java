@@ -76,4 +76,15 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+    
+    @ApiOperation(value = "속한 그룹의 이름 가져오기", notes ="profile의 id를 query string으로 전달 해주세요")
+    @GetMapping("/clubs/accepted")
+    public BaseResponse<GetUserProfileClubRes> getUsersClub(@RequestParam("id") Long userProfileIdx) {
+        try{
+            GetUserProfileClubRes result = userProfileService.getUserProfileClub(userProfileIdx);
+            return new BaseResponse<>(result);
+        }catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
