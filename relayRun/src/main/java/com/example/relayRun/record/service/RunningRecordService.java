@@ -24,7 +24,7 @@ public class RunningRecordService {
     }
 
     public PostRunningInitRes startRunning(PostRunningInitReq runningInitReq) throws BaseException {
-        Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findMemberStatusEntityByClubIdxAndUserProfileIdx(
+        Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByClubIdx_ClubIdxAndUserProfileIdx_UserProfileIdx(
                 runningInitReq.getClubIdx(),
                 runningInitReq.getProfileIdx()
         );
