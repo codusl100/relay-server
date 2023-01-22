@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostRunningInitReq {
     private Long profileIdx;
-    private Long groupIdx;
+    private Long clubIdx;
 
 }
