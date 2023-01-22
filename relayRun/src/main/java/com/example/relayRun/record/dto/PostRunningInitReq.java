@@ -14,7 +14,5 @@ import lombok.Setter;
 public class PostRunningInitReq {
     @ApiModelProperty(example = "프로필 아이디")
     private Long profileIdx;
-    @ApiModelProperty(example = "속한 club 아이디")
-    private Long clubIdx;
 
 }
