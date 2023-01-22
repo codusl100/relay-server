@@ -8,9 +8,12 @@ import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -74,6 +77,25 @@ public class UserController {
         }
     }
 
+    @ResponseBody
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "프로필 목록 조회 완료"),
+            @ApiResponse(code = 401, message = "권한을 찾을 수 없습니다"),
+            @ApiResponse(code = 404, message = "서버 문제 발생"),
+            @ApiResponse(code = 500, message = "페이지를 찾을 수 없습니다")
+    })
+    @ApiOperation(value = "유저 프로필 목록 조회", notes ="유저가 생성한 프로필 리스트 조회하는 API" +
+            "Bearer Token에 access token 넣어주세요!")
+    @GetMapping("/profileList")
+    public BaseResponse<List<GetProfileRes>> viewProfile(Principal principal) {
+        try{
+            List<GetProfileRes> getProfileRes = userService.viewProfile(principal);
+            return new BaseResponse<>(getProfileRes);
+        }
+        catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 
     @ApiOperation(value="프로필 신규 생성", notes="닉네임, 상태 메세지, 프로필 알림 설정(y or n), 프로필 사진 경로")
     @PostMapping("/profile")
