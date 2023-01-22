@@ -6,6 +6,7 @@ import com.example.relayRun.record.dto.PostRunningInitReq;
 import com.example.relayRun.record.dto.PostRunningInitRes;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.RunningRecordRepository;
+import com.example.relayRun.util.BaseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class RunningRecordService {
         this.memberStatusRepository = memberStatusRepository;
     }
 
-    public PostRunningInitRes startRunning(PostRunningInitReq runningInitReq) {
+    public PostRunningInitRes startRunning(PostRunningInitReq runningInitReq) throws BaseException {
         Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findMemberStatusEntityByClubIdxAndUserProfileIdx(
                 runningInitReq.getGroupIdx(),
                 runningInitReq.getProfileIdx()
