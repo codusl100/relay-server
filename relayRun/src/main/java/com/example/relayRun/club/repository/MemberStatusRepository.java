@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface MemberStatusRepository extends JpaRepository<MemberStatusEntity, Long> {
     List<MemberStatusEntity> findByUserProfileIdx_UserProfileIdx(Long userProfileIdx);
-    Optional<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAAndApplyStatusIs(Long ProfileIdx, String applyStatus);
+    Optional<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(Long ProfileIdx, String applyStatus);
 }
