@@ -7,6 +7,7 @@ import com.example.relayRun.record.dto.PostRunningInitRes;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.RunningRecordRepository;
 import com.example.relayRun.util.BaseException;
+import com.example.relayRun.util.BaseResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,9 @@ public class RunningRecordService {
                 runningInitReq.getClubIdx(),
                 runningInitReq.getProfileIdx()
         );
+        if (optionalMemberStatus.isEmpty()){
+            throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
+        }
         MemberStatusEntity memberStatus = optionalMemberStatus.get();
         RunningRecordEntity recordEntity = RunningRecordEntity.builder()
                 .memberStatusIdx(memberStatus)
