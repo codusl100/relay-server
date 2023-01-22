@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostRunningInitReq {
-    private Long memberStatusIdx;
+    private Long profileIdx;
+    private Long groupIdx;
 
 }
