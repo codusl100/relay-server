@@ -25,9 +25,9 @@ public class RunningRecordService {
     }
 
     public PostRunningInitRes startRunning(PostRunningInitReq runningInitReq) throws BaseException {
-        Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByClubIdx_ClubIdxAndUserProfileIdx_UserProfileIdx(
+        Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAAndApplyStatusIs(
                 runningInitReq.getClubIdx(),
-                runningInitReq.getProfileIdx()
+                "ACCEPTED"
         );
         if (optionalMemberStatus.isEmpty()){
             throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
