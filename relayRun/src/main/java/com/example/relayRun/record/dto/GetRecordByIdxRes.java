@@ -18,5 +18,5 @@ public class GetRecordByIdxRes {
     private Float pace;
     private String goalStatus;
 
-    private List<LocationEntity> locationList;
+    private List<GetLocationRes> locationList;
 }

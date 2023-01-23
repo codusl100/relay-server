@@ -1,5 +1,6 @@
 package com.example.relayRun.record.service;
 
+import com.example.relayRun.record.dto.GetLocationRes;
 import com.example.relayRun.record.dto.GetRecordByIdxRes;
 import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
@@ -30,7 +31,7 @@ public class RecordService {
                 throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
             }
 
-            List<LocationEntity> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
+            List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
             return GetRecordByIdxRes.builder()
                     .recordIdx(idx)
                     .date(record.get().getCreatedAt())
