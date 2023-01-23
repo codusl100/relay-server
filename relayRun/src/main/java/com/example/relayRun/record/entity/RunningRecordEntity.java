@@ -2,10 +2,7 @@ package com.example.relayRun.record.entity;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.util.BaseTimeEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -15,11 +12,11 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @DynamicUpdate
-@Builder
 @Table(name = "running_record")
 public class RunningRecordEntity extends BaseTimeEntity {
 
