@@ -26,9 +26,9 @@ public class RecordService {
 
     public GetRecordByIdxRes getRecordByIdx(Long idx) throws BaseException {
         try {
-            Optional<RunningRecordEntity> record = recordRepository.findById(idx);
+            Optional<RunningRecordEntity> record = recordRepository.findByRunningRecordIdxAndStatus(idx, "active");
             if (record.isEmpty()) {
-                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
+                throw new Exception("RECORD_UNAVAILABLE");
             }
 
             List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
@@ -43,8 +43,13 @@ public class RecordService {
                     .build();
 
         } catch (Exception e) {
-            System.out.println(e);
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            if (e.getMessage().equals("RECORD_UNAVAILABLE")) {
+                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
+            }
+            else {
+                System.out.println("e = " + e);
+                throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            }
         }
     }
 }
