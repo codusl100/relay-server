@@ -312,23 +312,19 @@ public class UserService {
         return key.toString();
     }
 
-    /*
-        메일 발송
-        sendSimpleMessage의 매개변수로 들어온 to는 인증번호를 받을 메일주소
-        MimeMessage 객체 안에 내가 전송할 메일의 내용을 담아준다.
-        bean으로 등록해둔 javaMailSender 객체를 사용하여 이메일 send
-     */
+    // 메일 발송
     public String sendSimpleMessage(Principal principal, String to)throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
         if(optionalUserEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         MimeMessage message = createMessage(to);
+        String email = optionalUserEntity.get().getEmail();
         try{
             javaMailSender.send(message); // 메일 발송
             //    Redis로 유효기간 설정하기
             // 유효 시간(5분)동안 {email, authKey} 저장
-            // redisUtil.setDataExpire(authKey, email, 60 * 5L);
+            redisUtil.setDataExpire(ePw, email, 60 * 5L);
         }catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
