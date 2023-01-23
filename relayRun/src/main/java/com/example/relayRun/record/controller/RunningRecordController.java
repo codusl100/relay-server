@@ -1,5 +1,6 @@
 package com.example.relayRun.record.controller;
 
+import com.example.relayRun.record.dto.PostRunningFinishReq;
 import com.example.relayRun.record.dto.PostRunningInitReq;
 import com.example.relayRun.record.dto.PostRunningInitRes;
 import com.example.relayRun.record.service.RunningRecordService;
@@ -7,6 +8,7 @@ import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +28,16 @@ public class RunningRecordController {
     public BaseResponse<PostRunningInitRes> startRunning(@RequestBody PostRunningInitReq runningInitReq) {
         try{
             PostRunningInitRes result = runningRecordService.startRunning(runningInitReq);
+            return new BaseResponse<>(result);
+        }catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @PostMapping("/finish")
+    public BaseResponse<String> finishRunning(@RequestBody PostRunningFinishReq runningFinishReq) {
+        try{
+            String result = runningRecordService.finishRunning(runningFinishReq);
             return new BaseResponse<>(result);
         }catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
