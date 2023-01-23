@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class locationDTO {
-    private LocalDateTime time;
+    private String time;
     private Float longitude;
     private Float latitude;
+    private String status;
 }
