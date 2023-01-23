@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostRunningFinishReq {
-    private Long runningRunningIdx;
+    private Long runningRecordIdx;
 
     private Float distance;
 
