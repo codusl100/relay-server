@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -133,5 +134,13 @@ public class UserController {
         return new BaseResponse<>("인증번호 발급 이메일을 전송하였습니다.");
     }
 
-
+    @ResponseBody
+    @GetMapping("/emailConfirm")
+    public BaseResponse<String> confirmEmail(Principal principal, @RequestBody GetEmailCodeReq code) throws BaseException {
+        if (this.userService.confirmEmail(principal, code)){
+            return new BaseResponse<>("인증번호 인증에 성공하였습니다.");
+        } else {
+            return new BaseResponse<>("인증번호 인증에 실패하였습니다.");
+        }
+    }
 }

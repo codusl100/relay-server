@@ -331,5 +331,19 @@ public class UserService {
         }
         return ePw; // 메일로 보냈던 인증 코드를 서버로 리턴
     }
+
+    // 인증 번호 확인
+    public boolean confirmEmail(Principal principal, GetEmailCodeReq code) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if (optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        String user = redisUtil.getData(code.getCode());
+        log.info("유저 정보 : " + user);
+        if (user == null || user.length() == 0) {
+            return false;
+        }
+        return true;
+    }
 }
 
