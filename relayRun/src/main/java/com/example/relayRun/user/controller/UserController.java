@@ -8,6 +8,7 @@ import com.example.relayRun.user.service.UserService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@Api(tags = {"유저 관련 API (회원가입/로그인 등)"})
 @RequestMapping(value = "/users")
 public class UserController {
 
@@ -128,6 +130,7 @@ public class UserController {
 
     @ResponseBody
     @PostMapping("/email")
+    @ApiOperation(value="인증 번호 이메일 발급", notes="네이버 메일 (@naver.com) 형식의 이메일만 메일 전송이 가능합니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!")
     public BaseResponse<String> authEmail(Principal principal, @RequestBody @Valid PostEmailReq request) throws Exception {
         String code = this.userService.sendSimpleMessage(principal, request.getEmail());
         log.info("인증 코드 : " + code);
@@ -136,6 +139,7 @@ public class UserController {
 
     @ResponseBody
     @GetMapping("/emailConfirm")
+    @ApiOperation(value="인증 번호 비교", notes="이메일로 발급받으신 인증번호를 RequestBody에 넣어서 String으로 인증번호 인증 성공/실패 여부 반환하도록 했습니다!")
     public BaseResponse<String> confirmEmail(Principal principal, @RequestBody GetEmailCodeReq code) throws BaseException {
         if (this.userService.confirmEmail(principal, code)){
             return new BaseResponse<>("인증번호 인증에 성공하였습니다.");
