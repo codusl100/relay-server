@@ -11,11 +11,14 @@ import com.example.relayRun.util.BaseResponseStatus;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
@@ -121,4 +124,14 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    @ResponseBody
+    @PostMapping("/email")
+    public BaseResponse<String> authEmail(Principal principal, @RequestBody @Valid PostEmailReq request) throws Exception {
+        String code = this.userService.sendSimpleMessage(principal, request.getEmail());
+        log.info("인증 코드 : " + code);
+        return new BaseResponse<>("인증번호 발급 이메일을 전송하였습니다.");
+    }
+
+
 }

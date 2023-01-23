@@ -1,5 +1,7 @@
 package com.example.relayRun.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,13 +11,18 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+    @Value("${spring.mail.username}")
+    private String email;
+    @Value("${spring.mail.password}")
+    private String password;
+
     @Bean
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
         javaMailSender.setHost("smtp.naver.com");
-        javaMailSender.setUsername("${mail.email}");
-        javaMailSender.setPassword("${mail.password}");
+        javaMailSender.setUsername(email);
+        javaMailSender.setPassword(password);
 
         javaMailSender.setPort(465);
 
