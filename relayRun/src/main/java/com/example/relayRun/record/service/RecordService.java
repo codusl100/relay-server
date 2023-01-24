@@ -4,7 +4,6 @@ import com.example.relayRun.record.dto.GetLocationRes;
 import com.example.relayRun.record.dto.GetRecordByIdxRes;
 import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
-import com.example.relayRun.record.repository.LocationRepository;
 import com.example.relayRun.record.repository.RecordRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
@@ -19,11 +18,9 @@ import java.util.Optional;
 public class RecordService {
 
     private RecordRepository recordRepository;
-    private LocationRepository locationRepository;
 
-    public RecordService(RecordRepository recordRepository, LocationRepository locationRepository) {
+    public RecordService(RecordRepository recordRepository) {
         this.recordRepository = recordRepository;
-        this.locationRepository = locationRepository;
     }
 
     public GetRecordByIdxRes getRecordByIdx(Long idx) throws BaseException {
