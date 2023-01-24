@@ -5,7 +5,7 @@ spring:
     database: mysql
     database-platform: org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     generate-ddl: false
     show-sql: true
 
