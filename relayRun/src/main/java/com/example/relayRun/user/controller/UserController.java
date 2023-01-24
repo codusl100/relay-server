@@ -121,4 +121,13 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+    @GetMapping("/profileList/{profileIdx}")
+    public BaseResponse<GetProfileRes> getUserProfile(Principal principal, @PathVariable("profileIdx") Long profileIdx) throws BaseException {
+        try {
+            GetProfileRes getUserProfile = userProfileService.getUserProfile(principal, profileIdx);
+            return new BaseResponse<>(getUserProfile);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
