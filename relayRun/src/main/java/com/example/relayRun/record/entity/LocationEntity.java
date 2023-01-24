@@ -30,7 +30,7 @@ public class LocationEntity {
     private LocalDateTime time;
     
     @Column(nullable = false)
-    private Integer position;
+    private Point position;
 
     @Column(columnDefinition = "varchar(10) default 'running'")
     private String status;

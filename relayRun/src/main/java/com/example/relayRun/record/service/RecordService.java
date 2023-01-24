@@ -8,8 +8,10 @@ import com.example.relayRun.record.repository.LocationRepository;
 import com.example.relayRun.record.repository.RecordRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +33,21 @@ public class RecordService {
                 throw new Exception("RECORD_UNAVAILABLE");
             }
 
-            List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
+//            List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
+            List<LocationEntity> getLocations = record.get().getLocations();
+
+            List<GetLocationRes> locationList = new ArrayList<>();
+            for (LocationEntity location : getLocations) {
+                locationList.add(
+                    GetLocationRes.builder()
+                        .time(location.getTime())
+                        .longitude((float) location.getPosition().getX())
+                        .latitude((float) location.getPosition().getY())
+                        .status(location.getStatus())
+                        .build()
+                );
+            }
+
             return GetRecordByIdxRes.builder()
                     .recordIdx(idx)
                     .date(record.get().getCreatedAt())
