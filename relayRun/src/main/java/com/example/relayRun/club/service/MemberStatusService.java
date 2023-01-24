@@ -72,6 +72,14 @@ public class MemberStatusService {
                 LocalDateTime startTime = LocalDateTime.parse(startStr, formatter);
                 LocalDateTime endTime = LocalDateTime.parse(endStr, formatter);
 
+                //3. 중복 시간표 비교
+                List<Long> duplicateTimeTableList = timeTableRepository.selectDuplicateTimeTable(clubIdx,
+                        timeTables.get(i).getDay(), startTime, endTime);
+
+                if(duplicateTimeTableList.size() > 0) {
+                    throw new BaseException(BaseResponseStatus.POST_TIMETABLE_FAIL);
+                }
+
                 TimeTableEntity timeTableEntity = TimeTableEntity.builder()
                         .memberStatusIdx(memberStatusEntity)
                         .day(timeTables.get(i).getDay())
