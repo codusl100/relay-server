@@ -123,6 +123,7 @@ public class UserController {
     }
 
     @ResponseBody
+    @ApiOperation(value = "알람 수신 변경", notes ="알람 수신을 변경하고자 하는 유저의 프로필 idx 식별자를 Path variable에 담아주세요!")
     @PatchMapping("/changeAlarm/{profileIdx}")
     public BaseResponse<String> changeAlarm(Principal principal, @PathVariable("profileIdx") Long profileIdx) {
         try{
