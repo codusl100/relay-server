@@ -1,5 +1,6 @@
 package com.example.relayRun.club.service;
 
+import com.example.relayRun.club.dto.GetTimeTableListRes;
 import com.example.relayRun.club.dto.PostMemberStatusReq;
 import com.example.relayRun.club.dto.TimeTableDTO;
 import com.example.relayRun.club.entity.ClubEntity;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,6 +96,38 @@ public class MemberStatusService {
         } catch (Exception e) {
             System.out.println(e);
             throw new BaseException(BaseResponseStatus.POST_MEMBER_STATUS_FAIL);
+        }
+    }
+
+    @Transactional
+    public List<GetTimeTableListRes> getTimeTables(Long clubIdx) throws BaseException {
+        try {
+            //1. clubIdx로 memberStatus 조회
+            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByClubIdx_ClubIdx(clubIdx);
+
+            List<GetTimeTableListRes> timeTableList = new ArrayList<>();
+
+            //2. 해당 memberStatusIdx로 TimeTable 조회
+            for(MemberStatusEntity memberStatus : memberStatusEntityList) {
+                List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatus.getMemberStatusIdx());
+
+                for(TimeTableEntity timeTableEntity : timeTableEntityList) {
+                    GetTimeTableListRes timeTable = GetTimeTableListRes.builder()
+                            .timeTableIdx(timeTableEntity.getTimeTableIdx())
+                            .day(timeTableEntity.getDay())
+                            .start(timeTableEntity.getStart())
+                            .end(timeTableEntity.getEnd())
+                            .goal(timeTableEntity.getGoal())
+                            .goalType(timeTableEntity.getGoalType())
+                            .build();
+
+                    timeTableList.add(timeTable);
+                }
+            }
+
+            return timeTableList;
+        } catch (Exception e) {
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 

@@ -15,4 +15,6 @@ public interface MemberStatusRepository extends JpaRepository<MemberStatusEntity
 
     @Query(value = "select member_status_idx from member_status where club_idx = :clubIdx", nativeQuery = true)
     List<Long> selectMemberStatusIdxList(@Param(value = "clubIdx") Long clubIdx);
+
+    List<MemberStatusEntity> findByClubIdx_ClubIdx(Long clubIdx);
 }
