@@ -92,7 +92,7 @@ public class UserController {
     @GetMapping("/profileList")
     public BaseResponse<List<GetProfileRes>> viewProfile(Principal principal) {
         try{
-            List<GetProfileRes> getProfileRes = userService.viewProfile(principal);
+            List<GetProfileRes> getProfileRes = userProfileService.viewProfile(principal);
             return new BaseResponse<>(getProfileRes);
         }
         catch (BaseException e) {
@@ -104,7 +104,7 @@ public class UserController {
     @PostMapping("/profile")
     public BaseResponse<Long> addProfile(Principal principal, @RequestBody PostProfileReq profileReq) {
         try{
-            Long result = this.userService.addProfile(principal, profileReq);
+            Long result = this.userProfileService.addProfile(principal, profileReq);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
