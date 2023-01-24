@@ -40,7 +40,7 @@ public class RunningRecordEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private Float time;
 
-    @Column(columnDefinition = "varchar(10) default 'nogoal'")
+    @Column(columnDefinition = "varchar(10) default 'fail'")
     private String goalStatus;
 
     @Column(columnDefinition = "varchar(10) default 'active'")
