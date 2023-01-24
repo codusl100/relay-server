@@ -21,6 +21,8 @@ public class GetProfileRes {
     private String isAlarmOn;
     @ApiModelProperty(example= "이미지 경로")
     private String imgUrl;
+    @ApiModelProperty(example= "유저 이름")
     private String userName;
+    @ApiModelProperty(example= "유저 이메일")
     private String email;
 }
