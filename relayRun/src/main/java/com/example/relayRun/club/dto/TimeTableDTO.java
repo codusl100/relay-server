@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class TimeTableDTO {
     private Integer day;
     private String start;

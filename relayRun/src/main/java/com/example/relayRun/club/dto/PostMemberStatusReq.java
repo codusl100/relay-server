@@ -9,7 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostMemberStatusReq {
-    private Long clubIdx;
     private Long userProfileIdx;
     private List<TimeTableDTO> timeTables;
 }
