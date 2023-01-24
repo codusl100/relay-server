@@ -1,12 +1,15 @@
 package com.example.relayRun.club.controller;
 
 import com.example.relayRun.club.dto.GetClubListRes;
+import com.example.relayRun.club.dto.PatchClubRecruitStatusReq;
 import com.example.relayRun.club.service.ClubService;
+import com.example.relayRun.user.dto.PatchUserPwdReq;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,6 +35,18 @@ public class ClubController {
                 clubList = clubService.getClubsByName(search);
             }
             return new BaseResponse<>(clubList);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹의 모집 상태 변경", notes="현재 프로필 아이디와 변경하고자 하는 모집 상태 값을 넘겨주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/recruit-change")
+    public BaseResponse<String> changeRecruitStatus(@PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubRecruitStatusReq clubRecruitStatusReq){
+        try {
+            clubService.changeClubRecruitStatus(clubIdx, clubRecruitStatusReq);
+            return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
         }

@@ -2,10 +2,10 @@ package com.example.relayRun.club.entity;
 
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.util.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
@@ -50,10 +50,10 @@ public class ClubEntity extends BaseTimeEntity {
     @Column()
     private Float goal;
 
-    @Column(columnDefinition = "varchar(10) default 'recruiting'")
+    @Column(columnDefinition = "varchar(10) default 'RECRUITING'")
     private String recruitStatus;
 
-    @Column(columnDefinition = "varchar(10) default 'active'")
+    @Column(columnDefinition = "varchar(10) default 'ACTIVE'")
     private String status;
 
     @Builder
@@ -71,4 +71,6 @@ public class ClubEntity extends BaseTimeEntity {
         this.recruitStatus = recruitStatus;
         this.status = status;
     }
+
+    public void changeRecruitStatus(String recruitStatus) { this.recruitStatus = recruitStatus; }
 }

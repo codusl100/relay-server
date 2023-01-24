@@ -1,5 +1,6 @@
 package com.example.relayRun.club.service;
 
+import com.example.relayRun.club.dto.PatchClubRecruitStatusReq;
 import com.example.relayRun.club.dto.PostClubReq;
 import com.example.relayRun.club.dto.GetClubListRes;
 import com.example.relayRun.club.entity.ClubEntity;
@@ -22,6 +23,7 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
+
 
     public ClubService(ClubRepository clubRepository, UserRepository userRepository, UserProfileRepository userProfileRepository) {
 
@@ -104,5 +106,19 @@ public class ClubService {
             else {
                 throw new BaseException(BaseResponseStatus.POST_USERS_PROFILES_EQUALS);
             }
+    }
+
+    public void changeClubRecruitStatus(Long clubIdx, PatchClubRecruitStatusReq clubRecruitStatusReq) throws BaseException {
+        Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
+        if (optional.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
+        }
+        ClubEntity clubEntity = optional.get();
+        UserProfileEntity hostUserProfileEntity = clubEntity.getHostIdx();
+        if(clubRecruitStatusReq.getUserProfileIdx().equals(hostUserProfileEntity.getUserProfileIdx())) {
+            clubEntity.changeRecruitStatus(clubRecruitStatusReq.getRecruitStatus());
+        } else {
+            throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
+        }
     }
 }
