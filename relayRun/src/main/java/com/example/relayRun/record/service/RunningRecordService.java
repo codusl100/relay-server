@@ -10,6 +10,7 @@ import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.LocationRepository;
 import com.example.relayRun.record.repository.RunningRecordRepository;
 import com.example.relayRun.record.util.RecordDataHandler;
+import com.example.relayRun.timetable.entity.TimeTableEntity;
 import com.example.relayRun.timetable.repository.TimeTableRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
@@ -71,11 +72,31 @@ public class RunningRecordService {
             LocalTime timeFormat = LocalTime.parse(
                     runningFinishReq.getTime(), DateTimeFormatter.ofPattern("HH:mm:ss.nnn")
             );
+            Optional<TimeTableEntity> optionalTimeTable = timeTableRepository
+                    .findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
+                    oldRecord.getMemberStatusIdx(),
+                    RecordDataHandler.toIntDay(locations.get(0).getTime().getDayOfWeek()),
+                    locations.get(0).getTime().toLocalTime(),
+                    locations.get(locations.size() - 1).getTime().toLocalTime()
+            );
+            if (optionalTimeTable.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
+            }
+            TimeTableEntity timeTable = optionalTimeTable.get();
             Float seconds = RecordDataHandler.toSecond(timeFormat);
             oldRecord.setDistance(runningFinishReq.getDistance());
             oldRecord.setPace(runningFinishReq.getPace());
             oldRecord.setTime(seconds);
             oldRecord.setRunningStatus("finish");
+            oldRecord.setGoalStatus(
+                    RecordDataHandler.isSuccess(
+                    timeTable.getGoalType(),
+                    timeTable.getGoal(),
+                    seconds,
+                    runningFinishReq.getPace(),
+                    runningFinishReq.getDistance()
+                )
+            );
             for (LocationEntity location : locations) {
                 location.setRecordIdx(oldRecord);
             }
