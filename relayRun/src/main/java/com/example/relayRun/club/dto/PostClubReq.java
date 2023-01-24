@@ -2,6 +2,7 @@ package com.example.relayRun.club.dto;
 
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.util.GoalType;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,12 +14,13 @@ import org.apache.catalina.User;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiModel(value = "그룹 생성 Model", description = "hostIdx는 그룹을 만드려고 하는 유저의 프로필 식별자를 넣으면 됩니다!")
 public class PostClubReq {
     @ApiModelProperty(example="그룹 식별자")
     private Long clubIdx;
-    @ApiModelProperty(example="그룹 이름")
+    @ApiModelProperty(example="그룹 이름", required = true)
     private String name;
-    @ApiModelProperty(example="그룹 소개")
+    @ApiModelProperty(example="그룹 소개", required = true)
     private String content;
     @ApiModelProperty(example="그룹 대표 이미지")
     private String imgURL;
