@@ -10,6 +10,7 @@ import org.hibernate.annotations.DynamicInsert;
 import javax.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -31,10 +32,10 @@ public class TimeTableEntity extends BaseTimeEntity {
     private Integer day;
 
     @Column(nullable = false)
-    private LocalDateTime start;
+    private LocalTime start;
 
     @Column(nullable = false)
-    private LocalDateTime end;
+    private LocalTime end;
 
     @Column(nullable = false)
     private Float goal;
