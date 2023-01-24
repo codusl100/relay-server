@@ -268,5 +268,21 @@ public class UserService {
         userProfileEntity = userProfileRepository.save(userProfileEntity);
         return userProfileEntity.getUserProfileIdx();
     }
+
+    public void changeAlarm(Principal principal, Long profileIdx) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserProfileEntity UserProfile = userProfileRepository.findByUserProfileIdx(profileIdx).get();
+        if (UserProfile.getIsAlarmOn().equals("y")) {
+            UserProfile.setIsAlarmOn("n");
+            userProfileRepository.save(UserProfile);
+        }
+        else if (UserProfile.getIsAlarmOn().equals("n")) {
+            UserProfile.setIsAlarmOn("y");
+            userProfileRepository.save(UserProfile);
+        }
+    }
 }
 

@@ -121,4 +121,15 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    @ResponseBody
+    @PatchMapping("/changeAlarm/{profileIdx}")
+    public BaseResponse<String> changeAlarm(Principal principal, @PathVariable("profileIdx") Long profileIdx) {
+        try{
+            this.userService.changeAlarm(principal, profileIdx);
+            return new BaseResponse<>("알람 설정 변경을 완료했습니다.");
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
