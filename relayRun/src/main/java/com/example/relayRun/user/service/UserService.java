@@ -248,6 +248,8 @@ public class UserService {
             getProfileRes.setStatusMsg(profile.getStatusMsg());
             getProfileRes.setIsAlarmOn(profile.getIsAlarmOn());
             getProfileRes.setImgUrl(profile.getImgURL());
+            getProfileRes.setUserName(optional.get().getName());
+            getProfileRes.setEmail(optional.get().getEmail());
             getProfileList.add(getProfileRes);
         }
         return getProfileList;
