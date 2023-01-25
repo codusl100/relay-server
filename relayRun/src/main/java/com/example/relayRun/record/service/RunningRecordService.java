@@ -11,7 +11,7 @@ import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.LocationRepository;
 import com.example.relayRun.record.repository.RunningRecordRepository;
 import com.example.relayRun.record.util.RecordDataHandler;
-import com.example.relayRun.timetable.entity.TimeTableEntity;
+import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.timetable.repository.TimeTableRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
