@@ -36,6 +36,6 @@ public class PostClubReq {
     private GoalType goalType;
     @ApiModelProperty(example="목표 km")
     private Float goal;
-
+    @ApiModelProperty(example="시간표")
     private List<TimeTableDTO> timeTable;
 }
