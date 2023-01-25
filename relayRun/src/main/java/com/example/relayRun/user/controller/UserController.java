@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @ApiOperation(value = "로그인", notes ="bearer Token에 access Token 넣어주세요!")
+    @ApiOperation(value = "로그인", notes ="이메일과 비밀번호만 입력해주세요!!")
     @PostMapping("/logIn")
     public BaseResponse<TokenDto> logIn(@RequestBody PostLoginReq user) {
         if (user.getEmail().length() == 0 || user.getEmail() == null) {
