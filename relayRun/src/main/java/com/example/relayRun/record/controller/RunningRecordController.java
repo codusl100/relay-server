@@ -1,6 +1,7 @@
 package com.example.relayRun.record.controller;
 
 import com.example.relayRun.record.dto.PostRunningFinishReq;
+import com.example.relayRun.record.dto.PostRunningFinishRes;
 import com.example.relayRun.record.dto.PostRunningInitReq;
 import com.example.relayRun.record.dto.PostRunningInitRes;
 import com.example.relayRun.record.service.RunningRecordService;
@@ -35,9 +36,9 @@ public class RunningRecordController {
     }
 
     @PostMapping("/finish")
-    public BaseResponse<String> finishRunning(@RequestBody PostRunningFinishReq runningFinishReq) {
+    public BaseResponse<PostRunningFinishRes> finishRunning(@RequestBody PostRunningFinishReq runningFinishReq) {
         try{
-            String result = runningRecordService.finishRunning(runningFinishReq);
+            PostRunningFinishRes result = runningRecordService.finishRunning(runningFinishReq);
             return new BaseResponse<>(result);
         }catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());

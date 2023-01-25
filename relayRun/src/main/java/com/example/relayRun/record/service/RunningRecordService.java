@@ -3,6 +3,7 @@ package com.example.relayRun.record.service;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
 import com.example.relayRun.record.dto.PostRunningFinishReq;
+import com.example.relayRun.record.dto.PostRunningFinishRes;
 import com.example.relayRun.record.dto.PostRunningInitReq;
 import com.example.relayRun.record.dto.PostRunningInitRes;
 import com.example.relayRun.record.entity.LocationEntity;
@@ -61,7 +62,7 @@ public class RunningRecordService {
         return result;
     }
 
-    public String finishRunning(PostRunningFinishReq runningFinishReq) throws BaseException {
+    public PostRunningFinishRes finishRunning(PostRunningFinishReq runningFinishReq) throws BaseException {
         Optional<RunningRecordEntity> oldOptionalRecord = runningRecordRepository.findById(runningFinishReq.getRunningRecordIdx());
         if (oldOptionalRecord.isEmpty()) {
             throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_RECORD_ID);
@@ -82,29 +83,30 @@ public class RunningRecordService {
             if (optionalTimeTable.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
             }
+            // calculate success, running time
             TimeTableEntity timeTable = optionalTimeTable.get();
             Float seconds = RecordDataHandler.toSecond(timeFormat);
-            oldRecord.setDistance(runningFinishReq.getDistance());
-            oldRecord.setPace(runningFinishReq.getPace());
-            oldRecord.setTime(seconds);
-            oldRecord.setRunningStatus("finish");
-            oldRecord.setGoalStatus(
-                    RecordDataHandler.isSuccess(
+            String isSuccess =  RecordDataHandler.isSuccess(
                     timeTable.getGoalType(),
                     timeTable.getGoal(),
                     seconds,
                     runningFinishReq.getPace(),
                     runningFinishReq.getDistance()
-                )
             );
+            // update entity
+            oldRecord.setDistance(runningFinishReq.getDistance());
+            oldRecord.setPace(runningFinishReq.getPace());
+            oldRecord.setTime(seconds);
+            oldRecord.setRunningStatus("finish");
+            oldRecord.setGoalStatus(isSuccess);
             for (LocationEntity location : locations) {
                 location.setRecordIdx(oldRecord);
             }
             locationRepository.saveAll(locations);
             runningRecordRepository.save(oldRecord);
+            return new PostRunningFinishRes(isSuccess);
         } catch (ParseException e) {
             throw new BaseException(BaseResponseStatus.POST_PARSE_ERROR);
         }
-        return "레코드 저장 성공";
     }
 }
