@@ -98,7 +98,7 @@ public class UserController {
     @GetMapping("/profileList")
     public BaseResponse<List<GetProfileRes>> viewProfile(Principal principal) {
         try{
-            List<GetProfileRes> getProfileRes = userService.viewProfile(principal);
+            List<GetProfileRes> getProfileRes = userProfileService.viewProfile(principal);
             return new BaseResponse<>(getProfileRes);
         }
         catch (BaseException e) {
@@ -110,7 +110,7 @@ public class UserController {
     @PostMapping("/profile")
     public BaseResponse<Long> addProfile(Principal principal, @RequestBody PostProfileReq profileReq) {
         try{
-            Long result = this.userService.addProfile(principal, profileReq);
+            Long result = this.userProfileService.addProfile(principal, profileReq);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -128,7 +128,17 @@ public class UserController {
         }
     }
 
-
+    @ResponseBody
+    @ApiOperation(value = "유저 프로필 세부 조회", notes ="Path variable로 상세 조회할 프로필 Idx 식별자 넣어주세요!")
+    @GetMapping("/profileList/{profileIdx}")
+    public BaseResponse<GetProfileRes> getUserProfile(Principal principal, @PathVariable("profileIdx") Long profileIdx) throws BaseException {
+        try {
+            GetProfileRes getUserProfile = userProfileService.getUserProfile(principal, profileIdx);
+            return new BaseResponse<>(getUserProfile);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
     @ResponseBody
     @PostMapping("/email")
     @ApiOperation(value="인증 번호 이메일 발급", notes="네이버 메일 (@naver.com) 형식의 이메일만 메일 전송이 가능합니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!")
