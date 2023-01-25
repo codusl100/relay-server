@@ -3,13 +3,11 @@ spring.profiles.include: 'secret'
 spring:
   jpa:
     database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    show-sql: true
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
+    generate-ddl: false
+    show-sql: true
 
 server:
   port: 9000
