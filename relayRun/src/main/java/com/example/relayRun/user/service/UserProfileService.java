@@ -3,9 +3,7 @@ package com.example.relayRun.user.service;
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
-import com.example.relayRun.user.dto.GetProfileRes;
-import com.example.relayRun.user.dto.GetUserProfileClubRes;
-import com.example.relayRun.user.dto.PostProfileReq;
+import com.example.relayRun.user.dto.*;
 import com.example.relayRun.user.entity.UserEntity;
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.user.repository.UserProfileRepository;
@@ -69,7 +67,6 @@ public class UserProfileService {
         userProfile.setEmail(userProfileList.getUserIdx().getEmail());
 
         MemberStatusEntity memberStatus = memberStatusRepository.findByUserProfileIdx(profileIdx);
-        System.out.println(memberStatus);
         if (memberStatus == null) {
             userProfile.setClubIdx(0L);
             userProfile.setClubName("그룹에 속하지 않습니다.");
@@ -82,17 +79,17 @@ public class UserProfileService {
         return userProfile;
     }
 
-    public List<GetProfileRes> viewProfile(Principal principal) throws BaseException {
+    public List<GetProfileListRes> viewProfile(Principal principal) throws BaseException {
         Optional<UserEntity> optional = userRepository.findByEmail(principal.getName());
         if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         // userIdx가 생성한 프로필 idx 다 조회
         List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get());
-        List<GetProfileRes> getProfileList = new ArrayList<>();
+        List<GetProfileListRes> getProfileList = new ArrayList<>();
         // 조회한 프로필 Id들 Dto에 담기
         for (UserProfileEntity profile : userProfileList) {
-            GetProfileRes getProfileRes = new GetProfileRes();
+            GetProfileListRes getProfileRes = new GetProfileListRes();
             getProfileRes.setUserProfileIdx(profile.getUserProfileIdx());
             getProfileRes.setNickname(profile.getNickName());
             getProfileRes.setStatusMsg(profile.getStatusMsg());
