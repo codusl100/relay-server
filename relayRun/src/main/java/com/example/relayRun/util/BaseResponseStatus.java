@@ -15,14 +15,11 @@ public enum BaseResponseStatus {
     FAILED_TO_LOGIN(false, 2007, "없는 아이디이거나 비밀번호가 틀렸습니다."),
     FAILED_TO_SEARCH(false, 2008, "검색을 실패하였습니다."),
     FAILED_TO_FIND_URL(false, 2009,"요청할 수 없는 url입니다."),
-<<<<<<< HEAD
 
     // 달리기단
     RECORD_UNAVAILABLE(false, 2100,"존재하지 않는 기록입니다."),
 
-=======
     FAILED_TO_FIND_USER(false, 2010, "유효하지 않은 인증 코드입니다."),
->>>>>>> 44b4d42d5248cb5d7ea20b0fad663e103a6d6d60
     /*
      * 4000: [POST]
      * */
