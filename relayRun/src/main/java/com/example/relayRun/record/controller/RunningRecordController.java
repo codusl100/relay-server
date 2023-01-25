@@ -36,6 +36,7 @@ public class RunningRecordController {
     }
 
     @PostMapping("/finish")
+    @ApiOperation(value="달리기 최종종료", notes="start 요청에서 응답받은 idx, 계산한 거리, 시간, 속력, 기록들 필요, 목표에 도달했는지 반환함(y/n)")
     public BaseResponse<PostRunningFinishRes> finishRunning(@RequestBody PostRunningFinishReq runningFinishReq) {
         try{
             PostRunningFinishRes result = runningRecordService.finishRunning(runningFinishReq);
