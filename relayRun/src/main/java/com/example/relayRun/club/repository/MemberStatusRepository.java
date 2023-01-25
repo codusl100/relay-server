@@ -3,6 +3,7 @@ package com.example.relayRun.club.repository;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 import java.util.List;
 
@@ -11,3 +12,4 @@ public interface MemberStatusRepository extends JpaRepository<MemberStatusEntity
     List<MemberStatusEntity> findByUserProfileIdx_UserProfileIdx(Long userProfileIdx);
     Optional<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(Long ProfileIdx, String applyStatus);
 }
+
