@@ -105,6 +105,7 @@ public class UserController {
     public BaseResponse<Long> addProfile(Principal principal, @RequestBody PostProfileReq profileReq) {
         try{
             Long result = this.userProfileService.addProfile(principal, profileReq);
+            Long result = this.userService.addProfile(principal, profileReq);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -121,6 +122,7 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
     @ResponseBody
     @ApiOperation(value = "유저 프로필 세부 조회", notes ="Path variable로 상세 조회할 프로필 Idx 식별자 넣어주세요!")
     @GetMapping("/profileList/{profileIdx}")

@@ -231,5 +231,42 @@ public class UserService {
         userEntity.changePwd(encodedPwd);
         userRepository.save(userEntity);
     }
+
+    public List<GetProfileRes> viewProfile(Principal principal) throws BaseException {
+        Optional<UserEntity> optional = userRepository.findByEmail(principal.getName());
+        if (optional.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        // userIdx가 생성한 프로필 idx 다 조회
+        List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get());
+        List<GetProfileRes> getProfileList = new ArrayList<>();
+        // 조회한 프로필 Id들 Dto에 담기
+        for (UserProfileEntity profile : userProfileList) {
+            GetProfileRes getProfileRes = new GetProfileRes();
+            getProfileRes.setUserProfileIdx(profile.getUserProfileIdx());
+            getProfileRes.setNickname(profile.getNickName());
+            getProfileRes.setStatusMsg(profile.getStatusMsg());
+            getProfileRes.setIsAlarmOn(profile.getIsAlarmOn());
+            getProfileRes.setImgUrl(profile.getImgURL());
+            getProfileList.add(getProfileRes);
+        }
+        return getProfileList;
+    }
+    public Long addProfile(Principal principal, PostProfileReq profileReq) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .userIdx(userEntity)
+                .nickName(profileReq.getNickname())
+                .imgURL(profileReq.getImgUrl())
+                .isAlarmOn(profileReq.getIsAlarmOn())
+                .statusMsg(profileReq.getStatusMsg())
+                .build();
+        userProfileEntity = userProfileRepository.save(userProfileEntity);
+        return userProfileEntity.getUserProfileIdx();
+    }
 }
 

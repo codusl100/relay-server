@@ -10,6 +10,7 @@ import com.example.relayRun.user.entity.UserEntity;
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
+import com.example.relayRun.user.dto.GetUserProfileClubRes;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class UserProfileService {
@@ -31,6 +33,9 @@ public class UserProfileService {
         this.memberStatusRepository = memberStatusRepository;
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
+
+    public UserProfileService(MemberStatusRepository memberStatusRepository) {
+        this.memberStatusRepository = memberStatusRepository;
     }
 
     public GetUserProfileClubRes getUserProfileClub(Long userProfileIdx) throws BaseException {
