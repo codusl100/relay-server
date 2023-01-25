@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,9 @@ public class RunningRecordEntity extends BaseTimeEntity {
 
     @Column(columnDefinition = "varchar(10) default 'active'")
     private String status;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="recordIdx", orphanRemoval = true)
     private List<LocationEntity> locations = new ArrayList<>();

@@ -10,6 +10,7 @@ import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,18 +68,23 @@ public class RecordService {
         }
     }
 
-    public GetRecordWithoutLocationRes getRecordWithoutLocation(Long memberStatusIdx, LocalDateTime createdAt) throws BaseException {
+    public List<GetRecordWithoutLocationRes> getRecordWithoutLocation(Long memberStatusIdx, String startDate, String endDate) throws BaseException {
         try {
-            Optional<RunningRecordEntity> optional = recordRepository.findByMemberStatusIdx_MemberStatusIdxAndCreatedAt(memberStatusIdx, createdAt);
-            if (optional.isEmpty()) {
+            List<RunningRecordEntity> recordList = recordRepository.selectByMemberStatusIdxAndDate(memberStatusIdx, startDate, endDate);
+            if (recordList.isEmpty()) {
                 return null;
             }
-            RunningRecordEntity record = optional.get();
-            return GetRecordWithoutLocationRes.builder()
-                    .recordIdx(record.getRunningRecordIdx())
-                    .date(record.getCreatedAt())
-                    .runningStatus(record.getRunningStatus())
-                    .build();
+            List<GetRecordWithoutLocationRes> res = new ArrayList<>();
+            for(RunningRecordEntity record : recordList) {
+                res.add(
+                    GetRecordWithoutLocationRes.builder()
+                        .recordIdx(record.getRunningRecordIdx())
+                        .date(record.getCreatedAt())
+                        .runningStatus(record.getRunningStatus())
+                        .build()
+                );
+            }
+            return res;
         } catch (Exception e) {
             System.out.println("e = " + e);
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/record")
@@ -36,9 +37,11 @@ public class RecordController {
     @ApiOperation(value="member_status_idx와 오늘 날짜로 조회", notes="Request Parameter : mid, date로 각 값을 입력해주세요")
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<GetRecordWithoutLocationRes> getRecordWithoutLocation(@RequestParam("mid") Long memberStatusIdx, @RequestParam("date") LocalDateTime date) {
+    public BaseResponse<List<GetRecordWithoutLocationRes>> getRecordWithoutLocation(@RequestParam("mid") Long memberStatusIdx, @RequestParam("date") String date) {
         try {
-            GetRecordWithoutLocationRes rec = recordService.getRecordWithoutLocation(memberStatusIdx, date);
+            String startDate = date + " 00:00:00";
+            String endDate = date + " 23:59:59";
+            List<GetRecordWithoutLocationRes> rec = recordService.getRecordWithoutLocation(memberStatusIdx, startDate, endDate);
             return new BaseResponse<>(rec);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
