@@ -1,5 +1,6 @@
 package com.example.relayRun.club.controller;
 
+import com.example.relayRun.club.dto.ClubDTO;
 import com.example.relayRun.club.dto.GetClubListRes;
 import com.example.relayRun.club.service.ClubService;
 import com.example.relayRun.util.BaseException;
@@ -36,5 +37,12 @@ public class ClubController {
             return new BaseResponse(e.getStatus());
         }
     }
+
+//    @ApiOperation(value="그룹 상세 조회", notes="")
+//    @ResponseBody
+//    @GetMapping("/{clubidx}")
+//    public BaseResponse<ClubDTO> getClubDetail(@PathVariable Long clubIdx, @RequestParam("date") String date) {
+//
+//    }
 
 }
