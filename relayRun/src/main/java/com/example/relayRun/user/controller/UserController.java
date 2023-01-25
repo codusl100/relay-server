@@ -128,6 +128,7 @@ public class UserController {
         }
     }
 
+
     @ResponseBody
     @PostMapping("/email")
     @ApiOperation(value="인증 번호 이메일 발급", notes="네이버 메일 (@naver.com) 형식의 이메일만 메일 전송이 가능합니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!")
