@@ -3,9 +3,7 @@ package com.example.relayRun.club.entity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.util.BaseTimeEntity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
@@ -14,8 +12,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 @Table(name = "member_status")
 public class MemberStatusEntity extends BaseTimeEntity {
@@ -32,15 +29,18 @@ public class MemberStatusEntity extends BaseTimeEntity {
     @JoinColumn(name = "userProfileIdx")
     private UserProfileEntity userProfileIdx;
 
-    @Column(length = 50)
-    private String comment;
-
     @Column(nullable = false, columnDefinition = "varchar(10) default 'ACCEPTED'")
     private String applyStatus;
 
     @Column(columnDefinition = "varchar(10) default 'active'")
     private String status;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "memberStatusIdx", orphanRemoval = true)
+    @OneToMany(mappedBy = "memberStatusIdx", orphanRemoval = true)
     List<RunningRecordEntity> runningRecords = new ArrayList<>();
+
+    @Builder
+    public MemberStatusEntity(ClubEntity clubIdx, UserProfileEntity userProfileIdx) {
+        this.clubIdx = clubIdx;
+        this.userProfileIdx = userProfileIdx;
+    }
 }
