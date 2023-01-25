@@ -32,7 +32,7 @@ public class LocationEntity {
     @Column(nullable = false)
     private Point position;
 
-    @Column(columnDefinition = "varchar(10) default 'active'")
+    @Column(columnDefinition = "varchar(10) default 'running'")
     private String status;
 
 }

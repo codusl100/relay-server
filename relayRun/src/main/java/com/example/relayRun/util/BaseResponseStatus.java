@@ -15,6 +15,11 @@ public enum BaseResponseStatus {
     FAILED_TO_LOGIN(false, 2007, "없는 아이디이거나 비밀번호가 틀렸습니다."),
     FAILED_TO_SEARCH(false, 2008, "검색을 실패하였습니다."),
     FAILED_TO_FIND_URL(false, 2009,"요청할 수 없는 url입니다."),
+
+    // 달리기단
+    RECORD_UNAVAILABLE(false, 2100,"존재하지 않는 기록입니다."),
+
+    FAILED_TO_FIND_USER(false, 2010, "유효하지 않은 인증 코드입니다."),
     /*
      * 4000: [POST]
      * */
@@ -29,9 +34,13 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY(false, 4777, "공백 없이 입력해주세요."),
     POST_USERS_EMPTY_EMAIL(false, 4778,"이메일을 입력해주세요"),
     POST_USERS_EMPTY_NAME(false, 4779,"이름을 입력해주세요"),
+
+    POST_RECORD_INVALID_CLUB_ACCESS(false, 4900, "그룹에 가입되지 않은 프로필입니다."),
     POST_USERS_INVALID_EMAIL(false, 5000, "이메일 양식이 맞지 않습니다."),
     POST_USERS_INVALID_PWD(false, 5001, "비밀번호 양식이 맞지 않습니다."),
     POST_REVIEW_IMG_ERROR(false, 5001, "리뷰 이미지 에러입니다."),
+    POST_TIMETABLE_FAIL(false, 4003, "시간표 등록에 실패하였습니다."),
+    POST_MEMBER_STATUS_FAIL(false, 4004, "그룹 신청에 실패하였습니다"),
 
     SOCIAL(false, 5001, "소셜로 로그인을 진행한 이메일 입니다."),
     NOT_SOCIAL(false, 2001, "소셜이 로그인으로 진행한 이메일입니다."),
