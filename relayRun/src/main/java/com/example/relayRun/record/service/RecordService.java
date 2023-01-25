@@ -2,17 +2,18 @@ package com.example.relayRun.record.service;
 
 import com.example.relayRun.record.dto.GetLocationRes;
 import com.example.relayRun.record.dto.GetRecordByIdxRes;
+import com.example.relayRun.record.dto.GetRecordWithoutLocationRes;
 import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.RecordRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
-import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 public class RecordService {
@@ -63,6 +64,24 @@ public class RecordService {
                 System.out.println("e = " + e);
                 throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
             }
+        }
+    }
+
+    public GetRecordWithoutLocationRes getRecordWithoutLocation(Long memberStatusIdx, LocalDateTime createdAt) throws BaseException {
+        try {
+            Optional<RunningRecordEntity> optional = recordRepository.findByMemberStatusIdx_MemberStatusIdxAndCreatedAt(memberStatusIdx, createdAt);
+            if (optional.isEmpty()) {
+                return null;
+            }
+            RunningRecordEntity record = optional.get();
+            return GetRecordWithoutLocationRes.builder()
+                    .recordIdx(record.getRunningRecordIdx())
+                    .date(record.getCreatedAt())
+                    .runningStatus(record.getRunningStatus())
+                    .build();
+        } catch (Exception e) {
+            System.out.println("e = " + e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 }

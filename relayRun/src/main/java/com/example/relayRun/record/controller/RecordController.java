@@ -1,14 +1,14 @@
 package com.example.relayRun.record.controller;
 
 import com.example.relayRun.record.dto.GetRecordByIdxRes;
-import com.example.relayRun.record.entity.RunningRecordEntity;
+import com.example.relayRun.record.dto.GetRecordWithoutLocationRes;
 import com.example.relayRun.record.service.RecordService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping(value = "/record")
@@ -26,6 +26,19 @@ public class RecordController {
     public BaseResponse<GetRecordByIdxRes> getRecordByIdx(@PathVariable("idx") Long idx) {
         try {
             GetRecordByIdxRes rec = recordService.getRecordByIdx(idx);
+            return new BaseResponse<>(rec);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+    }
+
+    // member_status_idx와 오늘 날짜로 조회 테스트 API
+    @ApiOperation(value="member_status_idx와 오늘 날짜로 조회", notes="Request Parameter : mid, date로 각 값을 입력해주세요")
+    @ResponseBody
+    @GetMapping("")
+    public BaseResponse<GetRecordWithoutLocationRes> getRecordWithoutLocation(@RequestParam("mid") Long memberStatusIdx, @RequestParam("date") LocalDateTime date) {
+        try {
+            GetRecordWithoutLocationRes rec = recordService.getRecordWithoutLocation(memberStatusIdx, date);
             return new BaseResponse<>(rec);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
