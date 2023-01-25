@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.catalina.User;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,4 +36,6 @@ public class PostClubReq {
     private GoalType goalType;
     @ApiModelProperty(example="목표 km")
     private Float goal;
+
+    private List<TimeTableDTO> timeTable;
 }
