@@ -68,19 +68,17 @@ public class UserProfileService {
         userProfile.setUserName(userProfileList.getUserIdx().getName());
         userProfile.setEmail(userProfileList.getUserIdx().getEmail());
 
-        ClubEntity clubEntity = null;
-        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(profileIdx);
-        for (MemberStatusEntity memberStatusEntity : memberStatusEntityList) {
-            if (memberStatusEntity.getApplyStatus().equals("ACCEPTED")) {
-                clubEntity = memberStatusEntity.getClubIdx();
-                break;
-            }
+        MemberStatusEntity memberStatus = memberStatusRepository.findByUserProfileIdx(profileIdx);
+        System.out.println(memberStatus);
+        if (memberStatus == null) {
+            userProfile.setClubIdx(0L);
+            userProfile.setClubName("그룹에 속하지 않습니다.");
         }
-        if (clubEntity != null) {
+        else if (memberStatus.getApplyStatus().equals("ACCEPTED")) {
+            ClubEntity clubEntity = memberStatus.getClubIdx();
             userProfile.setClubIdx(clubEntity.getClubIdx());
             userProfile.setClubName(clubEntity.getName());
         }
-
         return userProfile;
     }
 
