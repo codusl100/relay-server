@@ -100,7 +100,7 @@ public class MemberStatusService {
     }
 
     @Transactional
-    public List<GetTimeTableListRes> getTimeTables(Long clubIdx) throws BaseException {
+    public List<GetTimeTableListRes> getTimeTablesByClubIdx(Long clubIdx) throws BaseException {
         try {
             //1. clubIdx로 memberStatus 조회
             List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByClubIdx_ClubIdx(clubIdx);
@@ -126,6 +126,32 @@ public class MemberStatusService {
             }
 
             return timeTableList;
+        } catch (Exception e) {
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
+    public List<GetTimeTableListRes> getTimeTablesByMemberStatusIdx(Long memberStatusIdx) throws BaseException {
+        try {
+            List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatusIdx);
+            List<GetTimeTableListRes> timeTableList = new ArrayList<>();
+
+            for(TimeTableEntity timeTableEntity : timeTableEntityList) {
+                GetTimeTableListRes timeTable = GetTimeTableListRes.builder()
+                        .timeTableIdx(timeTableEntity.getTimeTableIdx())
+                        .day(timeTableEntity.getDay())
+                        .start(timeTableEntity.getStart())
+                        .end(timeTableEntity.getEnd())
+                        .goal(timeTableEntity.getGoal())
+                        .goalType(timeTableEntity.getGoalType())
+                        .build();
+
+                timeTableList.add(timeTable);
+            }
+
+            return timeTableList;
+
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
