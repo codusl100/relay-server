@@ -70,6 +70,20 @@ public class UserProfileService {
         userProfile.setImgUrl(userProfileList.getImgURL());
         userProfile.setUserName(userProfileList.getUserIdx().getName());
         userProfile.setEmail(userProfileList.getUserIdx().getEmail());
+
+        ClubEntity clubEntity = null;
+        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(profileIdx);
+        for (MemberStatusEntity memberStatusEntity : memberStatusEntityList) {
+            if (memberStatusEntity.getApplyStatus().equals("ACCEPTED")) {
+                clubEntity = memberStatusEntity.getClubIdx();
+                break;
+            }
+        }
+        if (clubEntity != null) {
+            userProfile.setClubIdx(clubEntity.getClubIdx());
+            userProfile.setClubName(clubEntity.getName());
+        }
+
         return userProfile;
     }
 
