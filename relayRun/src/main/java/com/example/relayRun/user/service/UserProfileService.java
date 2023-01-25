@@ -33,9 +33,6 @@ public class UserProfileService {
         this.memberStatusRepository = memberStatusRepository;
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
-
-    public UserProfileService(MemberStatusRepository memberStatusRepository) {
-        this.memberStatusRepository = memberStatusRepository;
     }
 
     public GetUserProfileClubRes getUserProfileClub(Long userProfileIdx) throws BaseException {
