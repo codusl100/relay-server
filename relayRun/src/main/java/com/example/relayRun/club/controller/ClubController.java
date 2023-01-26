@@ -1,13 +1,17 @@
 package com.example.relayRun.club.controller;
 
-import com.example.relayRun.club.dto.ClubDTO;
 import com.example.relayRun.club.dto.GetClubListRes;
+import com.example.relayRun.club.dto.GetMemberOfClubRes;
 import com.example.relayRun.club.service.ClubService;
+import com.example.relayRun.club.service.MemberStatusService;
+import com.example.relayRun.record.service.RecordService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -15,9 +19,13 @@ import java.util.List;
 public class ClubController {
 
     private ClubService clubService;
+    private MemberStatusService memberStatusService;
+    private RecordService recordService;
 
-    public ClubController(ClubService clubService) {
+    public ClubController(ClubService clubService, MemberStatusService memberStatusService, RecordService recordService) {
         this.clubService = clubService;
+        this.memberStatusService = memberStatusService;
+        this.recordService = recordService;
     }
 
 
@@ -38,11 +46,22 @@ public class ClubController {
         }
     }
 
-//    @ApiOperation(value="그룹 상세 조회", notes="")
-//    @ResponseBody
-//    @GetMapping("/{clubidx}")
-//    public BaseResponse<ClubDTO> getClubDetail(@PathVariable Long clubIdx, @RequestParam("date") String date) {
-//
-//    }
-
+    @ApiOperation(value="그룹 멤버 관련 정보 조회", notes="path variable로 그룹 아이디, query string으로 현재 날짜 전달해주세요")
+    @ResponseBody
+    @GetMapping("/{clubIdx}")
+    public BaseResponse<List<GetMemberOfClubRes>> getMemberOfClub(@PathVariable Long clubIdx, @RequestParam("date") String date) {
+        try {
+            List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx);
+            for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
+                LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
+                getMemberOfClubRes.setRunningRecord(recordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
+                getMemberOfClubRes.setTimeTable(memberStatusService.getTimeTablesByMemberStatusIdx(getMemberOfClubRes.getMemberStatusIdx()));
+            }
+            return new BaseResponse<>(getMemberOfClubResList);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
