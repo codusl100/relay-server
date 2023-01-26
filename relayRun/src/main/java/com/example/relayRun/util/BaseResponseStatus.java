@@ -40,6 +40,7 @@ public enum BaseResponseStatus {
     POST_PARSE_ERROR(false, 4902, "포인트 형식에 맞지 않습니다."),
 
     POST_RECORD_NO_TIMETABLE(false, 4903, "기록에 맞는 시간표가 없습니다."),
+    POST_RECORD_ALREADY_FINISH(false, 4904, "이미 끝난 기록입니다."),
     POST_USERS_INVALID_EMAIL(false, 5000, "이메일 양식이 맞지 않습니다."),
     POST_USERS_INVALID_PWD(false, 5001, "비밀번호 양식이 맞지 않습니다."),
     POST_REVIEW_IMG_ERROR(false, 5001, "리뷰 이미지 에러입니다."),

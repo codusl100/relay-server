@@ -78,11 +78,13 @@ public class RunningRecordService {
                     locations.get(0).getTime().toLocalTime(),
                     locations.get(locations.size() - 1).getTime().toLocalTime()
             );
-            if (optionalTimeTable.isEmpty()) {
+            if (optionalTimeTable.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
-            }
             // calculate success, running time
             TimeTableEntity timeTable = optionalTimeTable.get();
+            if (oldRecord.getRunningStatus().equals("finish")) {
+                throw new BaseException(BaseResponseStatus.POST_RECORD_ALREADY_FINISH);
+            }
             Float seconds = RecordDataHandler.toSecond(timeFormat);
             String isSuccess =  RecordDataHandler.isSuccess(
                     timeTable.getGoalType(),
