@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @ApiOperation(value = "로그인", notes ="bearer Token에 access Token 넣어주세요!")
+    @ApiOperation(value = "로그인", notes ="이메일과 비밀번호만 입력해주세요!!")
     @PostMapping("/logIn")
     public BaseResponse<TokenDto> logIn(@RequestBody PostLoginReq user) {
         if (user.getEmail().length() == 0 || user.getEmail() == null) {
@@ -96,9 +96,9 @@ public class UserController {
     @ApiOperation(value = "유저 프로필 목록 조회", notes ="유저가 생성한 프로필 리스트 조회하는 API" +
             "Bearer Token에 access token 넣어주세요!")
     @GetMapping("/profileList")
-    public BaseResponse<List<GetProfileRes>> viewProfile(Principal principal) {
+    public BaseResponse<List<GetProfileListRes>> viewProfile(Principal principal) {
         try{
-            List<GetProfileRes> getProfileRes = userProfileService.viewProfile(principal);
+            List<GetProfileListRes> getProfileRes = userProfileService.viewProfile(principal);
             return new BaseResponse<>(getProfileRes);
         }
         catch (BaseException e) {
