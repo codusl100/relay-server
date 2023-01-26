@@ -61,4 +61,15 @@ public class RunningRecordController {
             return new BaseResponse(e.getStatus());
         }
     }
+
+    @ApiOperation(value="그룹 기록 일별 요약", notes="조회할 그룹 idx를 입력해주세요, query에 조회 날짜를 입력해주세요 ex record/daily/{clubIdx}/?date=2023-01-27")
+    @GetMapping("/daily/{clubIdx}/club")
+    public BaseResponse<GetDailyRes> getDailyGroup(@PathVariable("clubIdx") Long idx, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        try {
+            GetDailyRes dailyGroup = runningRecordService.getDailyGroup(idx, date);
+            return new BaseResponse<>(dailyGroup);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+    }
 }

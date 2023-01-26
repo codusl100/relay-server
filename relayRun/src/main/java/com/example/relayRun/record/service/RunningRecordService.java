@@ -1,6 +1,8 @@
 package com.example.relayRun.record.service;
 
+import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
+import com.example.relayRun.club.repository.ClubRepository;
 import com.example.relayRun.club.repository.MemberStatusRepository;
 import com.example.relayRun.record.dto.*;
 import com.example.relayRun.record.entity.LocationEntity;
@@ -29,16 +31,19 @@ public class RunningRecordService {
     MemberStatusRepository memberStatusRepository;
     UserRepository userRepository;
     UserProfileRepository userProfileRepository;
+    ClubRepository clubRepository;
 
     @Autowired
     public RunningRecordService(RunningRecordRepository runningRecordRepository,
                                 MemberStatusRepository memberStatusRepository,
                                 UserRepository userRepository,
-                                UserProfileRepository userProfileRepository) {
+                                UserProfileRepository userProfileRepository,
+                                ClubRepository clubRepository) {
         this.runningRecordRepository = runningRecordRepository;
         this.memberStatusRepository = memberStatusRepository;
         this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
+        this.clubRepository = clubRepository;
     }
 
     /**
@@ -134,7 +139,8 @@ public class RunningRecordService {
             for (UserProfileEntity profile : profileList) {
                 List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(profile.getUserProfileIdx());
                 for (MemberStatusEntity status : statusList) {
-                    records.addAll(runningRecordRepository.findByMemberStatusIdxAndCreatedAtBetween(status, date.atStartOfDay(), date.plusDays(1).atStartOfDay()));
+                    records.addAll(runningRecordRepository
+                            .findByMemberStatusIdxAndCreatedAtBetweenAndRunningStatus(status, date.atStartOfDay(), date.plusDays(1).atStartOfDay(), "finish"));
                 }
             }
 
@@ -149,6 +155,32 @@ public class RunningRecordService {
         } catch (Exception e) {
             System.out.println(e);
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    /**
+     * 그룹 기록 일별 조회 GET
+     * @param clubIdx
+     * @param date
+     * @return
+     */
+    public GetDailyRes getDailyGroup(Long clubIdx, LocalDate date) throws BaseException {
+        try {
+            Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
+            if (club.isEmpty()) {
+                throw new Exception("CLUB_UNAVAILABLE");
+            }
+            List<RunningRecordEntity> records = runningRecordRepository
+                    .findByMemberStatusIdx_ClubIdxAndCreatedAtBetweenAndRunningStatus(club.get(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), "finish");
+
+            return RecordDataHandler.get_summary(records, date);
+        } catch (Exception e) {
+            if (e.getMessage().equals("CLUB_UNAVAILABLE")) {
+                throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
+            } else {
+                System.out.println("e = " + e);
+                throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            }
         }
     }
 }
