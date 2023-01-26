@@ -23,7 +23,7 @@ public class MemberStatusController {
         this.memberStatusService = memberStatusService;
     }
 
-    @ApiOperation("그룹 신청하기")
+    @ApiOperation(value = "그룹 신청하기", notes = "clubIdx에는 그룹 인덱스, body에는 시간표 목록과 신청자 프로필 idx를 입력하면 됩니다.")
     @ResponseBody
     @PostMapping("/{clubIdx}")
     public BaseResponse<String> createMemberStatus(@PathVariable Long clubIdx, @Valid @RequestBody PostMemberStatusReq memberStatus) {
