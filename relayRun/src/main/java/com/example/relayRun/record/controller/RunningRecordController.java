@@ -1,5 +1,6 @@
 package com.example.relayRun.record.controller;
 
+import com.example.relayRun.record.dto.GetDailyRes;
 import com.example.relayRun.record.dto.GetRecordByIdxRes;
 import com.example.relayRun.record.dto.PostRunningInitReq;
 import com.example.relayRun.record.dto.PostRunningInitRes;
@@ -9,6 +10,10 @@ import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 @RestController
 @RequestMapping("/record")
@@ -39,6 +44,18 @@ public class RunningRecordController {
         try {
             GetRecordByIdxRes rec = runningRecordService.getRecordByIdx(idx);
             return new BaseResponse<>(rec);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+    }
+
+    // 하루 기록 조회
+    @ApiOperation(value="개인 기록 일별 요약", notes="bearer에 조회할 유저의 토큰, query에 조회 날짜를 입력해주세요 ex record/daily/?date=2023-01-26")
+    @GetMapping("/daily")
+    public BaseResponse<GetDailyRes> getDailyRecord(Principal principal, @RequestParam String date) {
+        try {
+            GetDailyRes daily = runningRecordService.getDailyRecord(principal, date);
+            return new BaseResponse<>(daily);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
         }

@@ -2,18 +2,21 @@ package com.example.relayRun.record.service;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
-import com.example.relayRun.record.dto.GetLocationRes;
-import com.example.relayRun.record.dto.GetRecordByIdxRes;
-import com.example.relayRun.record.dto.PostRunningInitReq;
-import com.example.relayRun.record.dto.PostRunningInitRes;
+import com.example.relayRun.record.dto.*;
 import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.RunningRecordRepository;
+import com.example.relayRun.user.entity.UserEntity;
+import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
+import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +25,16 @@ import java.util.Optional;
 public class RunningRecordService {
     RunningRecordRepository runningRecordRepository;
     MemberStatusRepository memberStatusRepository;
+    UserRepository userRepository;
+
     @Autowired
     public RunningRecordService(RunningRecordRepository runningRecordRepository,
-                                MemberStatusRepository memberStatusRepository) {
+                                MemberStatusRepository memberStatusRepository,
+                                UserRepository userRepository) {
         this.runningRecordRepository = runningRecordRepository;
         this.memberStatusRepository = memberStatusRepository;
+        this.userRepository = userRepository;
     }
-
 
     /**
      * 달리기 시작 POST
@@ -101,6 +107,28 @@ public class RunningRecordService {
                 System.out.println("e = " + e);
                 throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
             }
+        }
+    }
+
+    public GetDailyRes getDailyRecord(Principal principal, String date) throws BaseException {
+        try {
+            Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
+            if (user.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+            }
+            
+            LocalDate localDate = LocalDate.parse(date);
+
+
+        } catch (NullPointerException e) { // principal이 없을 때
+            throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
+
+        } catch (DateTimeParseException e) { // 날짜 형식이 잘못됐을 때
+            throw new BaseException(BaseResponseStatus.INVALID_DATE_FORMAT);
+
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 }
