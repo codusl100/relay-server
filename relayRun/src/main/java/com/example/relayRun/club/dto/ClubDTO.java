@@ -2,7 +2,7 @@ package com.example.relayRun.club.dto;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
-import com.example.relayRun.timetable.entity.TimeTableEntity;
+import com.example.relayRun.club.entity.TimeTableEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
