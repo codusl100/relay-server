@@ -13,7 +13,9 @@ import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
+import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -28,7 +30,6 @@ public class MemberStatusService {
 
     private final MemberStatusRepository memberStatusRepository;
     private final TimeTableRepository timeTableRepository;
-    private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final ClubRepository clubRepository;
 
@@ -39,7 +40,6 @@ public class MemberStatusService {
                                ClubRepository clubRepository) {
         this.memberStatusRepository = memberStatusRepository;
         this.timeTableRepository = timeTableRepository;
-        this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
         this.clubRepository = clubRepository;
     }
@@ -53,6 +53,9 @@ public class MemberStatusService {
 
             //신청 대상 그룹 정보
             Optional<ClubEntity> club = clubRepository.findById(clubIdx);
+            if(club.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            }
 
             //member_status 등록
             MemberStatusEntity memberStatusEntity = MemberStatusEntity.builder()
