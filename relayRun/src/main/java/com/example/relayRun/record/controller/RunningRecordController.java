@@ -24,7 +24,9 @@ public class RunningRecordController {
         this.runningRecordService = runningRecordService;
     }
     @PostMapping("/start")
-    @ApiOperation(value="달리기 시작", notes="profileIdx, 속한 clubIdx 요청")
+    @ApiOperation(value="달리기 시작", notes="profileIdx, 속한 clubIdx 요청" +
+            "응답 받은 runningRecordIdx를 가지고 있다가 달리기 종료, 일시 정지, 다시 달리기 할 때 " +
+            "보내 주셔야 합니다.")
     public BaseResponse<PostRunningInitRes> startRunning(@RequestBody PostRunningInitReq runningInitReq) {
         try{
             PostRunningInitRes result = runningRecordService.startRunning(runningInitReq);
