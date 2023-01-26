@@ -7,9 +7,10 @@ import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import com.example.relayRun.record.repository.RunningRecordRepository;
 import com.example.relayRun.user.entity.UserEntity;
+import com.example.relayRun.user.entity.UserProfileEntity;
+import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
-import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,17 @@ public class RunningRecordService {
     RunningRecordRepository runningRecordRepository;
     MemberStatusRepository memberStatusRepository;
     UserRepository userRepository;
+    UserProfileRepository userProfileRepository;
 
     @Autowired
     public RunningRecordService(RunningRecordRepository runningRecordRepository,
                                 MemberStatusRepository memberStatusRepository,
-                                UserRepository userRepository) {
+                                UserRepository userRepository,
+                                UserProfileRepository userProfileRepository) {
         this.runningRecordRepository = runningRecordRepository;
         this.memberStatusRepository = memberStatusRepository;
         this.userRepository = userRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     /**
@@ -110,17 +114,42 @@ public class RunningRecordService {
         }
     }
 
-    public GetDailyRes getDailyRecord(Principal principal, String date) throws BaseException {
+    public GetDailyRes getDailyRecord(Principal principal, LocalDate date) throws BaseException {
         try {
             Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
             if (user.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
             }
-            
-            LocalDate localDate = LocalDate.parse(date);
 
+            List<RunningRecordEntity> records = new ArrayList<>();
+            List<UserProfileEntity> profileList = userProfileRepository.findAllByUserIdx(user.get());
+            for (UserProfileEntity profile : profileList) {
+                List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(profile.getUserProfileIdx());
+                for (MemberStatusEntity status : statusList) {
+                    records.addAll(runningRecordRepository.findByMemberStatusIdxAndCreatedAtBetween(status, date.atStartOfDay(), date.plusDays(1).atStartOfDay()));
+                }
+            }
 
-        } catch (NullPointerException e) { // principal이 없을 때
+            float totalTime = 0;
+            float totalDist = 0;
+            float totalPace = 0;
+            Long count = 0L;
+
+            for (RunningRecordEntity rec : records) {
+                totalTime += rec.getTime();
+                totalDist += rec.getDistance();
+                totalPace += rec.getPace();
+                count++;
+            }
+
+            return GetDailyRes.builder()
+                    .date(date)
+                    .totalTime(totalTime)
+                    .totalDist(totalDist)
+                    .avgPace(totalPace/count)
+                    .build();
+
+        } catch (NullPointerException e) { // principal이 없거나 맞지 않을 때
             throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
 
         } catch (DateTimeParseException e) { // 날짜 형식이 잘못됐을 때

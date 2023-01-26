@@ -9,11 +9,11 @@ import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 @RestController
 @RequestMapping("/record")
@@ -52,7 +52,8 @@ public class RunningRecordController {
     // 하루 기록 조회
     @ApiOperation(value="개인 기록 일별 요약", notes="bearer에 조회할 유저의 토큰, query에 조회 날짜를 입력해주세요 ex record/daily/?date=2023-01-26")
     @GetMapping("/daily")
-    public BaseResponse<GetDailyRes> getDailyRecord(Principal principal, @RequestParam String date) {
+    public BaseResponse<GetDailyRes> getDailyRecord(Principal principal,
+                                                    @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         try {
             GetDailyRes daily = runningRecordService.getDailyRecord(principal, date);
             return new BaseResponse<>(daily);
