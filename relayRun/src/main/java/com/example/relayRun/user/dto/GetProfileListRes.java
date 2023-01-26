@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetProfileRes {
+public class GetProfileListRes {
     @ApiModelProperty(example = "유저 프로필 식별자")
     private Long userProfileIdx;
     @ApiModelProperty(example = "닉네임")
@@ -25,8 +25,4 @@ public class GetProfileRes {
     private String userName;
     @ApiModelProperty(example= "유저 이메일")
     private String email;
-    @ApiModelProperty(example = "프로필이 속한 그룹 식별자")
-    private Long clubIdx;
-    @ApiModelProperty(example = "프로필이 속한 그룹 이름")
-    private String clubName;
 }
