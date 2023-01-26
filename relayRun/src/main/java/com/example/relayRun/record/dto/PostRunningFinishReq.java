@@ -21,8 +21,8 @@ public class PostRunningFinishReq {
 
     private Float pace;
 
-    @ApiModelProperty(example = "달린 시간 HH:mm:ss")
-    @JsonFormat(pattern= "HH:mm:ss")
+    @ApiModelProperty(example = "HH:mm:ss")
+    @JsonFormat(pattern= "HH:mm:ss", shape = JsonFormat.Shape.STRING)
     private LocalTime time;
 
     private List<locationDTO> locations;
