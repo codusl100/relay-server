@@ -12,6 +12,7 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import com.example.relayRun.util.RecordDataHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -114,6 +115,13 @@ public class RunningRecordService {
         }
     }
 
+    /**
+     * 개인 기록 일별 조회 GET
+     * @param principal
+     * @param date
+     * @return
+     * @throws BaseException
+     */
     public GetDailyRes getDailyRecord(Principal principal, LocalDate date) throws BaseException {
         try {
             Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
@@ -130,24 +138,7 @@ public class RunningRecordService {
                 }
             }
 
-            float totalTime = 0;
-            float totalDist = 0;
-            float totalPace = 0;
-            Long count = 0L;
-
-            for (RunningRecordEntity rec : records) {
-                totalTime += rec.getTime();
-                totalDist += rec.getDistance();
-                totalPace += rec.getPace();
-                count++;
-            }
-
-            return GetDailyRes.builder()
-                    .date(date)
-                    .totalTime(totalTime)
-                    .totalDist(totalDist)
-                    .avgPace(totalPace/count)
-                    .build();
+            return RecordDataHandler.get_summary(records, date);
 
         } catch (NullPointerException e) { // principal이 없거나 맞지 않을 때
             throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
