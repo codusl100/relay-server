@@ -48,7 +48,7 @@ public class TimeTableEntity extends BaseTimeEntity {
     private String status;
 
     @Builder
-    public TimeTableEntity(MemberStatusEntity memberStatusIdx, Integer day, LocalDateTime start, LocalDateTime end, Float goal, GoalType goalType) {
+    public TimeTableEntity(MemberStatusEntity memberStatusIdx, Integer day, LocalTime start, LocalTime end, Float goal, GoalType goalType) {
         this.memberStatusIdx = memberStatusIdx;
         this.day = day;
         this.start = start;
