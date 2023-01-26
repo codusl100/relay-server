@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -39,8 +40,9 @@ public class RecordController {
     @GetMapping("")
     public BaseResponse<List<GetRecordWithoutLocationRes>> getRecordWithoutLocation(@RequestParam("mid") Long memberStatusIdx, @RequestParam("date") String date) {
         try {
-            String startDate = date + " 00:00:00";
-            String endDate = date + " 23:59:59";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
+            LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
             List<GetRecordWithoutLocationRes> rec = recordService.getRecordWithoutLocation(memberStatusIdx, startDate, endDate);
             return new BaseResponse<>(rec);
         } catch (BaseException e) {

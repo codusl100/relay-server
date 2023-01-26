@@ -68,7 +68,7 @@ public class RecordService {
         }
     }
 
-    public List<GetRecordWithoutLocationRes> getRecordWithoutLocation(Long memberStatusIdx, String startDate, String endDate) throws BaseException {
+    public List<GetRecordWithoutLocationRes> getRecordWithoutLocation(Long memberStatusIdx, LocalDateTime startDate, LocalDateTime endDate) throws BaseException {
         try {
             List<RunningRecordEntity> recordList = recordRepository.selectByMemberStatusIdxAndDate(memberStatusIdx, startDate, endDate);
             if (recordList.isEmpty()) {
