@@ -13,7 +13,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@Api(tags = {"그룹 지원/생성 관련 API"})
+@Api(tags = {"그룹 생성/관리 관련 API"})
 @RequestMapping(value = "/clubs/apply")
 public class ClubApplyController {
 

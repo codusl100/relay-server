@@ -5,6 +5,7 @@ import com.example.relayRun.record.dto.PostRunningInitRes;
 import com.example.relayRun.record.service.RunningRecordService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Api(tags={"달리기 및 기록 관련 API"})
 @RequestMapping("/record")
 public class RunningRecordController {
     RunningRecordService runningRecordService;
