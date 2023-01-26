@@ -1,5 +1,6 @@
 package com.example.relayRun.club.controller;
 
+import com.example.relayRun.club.dto.GetClubDetailRes;
 import com.example.relayRun.club.dto.GetClubListRes;
 import com.example.relayRun.club.dto.GetMemberOfClubRes;
 import com.example.relayRun.club.service.ClubService;
@@ -18,16 +19,15 @@ import java.util.List;
 @RequestMapping(value = "/clubs")
 public class ClubController {
 
-    private ClubService clubService;
-    private MemberStatusService memberStatusService;
-    private RecordService recordService;
+    private final ClubService clubService;
+    private final MemberStatusService memberStatusService;
+    private final RecordService recordService;
 
     public ClubController(ClubService clubService, MemberStatusService memberStatusService, RecordService recordService) {
         this.clubService = clubService;
         this.memberStatusService = memberStatusService;
         this.recordService = recordService;
     }
-
 
     @ApiOperation(value="그룹 목록 조회(전체, 검색)", notes="URI 뒤에 search parameter로 그룹 이름을 검색할 수 있다. 아무것도 넘기지 않을 경우 전체 목록이 조회된다.")
     @ResponseBody
@@ -42,13 +42,13 @@ public class ClubController {
             }
             return new BaseResponse<>(clubList);
         } catch (BaseException e) {
-            return new BaseResponse(e.getStatus());
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
     @ApiOperation(value="그룹 멤버 관련 정보 조회", notes="path variable로 그룹 아이디, query string으로 현재 날짜 전달해주세요")
     @ResponseBody
-    @GetMapping("/{clubIdx}")
+    @GetMapping("/{clubIdx}/members")
     public BaseResponse<List<GetMemberOfClubRes>> getMemberOfClub(@PathVariable Long clubIdx, @RequestParam("date") String date) {
         try {
             List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx);
@@ -60,6 +60,19 @@ public class ClubController {
                 getMemberOfClubRes.setTimeTable(memberStatusService.getTimeTablesByMemberStatusIdx(getMemberOfClubRes.getMemberStatusIdx()));
             }
             return new BaseResponse<>(getMemberOfClubResList);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹 페이지 정보 조회", notes="path variable로 그룹 아이디, query string으로 현재 날짜 전달해주세요")
+    @ResponseBody
+    @GetMapping("/{clubIdx}")
+    public BaseResponse<GetClubDetailRes> getClubDetail(@PathVariable Long clubIdx, @RequestParam("date") String date) {
+        try {
+            GetClubDetailRes getClubDetailRes = clubService.getClubDetail(clubIdx);
+            getClubDetailRes.setGetMemberOfClubResList(getMemberOfClub(clubIdx, date).getResult());
+            return new BaseResponse<>(getClubDetailRes);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

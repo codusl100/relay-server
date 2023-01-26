@@ -1,5 +1,6 @@
 package com.example.relayRun.club.service;
 
+import com.example.relayRun.club.dto.GetClubDetailRes;
 import com.example.relayRun.club.dto.GetMemberOfClubRes;
 import com.example.relayRun.club.dto.PostClubReq;
 import com.example.relayRun.club.dto.GetClubListRes;
@@ -38,8 +39,7 @@ public class ClubService {
 
     public List<GetClubListRes> getClubs() throws BaseException {
         try {
-            List<GetClubListRes> clubList = clubRepository.findByOrderByRecruitStatusDesc();
-            return clubList;
+            return clubRepository.findByOrderByRecruitStatusDesc();
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
@@ -47,8 +47,7 @@ public class ClubService {
 
     public List<GetClubListRes> getClubsByName(String search) throws BaseException {
         try {
-            List<GetClubListRes> clubList = clubRepository.findByNameContaining(search);
-            return clubList;
+            return clubRepository.findByNameContaining(search);
         } catch (Exception e) {
             System.out.println(e);
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
@@ -77,6 +76,29 @@ public class ClubService {
                 res.add(getMemberOfClubRes);
             }
             return res;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public GetClubDetailRes getClubDetail(Long clubIdx) throws BaseException {
+        try {
+            Optional<ClubEntity> optional = clubRepository.findById(clubIdx);
+            if(optional.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            }
+            ClubEntity clubEntity = optional.get();
+            return GetClubDetailRes.builder()
+                    .clubIdx(clubEntity.getClubIdx())
+                    .imgURL(clubEntity.getImgURL())
+                    .name(clubEntity.getName())
+                    .content(clubEntity.getContent())
+                    .hostIdx(clubEntity.getHostIdx().getUserProfileIdx())
+                    .level(clubEntity.getLevel())
+                    .goalType(clubEntity.getGoalType())
+                    .goal(clubEntity.getGoal())
+                    .build();
         } catch (Exception e) {
             System.out.println(e);
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

@@ -2,9 +2,15 @@ package com.example.relayRun.club.dto;
 
 import com.example.relayRun.util.GoalType;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
+@Builder
 public class GetClubDetailRes {
     @ApiModelProperty(example="그룹 idx")
     private Long clubIdx;
@@ -30,7 +36,7 @@ public class GetClubDetailRes {
     @ApiModelProperty(example="목표 km")
     private Float goal;
 
-//    @ApiModelProperty(example="그룹내 멤버 정보")
-//    private List<GetMemberOfClubRes> memberStatusEntityList;
+    @ApiModelProperty(example="그룹내 멤버 정보")
+    private List<GetMemberOfClubRes> getMemberOfClubResList;
 }
 
