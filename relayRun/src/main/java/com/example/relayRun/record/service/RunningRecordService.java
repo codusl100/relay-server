@@ -70,9 +70,7 @@ public class RunningRecordService {
         try {
             RunningRecordEntity oldRecord = oldOptionalRecord.get();
             List<LocationEntity> locations = RecordDataHandler.toEntityList(runningFinishReq.getLocations());
-            LocalTime timeFormat = LocalTime.parse(
-                    runningFinishReq.getTime(), DateTimeFormatter.ofPattern("HH:mm:ss.nnn")
-            );
+            LocalTime timeFormat = runningFinishReq.getTime();
             Optional<TimeTableEntity> optionalTimeTable = timeTableRepository
                     .findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
                     oldRecord.getMemberStatusIdx(),

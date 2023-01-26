@@ -31,9 +31,7 @@ public class RecordDataHandler {
         ArrayList<LocationEntity> entities = new ArrayList<>();
         for (locationDTO location : locations) {
             LocationEntity entity = LocationEntity.builder()
-                    .time(LocalDateTime.parse(
-                            location.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                    )
+                    .time(location.getTime())
                     .position(toPoint(location.getLongitude(), location.getLatitude()))
                     .status(location.getStatus())
                     .build();
