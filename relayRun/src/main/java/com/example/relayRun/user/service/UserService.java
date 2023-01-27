@@ -274,6 +274,13 @@ public class UserService {
         if(optionalUserEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
+        // principal의 userIdx랑 userProfileIdx의 userIdx 가 같다면
+        Optional<UserProfileEntity> profileOptional = userProfileRepository.findByUserProfileIdx(profileIdx);
+        System.out.println("유저 Idx : " + optionalUserEntity.get().getUserIdx());
+        System.out.println("프로필의 유저 Idx : "+ profileOptional.get().getUserIdx().getUserIdx());
+        if(!profileOptional.get().getUserIdx().getUserIdx().equals(optionalUserEntity.get().getUserIdx())) {
+            throw new BaseException(BaseResponseStatus.POST_USERS_PROFILES_EQUALS);
+        }
         UserProfileEntity UserProfile = userProfileRepository.findByUserProfileIdx(profileIdx).get();
         if (UserProfile.getIsAlarmOn().equals("y")) {
             UserProfile.setIsAlarmOn("n");
