@@ -160,4 +160,11 @@ public class UserController {
             return new BaseResponse<>("인증번호 인증에 실패하였습니다.");
         }
     }
+
+    @ResponseBody
+    @PatchMapping("/changeProfile")
+    public BaseResponse<String> changeProfile (Principal principal, @RequestBody PatchProfileReq profileReq) throws BaseException {
+        this.userProfileService.changeProfile(principal, profileReq);
+        return new BaseResponse<>("프로필 변경을 완료했습니다.");
+    }
 }
