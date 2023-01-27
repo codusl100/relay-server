@@ -8,15 +8,21 @@ import com.example.relayRun.user.service.UserService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
+@Slf4j
 @RestController
+@Api(tags = {"유저 관련 API (회원가입/로그인 등)"})
 @RequestMapping(value = "/users")
 public class UserController {
 
@@ -42,7 +48,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @ApiOperation(value = "로그인", notes ="bearer Token에 access Token 넣어주세요!")
+    @ApiOperation(value = "로그인", notes ="이메일과 비밀번호만 입력해주세요!!")
     @PostMapping("/logIn")
     public BaseResponse<TokenDto> logIn(@RequestBody PostLoginReq user) {
         if (user.getEmail().length() == 0 || user.getEmail() == null) {
@@ -57,6 +63,8 @@ public class UserController {
         }
     }
 
+
+    @ApiOperation(value = "유저 정보 받아오기", notes = "토큰 정보를 통해 해당 유저의 이메일과 이름을 받아옵니다")
     @GetMapping("/")
     public BaseResponse<GetUserRes> getInfo(Principal principal) {
         try{
@@ -87,12 +95,12 @@ public class UserController {
             @ApiResponse(code = 404, message = "서버 문제 발생"),
             @ApiResponse(code = 500, message = "페이지를 찾을 수 없습니다")
     })
-    @ApiOperation(value = "유저 프로필 목록 조회", notes ="유저가 생성한 프로필 리스트 조회하는 API" +
-            "Bearer Token에 access token 넣어주세요!")
+    @ApiOperation(value = "유저 프로필 목록 조회", notes ="유저가 생성한 프로필 리스트 조회하는 API\n" +
+            "헤더에 access token 넣어주세요!")
     @GetMapping("/profileList")
-    public BaseResponse<List<GetProfileRes>> viewProfile(Principal principal) {
+    public BaseResponse<List<GetProfileListRes>> viewProfile(Principal principal) {
         try{
-            List<GetProfileRes> getProfileRes = userService.viewProfile(principal);
+            List<GetProfileListRes> getProfileRes = userProfileService.viewProfile(principal);
             return new BaseResponse<>(getProfileRes);
         }
         catch (BaseException e) {
@@ -104,7 +112,7 @@ public class UserController {
     @PostMapping("/profile")
     public BaseResponse<Long> addProfile(Principal principal, @RequestBody PostProfileReq profileReq) {
         try{
-            Long result = this.userService.addProfile(principal, profileReq);
+            Long result = this.userProfileService.addProfile(principal, profileReq);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -131,6 +139,36 @@ public class UserController {
             return new BaseResponse<>("알람 설정 변경을 완료했습니다.");
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
+        }
+    }
+    
+    @ApiOperation(value = "유저 프로필 세부 조회", notes ="Path variable로 상세 조회할 프로필 Idx 식별자 넣어주세요!")
+    @GetMapping("/profileList/{profileIdx}")
+    public BaseResponse<GetProfileRes> getUserProfile(Principal principal, @PathVariable("profileIdx") Long profileIdx) throws BaseException {
+        try {
+            GetProfileRes getUserProfile = userProfileService.getUserProfile(principal, profileIdx);
+            return new BaseResponse<>(getUserProfile);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+    @ResponseBody
+    @PostMapping("/email")
+    @ApiOperation(value="인증 번호 이메일 발급", notes="네이버 메일 (@naver.com) 형식의 이메일만 메일 전송이 가능합니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!")
+    public BaseResponse<String> authEmail(Principal principal, @RequestBody @Valid PostEmailReq request) throws Exception {
+        String code = this.userService.sendSimpleMessage(principal, request.getEmail());
+        log.info("인증 코드 : " + code);
+        return new BaseResponse<>("인증번호 발급 이메일을 전송하였습니다.");
+    }
+
+    @ResponseBody
+    @GetMapping("/emailConfirm")
+    @ApiOperation(value="인증 번호 비교", notes="이메일로 발급받으신 인증번호를 RequestBody에 넣어서 String으로 인증번호 인증 성공/실패 여부 반환하도록 했습니다!")
+    public BaseResponse<String> confirmEmail(Principal principal, @RequestBody GetEmailCodeReq code) throws BaseException {
+        if (this.userService.confirmEmail(principal, code)){
+            return new BaseResponse<>("인증번호 인증에 성공하였습니다.");
+        } else {
+            return new BaseResponse<>("인증번호 인증에 실패하였습니다.");
         }
     }
 }
