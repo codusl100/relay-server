@@ -1,20 +1,40 @@
-package com.example.relayRun.record.util;
+package com.example.relayRun.util;
 
+import com.example.relayRun.record.dto.GetDailyRes;
 import com.example.relayRun.record.dto.locationDTO;
 import com.example.relayRun.record.entity.LocationEntity;
-import com.example.relayRun.util.GoalType;
+import com.example.relayRun.record.entity.RunningRecordEntity;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecordDataHandler {
+    public static GetDailyRes get_summary(List<RunningRecordEntity> list, LocalDate date) {
+        float totalTime = 0;
+        float totalDist = 0;
+        float totalPace = 0;
+        Long count = 0L;
+
+        for (RunningRecordEntity rec : list) {
+            totalTime += rec.getTime();
+            totalDist += rec.getDistance();
+            totalPace += rec.getPace();
+            count++;
+        }
+
+        return GetDailyRes.builder()
+                .date(date)
+                .totalTime(totalTime)
+                .totalDist(totalDist)
+                .avgPace(totalPace/count)
+                .build();
+    }
     public static Float toSecond(LocalTime time) {
         return time.getHour() * 3600 +
                 time.getMinute() * 60 +
