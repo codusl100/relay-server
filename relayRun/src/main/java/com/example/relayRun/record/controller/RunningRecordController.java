@@ -44,9 +44,9 @@ public class RunningRecordController {
             "목표에 도달했는지 반환함 (y/n)" +
             "시간표에 맞지 않은 기록의 경우 실패로 처리" +
             "최종 달리기 종료 시 호출")
-    public BaseResponse<PostRunningFinishRes> finishRunning(@RequestBody PostRunningFinishReq runningFinishReq) {
+    public BaseResponse<PostRunningFinishRes> finishRunning(Principal principal, @RequestBody PostRunningFinishReq runningFinishReq) {
         try{
-            PostRunningFinishRes result = runningRecordService.finishRunning(runningFinishReq);
+            PostRunningFinishRes result = runningRecordService.finishRunning(principal,runningFinishReq);
             return new BaseResponse<>(result);
         }catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());

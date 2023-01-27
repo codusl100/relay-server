@@ -85,13 +85,19 @@ public class RunningRecordService {
         return result;
     }
 
-    public PostRunningFinishRes finishRunning(PostRunningFinishReq runningFinishReq) throws BaseException {
+    public PostRunningFinishRes finishRunning(Principal principal, PostRunningFinishReq runningFinishReq) throws BaseException {
         Optional<RunningRecordEntity> oldOptionalRecord = runningRecordRepository.findById(runningFinishReq.getRunningRecordIdx());
         if (oldOptionalRecord.isEmpty()) {
             throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_RECORD_ID);
         }
+        RunningRecordEntity oldRecord = oldOptionalRecord.get();
+        Optional<UserEntity> optionalUserPrincipal = userRepository.findByEmail(principal.getName());
+        if (optionalUserPrincipal.isEmpty())
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        UserEntity userPrincipal = optionalUserPrincipal.get();
         try {
-            RunningRecordEntity oldRecord = oldOptionalRecord.get();
+            if (!oldRecord.getMemberStatusIdx().getUserProfileIdx().getUserIdx().equals(userPrincipal))
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             List<LocationEntity> locations = RecordDataHandler.toEntityList(runningFinishReq.getLocations());
             LocalTime timeFormat = runningFinishReq.getTime();
             Optional<TimeTableEntity> optionalTimeTable = timeTableRepository
