@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -67,46 +68,50 @@ public class RunningRecordService {
      * @throws BaseException
      */
     public PostRunningInitRes startRunning(Principal principal, PostRunningInitReq runningInitReq) throws BaseException {
-        Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(
-                runningInitReq.getProfileIdx(),
-                "ACCEPTED"
-        );
-        if (optionalMemberStatus.isEmpty()){
-            throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
+        try{
+            Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(
+                    runningInitReq.getProfileIdx(),
+                    "ACCEPTED"
+            );
+            if (optionalMemberStatus.isEmpty()){
+                throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
+            }
+            Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findById(runningInitReq.getProfileIdx());
+            if (optionalUserProfile.isEmpty())
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NO_PROFILE_IDX);
+            UserProfileEntity userProfileParam = optionalUserProfile.get();
+            Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
+            if (optionalUser.isEmpty())
+                throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+            UserEntity userEntityPrincipal = optionalUser.get();
+            if (!userEntityPrincipal.getUserIdx().equals(userProfileParam.getUserIdx().getUserIdx()))
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
+            MemberStatusEntity memberStatus = optionalMemberStatus.get();
+            RunningRecordEntity recordEntity = new RunningRecordEntity();
+            recordEntity.setMemberStatusIdx(memberStatus);
+            recordEntity.setDistance(0.0f);
+            recordEntity.setTime(0.0f);
+            recordEntity.setPace(0.0f);
+            recordEntity = runningRecordRepository.save(recordEntity);
+            PostRunningInitRes result = new PostRunningInitRes();
+            result.setRunningRecordIdx(recordEntity.getRunningRecordIdx());
+            return result;
+        }catch(NullPointerException e){
+            throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
         }
-        Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findById(runningInitReq.getProfileIdx());
-        if (optionalUserProfile.isEmpty())
-            throw new BaseException(BaseResponseStatus.POST_RECORD_NO_PROFILE_IDX);
-        UserProfileEntity userProfileParam = optionalUserProfile.get();
-        Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
-        if (optionalUser.isEmpty())
-            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
-        UserEntity userEntityPrincipal = optionalUser.get();
-        if (!userEntityPrincipal.getUserIdx().equals(userProfileParam.getUserIdx().getUserIdx()))
-            throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
-        MemberStatusEntity memberStatus = optionalMemberStatus.get();
-        RunningRecordEntity recordEntity = new RunningRecordEntity();
-        recordEntity.setMemberStatusIdx(memberStatus);
-        recordEntity.setDistance(0.0f);
-        recordEntity.setTime(0.0f);
-        recordEntity.setPace(0.0f);
-        recordEntity = runningRecordRepository.save(recordEntity);
-        PostRunningInitRes result = new PostRunningInitRes();
-        result.setRunningRecordIdx(recordEntity.getRunningRecordIdx());
-        return result;
     }
 
     public PostRunningFinishRes finishRunning(Principal principal, PostRunningFinishReq runningFinishReq) throws BaseException {
-        Optional<RunningRecordEntity> oldOptionalRecord = runningRecordRepository.findById(runningFinishReq.getRunningRecordIdx());
-        if (oldOptionalRecord.isEmpty()) {
-            throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_RECORD_ID);
-        }
-        RunningRecordEntity oldRecord = oldOptionalRecord.get();
-        Optional<UserEntity> optionalUserPrincipal = userRepository.findByEmail(principal.getName());
-        if (optionalUserPrincipal.isEmpty())
-            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
-        UserEntity userPrincipal = optionalUserPrincipal.get();
         try {
+            Optional<RunningRecordEntity> oldOptionalRecord = runningRecordRepository.findById(runningFinishReq.getRunningRecordIdx());
+            if (oldOptionalRecord.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_RECORD_ID);
+            }
+            RunningRecordEntity oldRecord = oldOptionalRecord.get();
+            Optional<UserEntity> optionalUserPrincipal = userRepository.findByEmail(principal.getName());
+            if (optionalUserPrincipal.isEmpty())
+                throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+            UserEntity userPrincipal = optionalUserPrincipal.get();
             if (!oldRecord.getMemberStatusIdx().getUserProfileIdx().getUserIdx().equals(userPrincipal))
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             List<LocationEntity> locations = RecordDataHandler.toEntityList(runningFinishReq.getLocations());
@@ -147,6 +152,8 @@ public class RunningRecordService {
             return new PostRunningFinishRes(isSuccess);
         } catch (ParseException e) {
             throw new BaseException(BaseResponseStatus.POST_PARSE_ERROR);
+        } catch (NullPointerException e) {
+            throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
         }
     }
 
