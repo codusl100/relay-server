@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/record")
 public class RunningRecordController {
@@ -26,9 +28,9 @@ public class RunningRecordController {
     }
     @PostMapping("/start")
     @ApiOperation(value="달리기 시작", notes="profileIdx, 속한 clubIdx 요청")
-    public BaseResponse<PostRunningInitRes> startRunning(@RequestBody PostRunningInitReq runningInitReq) {
+    public BaseResponse<PostRunningInitRes> startRunning(Principal principal, @RequestBody PostRunningInitReq runningInitReq) {
         try{
-            PostRunningInitRes result = runningRecordService.startRunning(runningInitReq);
+            PostRunningInitRes result = runningRecordService.startRunning(principal, runningInitReq);
             return new BaseResponse<>(result);
         }catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());

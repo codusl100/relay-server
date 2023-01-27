@@ -13,12 +13,18 @@ import com.example.relayRun.record.repository.RunningRecordRepository;
 import com.example.relayRun.record.util.RecordDataHandler;
 import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.club.repository.TimeTableRepository;
+import com.example.relayRun.user.entity.UserEntity;
+import com.example.relayRun.user.entity.UserProfileEntity;
+import com.example.relayRun.user.repository.UserProfileRepository;
+import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import java.security.Principal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,23 +32,30 @@ import java.util.Optional;
 
 @Service
 public class RunningRecordService {
+    UserProfileRepository userProfileRepository;
     RunningRecordRepository runningRecordRepository;
     LocationRepository locationRepository;
     MemberStatusRepository memberStatusRepository;
 
+    UserRepository userRepository;
     TimeTableRepository timeTableRepository;
     @Autowired
     public RunningRecordService(RunningRecordRepository runningRecordRepository,
                                 LocationRepository locationRepository,
                                 MemberStatusRepository memberStatusRepository,
-                                TimeTableRepository timeTableRepository) {
+                                TimeTableRepository timeTableRepository,
+                                UserProfileRepository userProfileRepository,
+                                UserRepository userRepository
+    ) {
         this.runningRecordRepository = runningRecordRepository;
         this.locationRepository = locationRepository;
         this.memberStatusRepository = memberStatusRepository;
         this.timeTableRepository = timeTableRepository;
+        this.userProfileRepository = userProfileRepository;
+        this.userRepository = userRepository;
     }
 
-    public PostRunningInitRes startRunning(PostRunningInitReq runningInitReq) throws BaseException {
+    public PostRunningInitRes startRunning(Principal principal, PostRunningInitReq runningInitReq) throws BaseException {
         Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(
                 runningInitReq.getProfileIdx(),
                 "ACCEPTED"
@@ -50,6 +63,16 @@ public class RunningRecordService {
         if (optionalMemberStatus.isEmpty()){
             throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
         }
+        Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findById(runningInitReq.getProfileIdx());
+        if (optionalUserProfile.isEmpty())
+            throw new BaseException(BaseResponseStatus.POST_RECORD_NO_PROFILE_IDX);
+        UserProfileEntity userProfileParam = optionalUserProfile.get();
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
+        if (optionalUser.isEmpty())
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        UserEntity userEntityPrincipal = optionalUser.get();
+        if (!userEntityPrincipal.getUserIdx().equals(userProfileParam.getUserIdx().getUserIdx()))
+            throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
         MemberStatusEntity memberStatus = optionalMemberStatus.get();
         RunningRecordEntity recordEntity = new RunningRecordEntity();
         recordEntity.setMemberStatusIdx(memberStatus);
