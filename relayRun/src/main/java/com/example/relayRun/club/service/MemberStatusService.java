@@ -17,7 +17,7 @@ import com.example.relayRun.util.BaseResponseStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,14 +65,14 @@ public class MemberStatusService {
             //시간표 등록
             List<TimeTableDTO> timeTables = memberStatus.getTimeTables();
             //1. formatter 정의
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
             for (int i = 0; i < timeTables.size(); i++) {
                 //2. 입력으로 들어온 string -> local date time으로 변환
                 String startStr = timeTables.get(i).getStart();
                 String endStr = timeTables.get(i).getEnd();
-                LocalDateTime startTime = LocalDateTime.parse(startStr, formatter);
-                LocalDateTime endTime = LocalDateTime.parse(endStr, formatter);
+                LocalTime startTime = LocalTime.parse(startStr, formatter);
+                LocalTime endTime = LocalTime.parse(endStr, formatter);
 
                 //3. 중복 시간표 비교
                 List<Long> duplicateTimeTableList = timeTableRepository.selectDuplicateTimeTable(clubIdx,
