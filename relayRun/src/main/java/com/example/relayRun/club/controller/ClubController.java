@@ -5,9 +5,10 @@ import com.example.relayRun.club.dto.GetClubListRes;
 import com.example.relayRun.club.dto.GetMemberOfClubRes;
 import com.example.relayRun.club.service.ClubService;
 import com.example.relayRun.club.service.MemberStatusService;
-import com.example.relayRun.record.service.RecordService;
+import com.example.relayRun.record.service.RunningRecordService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +17,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
+@Api(tags = {"그룹 목록 관련 API"})
 @RequestMapping(value = "/clubs")
 public class ClubController {
 
     private final ClubService clubService;
-    private final MemberStatusService memberStatusService;
-    private final RecordService recordService;
+    private final RunningRecordService runningRecordService;
 
-    public ClubController(ClubService clubService, MemberStatusService memberStatusService, RecordService recordService) {
+    public ClubController(ClubService clubService, MemberStatusService memberStatusService, RunningRecordService runningRecordService) {
         this.clubService = clubService;
-        this.memberStatusService = memberStatusService;
-        this.recordService = recordService;
+        this.runningRecordService = runningRecordService;
     }
 
     @ApiOperation(value="그룹 목록 조회(전체, 검색)", notes="URI 뒤에 search parameter로 그룹 이름을 검색할 수 있다. 아무것도 넘기지 않을 경우 전체 목록이 조회된다.")
@@ -56,7 +56,7 @@ public class ClubController {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
                 LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
-                getMemberOfClubRes.setRunningRecord(recordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
+                getMemberOfClubRes.setRunningRecord(runningRecordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
             }
             return new BaseResponse<>(getMemberOfClubResList);
         } catch(BaseException e) {
