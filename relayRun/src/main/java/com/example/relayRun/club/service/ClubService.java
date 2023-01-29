@@ -189,7 +189,7 @@ public class ClubService {
         ClubEntity clubEntity = optional.get();
         UserProfileEntity hostUserProfileEntity = clubEntity.getHostIdx();
         if(clubRecruitStatusReq.getUserProfileIdx().equals(hostUserProfileEntity.getUserProfileIdx())) {
-            clubEntity.update()
+            clubRepository.updateRecruitStatus(clubRecruitStatusReq.getRecruitStatus(), clubEntity.getClubIdx());
         } else {
             throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
         }
