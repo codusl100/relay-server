@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,6 +155,37 @@ public class RunningRecordService {
             throw new BaseException(BaseResponseStatus.POST_PARSE_ERROR);
         } catch (NullPointerException e) {
             throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
+        }
+    }
+
+    /**
+     * 실시간 달리기 현황 GET
+     * @param memberStatusIdx
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws BaseException
+     */
+    public List<GetRecordWithoutLocationRes> getRecordWithoutLocation(Long memberStatusIdx, LocalDateTime startDate, LocalDateTime endDate) throws BaseException {
+        try {
+            List<RunningRecordEntity> recordList = runningRecordRepository.selectByMemberStatusIdxAndDate(memberStatusIdx, startDate, endDate);
+            if (recordList.isEmpty()) {
+                return null;
+            }
+            List<GetRecordWithoutLocationRes> res = new ArrayList<>();
+            for(RunningRecordEntity record : recordList) {
+                res.add(
+                        GetRecordWithoutLocationRes.builder()
+                                .recordIdx(record.getRunningRecordIdx())
+                                .date(record.getCreatedAt())
+                                .runningStatus(record.getRunningStatus())
+                                .build()
+                );
+            }
+            return res;
+        } catch (Exception e) {
+            System.out.println("e = " + e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 

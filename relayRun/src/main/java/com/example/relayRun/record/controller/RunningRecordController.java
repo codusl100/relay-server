@@ -1,11 +1,6 @@
 package com.example.relayRun.record.controller;
 
-import com.example.relayRun.record.dto.PostRunningFinishReq;
-import com.example.relayRun.record.dto.PostRunningFinishRes;
-import com.example.relayRun.record.dto.GetDailyRes;
-import com.example.relayRun.record.dto.GetRecordByIdxRes;
-import com.example.relayRun.record.dto.PostRunningInitReq;
-import com.example.relayRun.record.dto.PostRunningInitRes;
+import com.example.relayRun.record.dto.*;
 import com.example.relayRun.record.service.RunningRecordService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -20,6 +15,9 @@ import java.security.Principal;
 import java.time.LocalDate;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RestController
 @Api(tags={"달리기 및 기록 관련 API"})
@@ -59,6 +57,22 @@ public class RunningRecordController {
             return new BaseResponse<>(result);
         }catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // member_status_idx와 오늘 날짜로 조회 테스트 API
+    @ApiOperation(value="member_status_idx와 오늘 날짜로 조회", notes="Request Parameter : mid, date로 각 값을 입력해주세요")
+    @ResponseBody
+    @GetMapping("")
+    public BaseResponse<List<GetRecordWithoutLocationRes>> getRecordWithoutLocation(@RequestParam("mid") Long memberStatusIdx, @RequestParam("date") String date) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
+            LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
+            List<GetRecordWithoutLocationRes> rec = runningRecordService.getRecordWithoutLocation(memberStatusIdx, startDate, endDate);
+            return new BaseResponse<>(rec);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
         }
     }
 
