@@ -1,7 +1,10 @@
 package com.example.relayRun.user.entity;
 
 import com.example.relayRun.util.BaseTimeEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
@@ -9,7 +12,6 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
@@ -50,6 +52,10 @@ public class UserProfileEntity extends BaseTimeEntity {
 
     public void changeStatusMsg(String statusMsg){
         this.statusMsg = statusMsg;
+    }
+
+    public void setIsAlarmOn (String isAlarmOn){
+        this.isAlarmOn = isAlarmOn;
     }
 }
 
