@@ -181,7 +181,7 @@ public class ClubService {
 
     }
 
-    public void changeClubRecruitStatus(Long clubIdx, PatchClubRecruitStatusReq clubRecruitStatusReq) throws BaseException {
+    public void patchClubRecruitStatus(Long clubIdx, PatchClubRecruitStatusReq clubRecruitStatusReq) throws BaseException {
         Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
         if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
@@ -189,7 +189,7 @@ public class ClubService {
         ClubEntity clubEntity = optional.get();
         UserProfileEntity hostUserProfileEntity = clubEntity.getHostIdx();
         if(clubRecruitStatusReq.getUserProfileIdx().equals(hostUserProfileEntity.getUserProfileIdx())) {
-            clubEntity.changeRecruitStatus(clubRecruitStatusReq.getRecruitStatus());
+            clubEntity.update()
         } else {
             throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
         }

@@ -1,5 +1,6 @@
 package com.example.relayRun.club.controller;
 
+import com.example.relayRun.club.dto.PatchClubRecruitStatusReq;
 import com.example.relayRun.club.dto.PostClubReq;
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.service.ClubService;
@@ -46,4 +47,15 @@ public class ClubApplyController {
         }
     }
 
+    @ApiOperation(value="그룹의 모집 상태 변경", notes="현재 프로필 아이디와 변경하고자 하는 모집 상태 값을 넘겨주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/recruit-change")
+    public BaseResponse<String> patchRecruitStatus(@PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubRecruitStatusReq clubRecruitStatusReq){
+        try {
+            clubService.patchClubRecruitStatus(clubIdx, clubRecruitStatusReq);
+            return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
