@@ -243,14 +243,11 @@ public class RunningRecordService {
     public GetDailyRes getDailyRecord(Principal principal, LocalDate date) throws BaseException {
         try {
             Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
-            if (user.isEmpty()) {
-                throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
-            }
 
             List<RunningRecordEntity> records = new ArrayList<>();
-            List<UserProfileEntity> profileList = userProfileRepository.findAllByUserIdx(user.get());
+            List<UserProfileEntity> profileList = userProfileRepository.findAllByUserIdxAndStatus(user.get(), "active");
             for (UserProfileEntity profile : profileList) {
-                List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(profile.getUserProfileIdx());
+                List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(profile.getUserProfileIdx(), "active");
                 for (MemberStatusEntity status : statusList) {
                     records.addAll(runningRecordRepository
                             .findByMemberStatusIdxAndCreatedAtBetweenAndRunningStatus(status, date.atStartOfDay(), date.plusDays(1).atStartOfDay(), "finish"));
@@ -300,9 +297,9 @@ public class RunningRecordService {
     public List<MemberStatusEntity> getApplyList(UserEntity user) {
         List<MemberStatusEntity> applyList = new ArrayList<>();
 
-        List<UserProfileEntity> profileList = userProfileRepository.findAllByUserIdx(user); // 프로필 여러개
+        List<UserProfileEntity> profileList = userProfileRepository.findAllByUserIdxAndStatus(user, "active"); // 프로필 여러개
         for (UserProfileEntity profile : profileList) {
-            List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(profile.getUserProfileIdx());
+            List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(profile.getUserProfileIdx(), "active");
             applyList.addAll(statusList);
         }
         return applyList;
@@ -311,6 +308,7 @@ public class RunningRecordService {
     /**
      * 개인 기록 캘린더
      * @param principal
+     * @param year
      * @param month
      * @return
      * @throws BaseException
@@ -324,7 +322,7 @@ public class RunningRecordService {
             List<MemberStatusEntity> applyList = getApplyList(user.get());
 
             // memberStatus에 해당하는 기록 중 해당 월만 갖고오기
-            List<RunningRecordEntity> recordList = runningRecordRepository.selectByMemberStatusAndYearAndMonth(applyList, year, month);
+            List<RunningRecordEntity> recordList = runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
 
             // GetDailyRes로 변환
             List<GetDailyRes> calender = new ArrayList<>();

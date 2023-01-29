@@ -19,6 +19,13 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecordEnti
     @Query("select r from RunningRecordEntity r where r.memberStatusIdx.memberStatusIdx = :memberStatusIdx and r.createdAt between :startDate and :endDate")
     List<RunningRecordEntity> selectByMemberStatusIdxAndDate(@Param("memberStatusIdx") Long memberStatusIdx, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "select * from runningmen.running_record as r where r.member_status_idx in :idxList and YEAR(r.created_at) = :year and MONTH(r.created_at) = :month", nativeQuery = true)
-    List<RunningRecordEntity> selectByMemberStatusAndYearAndMonth(@Param("idxList") List<MemberStatusEntity> list, @Param("year") Integer Year, @Param("month") Integer month);
+    @Query(value = "select * from runningmen.running_record as r " +
+            "where r.member_status_idx in :idxList and " +
+            "YEAR(r.created_at) = :year and MONTH(r.created_at) = :month and " +
+            "r.status = :status", nativeQuery = true)
+    List<RunningRecordEntity> selectByMemberStatusAndYearAndMonthAndStatus(
+            @Param("idxList") List<MemberStatusEntity> list,
+            @Param("year") Integer Year,
+            @Param("month") Integer month,
+            @Param("status") String status);
 }
