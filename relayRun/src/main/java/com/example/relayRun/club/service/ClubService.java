@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.sql.Time;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -181,17 +179,47 @@ public class ClubService {
 
     }
 
-    public void patchClubRecruitStatus(Long clubIdx, PatchClubRecruitStatusReq clubRecruitStatusReq) throws BaseException {
+    public void updateClubInfo(Long clubIdx, PatchClubInfoReq clubInfoReq) throws BaseException {
         Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
         if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
         }
         ClubEntity clubEntity = optional.get();
         UserProfileEntity hostUserProfileEntity = clubEntity.getHostIdx();
-        if(clubRecruitStatusReq.getUserProfileIdx().equals(hostUserProfileEntity.getUserProfileIdx())) {
-            clubRepository.updateRecruitStatus(clubRecruitStatusReq.getRecruitStatus(), clubEntity.getClubIdx());
+        // 방장인지 검사
+        if(clubInfoReq.getUserProfileIdx().equals(hostUserProfileEntity.getUserProfileIdx())) {
+            clubEntity.setName(clubInfoReq.getName());
+            clubEntity.setContent(clubInfoReq.getContent());
+            clubEntity.setImgURL(clubInfoReq.getImgURL());
+            clubEntity.setMaxNum(clubInfoReq.getMaxNum());
+            clubEntity.setLevel(clubInfoReq.getLevel());
+            clubEntity.setGoalType(clubInfoReq.getGoalType());
+            clubEntity.setGoal(clubInfoReq.getGoal());
+            clubEntity.setRecruitStatus(clubInfoReq.getRecruitStatus());
+
+            clubRepository.save(clubEntity);
         } else {
             throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
         }
+    }
+
+    public void updateClubRecruitFinished(Long clubIdx) throws BaseException {
+        Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
+        if (optional.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
+        }
+        ClubEntity clubEntity = optional.get();
+        clubEntity.setRecruitStatus("finished");
+        clubRepository.save(clubEntity);
+    }
+
+    public void updateClubRecruitRecruiting(Long clubIdx) throws BaseException {
+        Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
+        if (optional.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
+        }
+        ClubEntity clubEntity = optional.get();
+        clubEntity.setRecruitStatus("recruiting");
+        clubRepository.save(clubEntity);
     }
 }

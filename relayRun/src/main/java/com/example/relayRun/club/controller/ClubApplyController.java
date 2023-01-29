@@ -1,17 +1,14 @@
 package com.example.relayRun.club.controller;
 
-import com.example.relayRun.club.dto.PatchClubRecruitStatusReq;
+import com.example.relayRun.club.dto.PatchClubInfoReq;
 import com.example.relayRun.club.dto.PostClubReq;
-import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.service.ClubService;
-import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @Api(tags = {"그룹 생성/관리 관련 API"})
@@ -43,17 +40,41 @@ public class ClubApplyController {
             clubService.makesClub(principal, userProfileIdx, club);
             return new BaseResponse<>("그룹 생성을 성공하였습니다.");
         } catch (BaseException e) {
-            return new BaseResponse(e.getStatus());
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
-    @ApiOperation(value="그룹의 모집 상태 변경", notes="현재 프로필 아이디와 변경하고자 하는 모집 상태 값을 넘겨주세요")
+    @ApiOperation(value="그룹의 모집완료 전환", notes="모집 인원이 모두 다 차면 자동 모집완료 처리 해야합니다.")
     @ResponseBody
-    @PatchMapping("/{clubIdx}/recruit-change")
-    public BaseResponse<String> patchRecruitStatus(@PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubRecruitStatusReq clubRecruitStatusReq){
+    @PatchMapping("/{clubIdx}/recruit-finished")
+    public BaseResponse<String> patchRecruitFinished(@PathVariable("clubIdx") Long clubIdx){
         try {
-            clubService.patchClubRecruitStatus(clubIdx, clubRecruitStatusReq);
+            clubService.updateClubRecruitFinished(clubIdx);
             return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹의 모집중 전환", notes="모집 인원이 모두 다 찬 상황에서 팀원이 나가면 자동 모집중 처리 해야합니다.")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/recruit-recruiting")
+    public BaseResponse<String> patchRecruitRecruiting(@PathVariable("clubIdx") Long clubIdx){
+        try {
+            clubService.updateClubRecruitFinished(clubIdx);
+            return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹 정보 변경", notes="현재 프로필 아이디와 변경하고자 하는 그룹 정보 값을 넘겨주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}")
+    public BaseResponse<String> patchClubInfo(@PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubInfoReq clubInfoReq){
+        try {
+            clubService.updateClubInfo(clubIdx, clubInfoReq);
+            return new BaseResponse<>("그룹의 정보를 변경하였습니다.");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
