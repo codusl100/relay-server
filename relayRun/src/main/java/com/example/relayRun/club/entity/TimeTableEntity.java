@@ -1,20 +1,19 @@
-package com.example.relayRun.timetable.entity;
+package com.example.relayRun.club.entity;
 
-import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.util.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 @Table(name = "time_table")
 public class TimeTableEntity extends BaseTimeEntity {
@@ -31,10 +30,10 @@ public class TimeTableEntity extends BaseTimeEntity {
     private Integer day;
 
     @Column(nullable = false)
-    private LocalDateTime start;
+    private LocalTime start;
 
     @Column(nullable = false)
-    private LocalDateTime end;
+    private LocalTime end;
 
     @Column(nullable = false)
     private Float goal;
@@ -46,4 +45,13 @@ public class TimeTableEntity extends BaseTimeEntity {
     @Column(columnDefinition = "varchar(10) default 'active'")
     private String status;
 
+    @Builder
+    public TimeTableEntity(MemberStatusEntity memberStatusIdx, Integer day, LocalTime start, LocalTime end, Float goal, GoalType goalType) {
+        this.memberStatusIdx = memberStatusIdx;
+        this.day = day;
+        this.start = start;
+        this.end = end;
+        this.goal = goal;
+        this.goalType = goalType;
+    }
 }

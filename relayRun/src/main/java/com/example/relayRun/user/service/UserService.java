@@ -4,47 +4,69 @@ import com.example.relayRun.jwt.TokenProvider;
 import com.example.relayRun.jwt.dto.TokenDto;
 import com.example.relayRun.jwt.entity.RefreshTokenEntity;
 import com.example.relayRun.jwt.repository.RefreshTokenRepository;
-import com.example.relayRun.user.dto.GetUserRes;
-import com.example.relayRun.user.dto.PatchUserPwdReq;
-import com.example.relayRun.user.dto.PostLoginReq;
-import com.example.relayRun.user.dto.PostUserReq;
+import com.example.relayRun.user.dto.*;
 import com.example.relayRun.user.entity.LoginType;
 import com.example.relayRun.user.entity.UserEntity;
+import com.example.relayRun.user.entity.UserProfileEntity;
+import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
+import com.example.relayRun.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import com.example.relayRun.util.BaseResponseStatus;
 import com.example.relayRun.util.Role;
+import org.apache.catalina.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.relayRun.util.ValidationRegex.isRegexEmail;
 import static com.example.relayRun.util.ValidationRegex.isRegexPwd;
 
 @Service
+@Slf4j
 public class UserService {
     private UserRepository userRepository;
+    private UserProfileRepository userProfileRepository;
     private PasswordEncoder passwordEncoder;
     private TokenProvider tokenProvider;
     private RefreshTokenRepository refreshTokenRepository;
     private AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private JavaMailSender javaMailSender;
+
+    private RedisUtil redisUtil;
+
+    private final String ePw = createKey();
+    private String id = "codusl100@naver.com";
 
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
-                       AuthenticationManagerBuilder authenticationManagerBuilder){
+    public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository,
+                       PasswordEncoder passwordEncoder, TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
+                       AuthenticationManagerBuilder authenticationManagerBuilder, JavaMailSender javaMailSender, RedisUtil redisUtil){
         this.userRepository = userRepository;
+        this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.refreshTokenRepository = refreshTokenRepository;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.javaMailSender = javaMailSender;
+        this.redisUtil = redisUtil;
     }
 
     // 회원가입
@@ -76,7 +98,15 @@ public class UserService {
                 .role(Role.ROLE_USER)
                 .build();
         user.setPwd(password);
-        userRepository.save(userEntity);
+
+        userEntity = userRepository.save(userEntity);
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .nickName("기본 닉네임")
+                .imgURL("기본 이미지")
+                .statusMsg("안녕하세요")
+                .userIdx(userEntity)
+                .build();
+        userProfileRepository.save(userProfileEntity);
         return token(user);
 
     }
@@ -177,7 +207,7 @@ public class UserService {
     public GetUserRes getUserInfo(Principal principal) throws BaseException {
         Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
         if(optionalUserEntity.isEmpty()) {
-            throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         UserEntity userEntity = optionalUserEntity.get();
         GetUserRes result = new GetUserRes(
@@ -217,6 +247,109 @@ public class UserService {
         }
         userEntity.changePwd(encodedPwd);
         userRepository.save(userEntity);
+    }
+
+    public List<GetProfileRes> viewProfile(Principal principal) throws BaseException {
+        Optional<UserEntity> optional = userRepository.findByEmail(principal.getName());
+        if (optional.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        // userIdx가 생성한 프로필 idx 다 조회
+        List<UserProfileEntity> userProfileList = userProfileRepository.findAllByUserIdx(optional.get());
+        List<GetProfileRes> getProfileList = new ArrayList<>();
+        // 조회한 프로필 Id들 Dto에 담기
+        for (UserProfileEntity profile : userProfileList) {
+            GetProfileRes getProfileRes = new GetProfileRes();
+            getProfileRes.setUserProfileIdx(profile.getUserProfileIdx());
+            getProfileRes.setNickname(profile.getNickName());
+            getProfileRes.setStatusMsg(profile.getStatusMsg());
+            getProfileRes.setIsAlarmOn(profile.getIsAlarmOn());
+            getProfileRes.setImgUrl(profile.getImgURL());
+            getProfileList.add(getProfileRes);
+        }
+        return getProfileList;
+    }
+    public Long addProfile(Principal principal, PostProfileReq profileReq) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
+                .userIdx(userEntity)
+                .nickName(profileReq.getNickname())
+                .imgURL(profileReq.getImgUrl())
+                .isAlarmOn(profileReq.getIsAlarmOn())
+                .statusMsg(profileReq.getStatusMsg())
+                .build();
+        userProfileEntity = userProfileRepository.save(userProfileEntity);
+        return userProfileEntity.getUserProfileIdx();
+    }
+
+    public MimeMessage createMessage(String to)throws MessagingException, UnsupportedEncodingException {
+        log.info("보내는 대상 : "+ to);
+        log.info("인증 번호 : " + ePw);
+        MimeMessage  message = javaMailSender.createMimeMessage();
+
+        message.addRecipients(MimeMessage.RecipientType.TO, to); // to 보내는 대상
+        message.setSubject("이어달리기 인증 코드 발급 안내"); //메일 제목
+
+        String msg="";
+        msg += "<h1 style=\"font-size: 30px; padding-right: 30px; padding-left: 30px;\">이어달리기 인증 번호</h1>";
+        msg += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">아래 확인 코드를 입력해주세요.</p>";
+        msg += "<div style=\"padding-right: 30px; padding-left: 30px; margin: 32px 0 40px;\"><table style=\"border-collapse: collapse; border: 0; background-color: #F4F4F4; height: 70px; table-layout: fixed; word-wrap: break-word; border-radius: 6px;\"><tbody><tr><td style=\"text-align: center; vertical-align: middle; font-size: 30px;\">";
+        msg += ePw;
+        msg += "</td></tr></tbody></table></div>";
+
+        message.setText(msg, "utf-8", "html"); //내용, charset타입, subtype
+        message.setFrom(new InternetAddress(id,"이어달리기 팀")); //보내는 사람의 메일 주소, 보내는 사람 이름
+
+        return message;
+    }
+
+    // 인증코드 만들기
+    public static String createKey() {
+        StringBuffer key = new StringBuffer();
+        Random rnd = new Random();
+
+        for (int i = 0; i < 6; i++) { // 인증코드 6자리
+            key.append((rnd.nextInt(10)));
+        }
+        return key.toString();
+    }
+
+    // 메일 발송
+    public String sendSimpleMessage(Principal principal, String to)throws Exception {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        MimeMessage message = createMessage(to);
+        String email = optionalUserEntity.get().getEmail();
+        try{
+            javaMailSender.send(message); // 메일 발송
+            //    Redis로 유효기간 설정하기
+            // 유효 시간(5분)동안 {email, authKey} 저장
+            redisUtil.setDataExpire(ePw, email, 60 * 5L);
+        }catch(MailException es){
+            es.printStackTrace();
+            throw new IllegalArgumentException();
+        }
+        return ePw; // 메일로 보냈던 인증 코드를 서버로 리턴
+    }
+
+    // 인증 번호 확인
+    public boolean confirmEmail(Principal principal, GetEmailCodeReq code) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if (optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        String user = redisUtil.getData(code.getCode());
+        log.info("유저 정보 : " + user);
+        if (user == null || user.length() == 0) {
+            return false;
+        }
+        return true;
     }
 }
 

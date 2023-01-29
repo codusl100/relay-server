@@ -5,7 +5,6 @@ import com.example.relayRun.util.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
@@ -31,7 +30,7 @@ public class ClubEntity extends BaseTimeEntity {
     private String imgURL;
 
     @OneToOne
-    @JoinColumn(name = "userIdx")
+    @JoinColumn(name = "userProfileIdx")
     private UserProfileEntity hostIdx;
 
     @Column(nullable = false, columnDefinition = "varchar(1) default 'Y'")
@@ -40,12 +39,12 @@ public class ClubEntity extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "integer default 8")
     private Integer maxNum;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "integer default 0")
     private Integer level;
 
-    @Column(name = "goalType", nullable = false)
+    @Column(name = "goalType", nullable = false, columnDefinition = "varchar(10) default 'NOGOAL'")
     @Enumerated(EnumType.STRING)
-    private GoalType goalType;
+    private GoalType goalType = GoalType.NOGOAL;
 
     @Column()
     private Float goal;
@@ -71,6 +70,4 @@ public class ClubEntity extends BaseTimeEntity {
         this.recruitStatus = recruitStatus;
         this.status = status;
     }
-
-    public void changeRecruitStatus(String recruitStatus) { this.recruitStatus = recruitStatus; }
 }
