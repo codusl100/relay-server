@@ -42,5 +42,8 @@ public class UserProfileEntity extends BaseTimeEntity {
     @Column(columnDefinition = "varchar(10) default 'active'")
     private String status;
 
+    public void setIsAlarmOn (String isAlarmOn){
+        this.isAlarmOn = isAlarmOn;
+    }
 }
 
