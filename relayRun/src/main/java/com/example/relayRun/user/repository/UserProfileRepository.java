@@ -14,5 +14,5 @@ public interface UserProfileRepository extends JpaRepository<UserProfileEntity, 
     Optional<UserProfileEntity> findByUserProfileIdx(Long userProfileIdx);
     List<UserProfileEntity> findAllByUserIdx(UserEntity user);
     List<UserProfileEntity> findAllByUserIdxAndStatus(UserEntity user, String status);
-    UserProfileEntity findByUserIdx(UserEntity user);
+    Optional<UserProfileEntity> findByUserIdx(UserEntity user);
 }
