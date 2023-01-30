@@ -318,6 +318,10 @@ public class RunningRecordService {
             // principal에서 user 가져오기
             Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
 
+            if (user.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+            }
+
             // user의 모든 memberStatus 가져오기
             List<MemberStatusEntity> applyList = getApplyList(user.get());
 
