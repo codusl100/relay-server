@@ -35,7 +35,7 @@ public class UserProfileService {
 
     public GetUserProfileClubRes getUserProfileClub(Long userProfileIdx) throws BaseException {
         ClubEntity clubEntity = null;
-        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(userProfileIdx);
+        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
         for (MemberStatusEntity memberStatusEntity : memberStatusEntityList) {
             if (memberStatusEntity.getApplyStatus().equals("ACCEPTED")) {
                 clubEntity = memberStatusEntity.getClubIdx();
