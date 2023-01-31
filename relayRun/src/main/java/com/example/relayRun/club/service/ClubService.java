@@ -222,4 +222,33 @@ public class ClubService {
         clubEntity.setRecruitStatus("recruiting");
         clubRepository.save(clubEntity);
     }
+
+    public void updateClubHost(Principal principal, Long clubIdx, PatchHostReq hostReq) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdx(clubIdx);
+        if (optionalClubEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
+        }
+        ClubEntity clubEntity = optionalClubEntity.get();
+
+        if (!clubEntity.getHostIdx().getUserIdx().equals(userEntity)) {
+            throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
+        }
+
+        Optional<MemberStatusEntity> optionalMemberStatusEntity =
+                memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatusAndApplyStatus(
+                        hostReq.getNextHostProfileIdx(), "ACTIVE", "ACCEPTED"
+                );
+        if (optionalMemberStatusEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
+        }
+        MemberStatusEntity memberStatusEntity = optionalMemberStatusEntity.get();
+        clubEntity.setHostIdx(memberStatusEntity.getUserProfileIdx());
+        clubRepository.save(clubEntity);
+    }
 }

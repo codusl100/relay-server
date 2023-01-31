@@ -1,6 +1,7 @@
 package com.example.relayRun.club.controller;
 
 import com.example.relayRun.club.dto.PatchClubInfoReq;
+import com.example.relayRun.club.dto.PatchHostReq;
 import com.example.relayRun.club.dto.PostClubReq;
 import com.example.relayRun.club.service.ClubService;
 import com.example.relayRun.util.BaseException;
@@ -75,6 +76,18 @@ public class ClubApplyController {
         try {
             clubService.updateClubInfo(clubIdx, clubInfoReq);
             return new BaseResponse<>("그룹의 정보를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹 방장 위임", notes="path variable로 클럽 아이디를 전달하고 현재 프로필 아이디, 방장이 될 유저의 프로필 아이디를 body로 전달해주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/host-change")
+    public BaseResponse<String> patchClubHost(Principal principal, @PathVariable("clubIdx") Long clubIdx, @RequestBody PatchHostReq hostReq) {
+        try {
+            clubService.updateClubHost(principal, clubIdx, hostReq);
+            return new BaseResponse<>("방장을 위임 하였습니다.");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
