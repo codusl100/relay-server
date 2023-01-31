@@ -9,10 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchClubInfoReq {
-
-    @ApiModelProperty(value = "프로필 아이디")
-    private Long userProfileIdx;
-
     @ApiModelProperty(example="그룹 이름", required = true)
     private String name;
 

@@ -71,9 +71,9 @@ public class ClubApplyController {
     @ApiOperation(value="그룹 정보 변경", notes="현재 프로필 아이디와 변경하고자 하는 그룹 정보 값을 넘겨주세요")
     @ResponseBody
     @PatchMapping("/{clubIdx}")
-    public BaseResponse<String> patchClubInfo(@PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubInfoReq clubInfoReq){
+    public BaseResponse<String> patchClubInfo(Principal principal, @PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubInfoReq clubInfoReq){
         try {
-            clubService.updateClubInfo(clubIdx, clubInfoReq);
+            clubService.updateClubInfo(principal, clubIdx, clubInfoReq);
             return new BaseResponse<>("그룹의 정보를 변경하였습니다.");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());

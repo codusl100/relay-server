@@ -179,15 +179,19 @@ public class ClubService {
 
     }
 
-    public void updateClubInfo(Long clubIdx, PatchClubInfoReq clubInfoReq) throws BaseException {
-        Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
-        if (optional.isEmpty()) {
+    public void updateClubInfo(Principal principal, Long clubIdx, PatchClubInfoReq clubInfoReq) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if(optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdx(clubIdx);
+        if (optionalClubEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
         }
-        ClubEntity clubEntity = optional.get();
-        UserProfileEntity hostUserProfileEntity = clubEntity.getHostIdx();
-        // 방장인지 검사
-        if(clubInfoReq.getUserProfileIdx().equals(hostUserProfileEntity.getUserProfileIdx())) {
+        ClubEntity clubEntity = optionalClubEntity.get();
+        if(clubEntity.getHostIdx().getUserIdx().equals(userEntity)) {
             clubEntity.setName(clubInfoReq.getName());
             clubEntity.setContent(clubInfoReq.getContent());
             clubEntity.setImgURL(clubInfoReq.getImgURL());
