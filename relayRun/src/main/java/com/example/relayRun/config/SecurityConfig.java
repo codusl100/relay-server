@@ -1,7 +1,7 @@
 package com.example.relayRun.config;
 
 import com.example.relayRun.jwt.JwtFilter;
-import com.example.relayRun.jwt.OAuth2SuccessHandler;
+import com.example.relayRun.user.oauth2.OAuth2SuccessHandler;
 import com.example.relayRun.jwt.TokenProvider;
 import com.example.relayRun.jwt.exception.JwtAccessDeniedHandler;
 import com.example.relayRun.jwt.exception.JwtAuthenticationEntryPoint;
@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
@@ -23,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final CustomOAuth2UserService oAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler successHandler;
 
     @Bean
@@ -66,11 +65,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // JwtFilter 를 addFilterBefore 로 등록했던 JwtSecurityConfig 클래스를 적용
                 .and()
                 .apply(new JwtSecurityConfig(tokenProvider))
+
+                // OAuth2 로그인 설정
                 .and()
-                .addFilterBefore(new JwtFilter(tokenProvider),
-                        UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login().loginPage("/token/expired") // 로그인 페이지
+                .oauth2Login()
+                // 로그인 성공 시 핸들러
                 .successHandler(successHandler)
-                .userInfoEndpoint().userService(oAuth2UserService);
+                // 소셜 로그인 시 후속 조치를 진행할 클래스
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.relayRun.jwt.dto;
+package com.example.relayRun.user.oauth2;
 
 import com.example.relayRun.user.entity.LoginType;
 import com.example.relayRun.user.entity.UserEntity;
@@ -21,6 +21,7 @@ public class OAuth2Attribute {
     private String email;
     private String name;
     private String pwd;
+    private String imgURL;
     private LoginType loginType;
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     public static OAuth2Attribute of(String provider, String attributeKey,
@@ -69,6 +70,7 @@ public class OAuth2Attribute {
         return OAuth2Attribute.builder()
                 .name((String) response.get("name"))
                 .email((String) response.get("email"))
+                .imgURL((String) response.get("profile_image"))
                 .attributes(response)
                 .attributeKey(attributeKey)
                 .loginType(LoginType.NAVER)
@@ -82,6 +84,7 @@ public class OAuth2Attribute {
         map.put("name", name);
         map.put("email", email);
         map.put("pwd", pwd);
+        map.put("profile_image", imgURL);
 
         return map;
     }
