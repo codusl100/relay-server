@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface MemberStatusRepository extends JpaRepository<MemberStatusEntity, Long> {
     List<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAndStatus(Long userProfileIdx, String status);
-    Optional<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(Long ProfileIdx, String applyStatus);
+    Optional<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(Long userProfileIdx, String applyStatus);
     @Query(value = "select member_status_idx from member_status where club_idx = :clubIdx", nativeQuery = true)
     List<Long> selectMemberStatusIdxList(@Param(value = "clubIdx") Long clubIdx);
 
