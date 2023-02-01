@@ -112,7 +112,7 @@ public class MemberStatusService {
 
             //2. 해당 memberStatusIdx로 TimeTable 조회
             for(MemberStatusEntity memberStatus : memberStatusEntityList) {
-                List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatus.getMemberStatusIdx());
+                List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx(memberStatus.getMemberStatusIdx());
 
                 for(TimeTableEntity timeTableEntity : timeTableEntityList) {
                     GetTimeTableListRes timeTable = GetTimeTableListRes.builder()
@@ -137,7 +137,7 @@ public class MemberStatusService {
     @Transactional
     public List<GetTimeTableListRes> getTimeTablesByMemberStatusIdx(Long memberStatusIdx) throws BaseException {
         try {
-            List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatusIdx);
+            List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx(memberStatusIdx);
             List<GetTimeTableListRes> timeTableList = new ArrayList<>();
 
             for(TimeTableEntity timeTableEntity : timeTableEntityList) {
