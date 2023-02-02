@@ -154,7 +154,8 @@ public class UserController {
     }
     @ResponseBody
     @PostMapping("/email")
-    @ApiOperation(value="인증 번호 이메일 발급", notes="네이버 메일 (@naver.com) 형식의 이메일만 메일 전송이 가능합니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!")
+    @ApiOperation(value="인증 번호 이메일 발급", notes="bearer에 토큰을 넣어주시면 가입된 이메일로 인증 메일이 전송됩니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!\n" +
+            "네이버 메일 (@naver.com) 형식의 이메일만 발신자로 설정이 가능하고, 이 주소는 서버측에 문의 후 넣어주세요.")
     public BaseResponse<String> authEmail(Principal principal, @RequestBody @Valid PostEmailReq request) throws Exception {
         String code = this.userService.sendSimpleMessage(principal, request.getEmail());
         log.info("인증 코드 : " + code);
