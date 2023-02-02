@@ -52,8 +52,6 @@ public class UserService {
 
     private RedisUtil redisUtil;
 
-    private final String ePw = createKey();
-
 
     public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository,
                        PasswordEncoder passwordEncoder, TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
@@ -307,7 +305,7 @@ public class UserService {
             userProfileRepository.save(UserProfile);
         }
     }
-    public MimeMessage createMessage(String from, String to) throws MessagingException, UnsupportedEncodingException {
+    public MimeMessage createMessage(String from, String to, String ePw) throws MessagingException, UnsupportedEncodingException {
         log.info("보내는 대상 : "+ to);
         log.info("인증 번호 : " + ePw);
         MimeMessage  message = javaMailSender.createMimeMessage();
@@ -354,9 +352,9 @@ public class UserService {
             UserProfile.setIsAlarmOn("y");
             userProfileRepository.save(UserProfile);
         }
-        MimeMessage message = createMessage(to);
+        String ePw = createKey(); // 새로운 코드 발급
         String to = optionalUserEntity.get().getEmail();
-        MimeMessage message = createMessage(from, to);
+        MimeMessage message = createMessage(from, to, ePw);
         try{
             javaMailSender.send(message); // 메일 발송
             //    Redis로 유효기간 설정하기
@@ -377,7 +375,7 @@ public class UserService {
         }
         String user = redisUtil.getData(code.getCode());
         log.info("유저 정보 : " + user);
-        if (user == null || user.length() == 0) {
+        if (user == null || user.length() == 0 || !user.equals(optionalUserEntity.get().getEmail())) {
             return false;
         }
         return true;
