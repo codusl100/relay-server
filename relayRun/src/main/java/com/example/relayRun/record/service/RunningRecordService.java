@@ -215,6 +215,8 @@ public class RunningRecordService {
 
             return GetRecordByIdxRes.builder()
                     .recordIdx(idx)
+                    .nickName(record.get().getMemberStatusIdx().getUserProfileIdx().getNickName())
+                    .clubName(record.get().getMemberStatusIdx().getClubIdx().getName())
                     .date(record.get().getCreatedAt())
                     .time(record.get().getTime())
                     .distance(record.get().getDistance())
