@@ -346,7 +346,7 @@ public class UserService {
         if(optionalUserEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
-        UserProfileEntity UserProfile = userProfileRepository.findByUserProfileIdx(optionalUserEntity.get().getUserIdx()).get();
+        UserProfileEntity UserProfile = userProfileRepository.findByUserIdx(optionalUserEntity.get()).get();
         if (UserProfile.getIsAlarmOn().equals("y")) {
             UserProfile.setIsAlarmOn("n");
             userProfileRepository.save(UserProfile);
