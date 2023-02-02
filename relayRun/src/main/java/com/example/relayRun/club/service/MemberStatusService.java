@@ -106,25 +106,11 @@ public class MemberStatusService {
                 throw new BaseException(BaseResponseStatus.CLUB_EMPTY);
             }
 
-            List<GetTimeTableListRes> timeTableList = new ArrayList<>();
             List<GetTimeTableAndUserProfileRes> allTimeTableList = new ArrayList<>();
 
             //2. 해당 memberStatusIdx로 TimeTable 조회
             for(MemberStatusEntity memberStatus : memberStatusEntityList) {
-                List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatus.getMemberStatusIdx());
-
-                for(TimeTableEntity timeTableEntity : timeTableEntityList) {
-                    GetTimeTableListRes timeTable = GetTimeTableListRes.builder()
-                            .timeTableIdx(timeTableEntity.getTimeTableIdx())
-                            .day(timeTableEntity.getDay())
-                            .start(timeTableEntity.getStart())
-                            .end(timeTableEntity.getEnd())
-                            .goal(timeTableEntity.getGoal())
-                            .goalType(timeTableEntity.getGoalType())
-                            .build();
-
-                    timeTableList.add(timeTable);
-                }
+                List<GetTimeTableListRes> timeTableList = new ArrayList<>(getTimeTablesByMemberStatusIdx(memberStatus.getMemberStatusIdx()));
 
                 //유저 정보
                 Long userProfileIdx = memberStatus.getUserProfileIdx().getUserProfileIdx();
