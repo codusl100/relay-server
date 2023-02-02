@@ -191,7 +191,7 @@ public class RunningRecordService {
      * @return
      * @throws BaseException
      */
-    public GetRecordByIdxRes getRecordByIdx(Long idx) throws BaseException {
+    public GetRecordByIdxRes getRecordByIdx(Principal principal, Long idx) throws BaseException {
         try {
             Optional<RunningRecordEntity> record = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
             if (record.isEmpty()) {
@@ -199,18 +199,24 @@ public class RunningRecordService {
             }
 
 //            List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
-            List<LocationEntity> getLocations = record.get().getLocations();
-
             List<GetLocationRes> locationList = new ArrayList<>();
-            for (LocationEntity location : getLocations) {
-                locationList.add(
-                        GetLocationRes.builder()
-                                .time(location.getTime())
-                                .longitude((float) location.getPosition().getX())
-                                .latitude((float) location.getPosition().getY())
-                                .status(location.getStatus())
-                                .build()
-                );
+
+            if (principal != null) {
+                Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
+                if (user.get().equals(record.get().getMemberStatusIdx().getUserProfileIdx().getUserIdx())) {
+                    // 자기 자신의 기록에서만 위치가 보이도록
+                    List<LocationEntity> getLocations = record.get().getLocations();
+                    for (LocationEntity location : getLocations) {
+                        locationList.add(
+                                GetLocationRes.builder()
+                                        .time(location.getTime())
+                                        .longitude((float) location.getPosition().getX())
+                                        .latitude((float) location.getPosition().getY())
+                                        .status(location.getStatus())
+                                        .build()
+                        );
+                    }
+                }
             }
 
             return GetRecordByIdxRes.builder()
@@ -225,6 +231,8 @@ public class RunningRecordService {
                     .locationList(locationList)
                     .build();
 
+        } catch (NullPointerException e) { // principal이 없거나 형식에 맞지 않을 때
+            throw new BaseException(BaseResponseStatus.WRONG_JWT_SIGN_TOKEN);
         } catch (Exception e) {
             if (e.getMessage().equals("RECORD_UNAVAILABLE")) {
                 throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);

@@ -79,9 +79,9 @@ public class RunningRecordController {
     // 기록 세부 조회
     @ApiOperation(value="기록 idx로 조회", notes="path variable에 조회할 기록의 idx를 입력해주세요")
     @GetMapping("/{idx}")
-    public BaseResponse<GetRecordByIdxRes> getRecordByIdx(@PathVariable("idx") Long idx) {
+    public BaseResponse<GetRecordByIdxRes> getRecordByIdx(Principal principal, @PathVariable("idx") Long idx) {
         try {
-            GetRecordByIdxRes rec = runningRecordService.getRecordByIdx(idx);
+            GetRecordByIdxRes rec = runningRecordService.getRecordByIdx(principal, idx);
             return new BaseResponse<>(rec);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
