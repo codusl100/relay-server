@@ -89,8 +89,8 @@ public class RunningRecordController {
     }
 
     // 하루 기록 조회
-    @ApiOperation(value="개인 기록 일별 요약", notes="bearer에 조회할 유저의 토큰, query에 조회 날짜를 입력해주세요 ex record/daily/?date=2023-01-26")
-    @GetMapping("/daily")
+    @ApiOperation(value="개인 기록 일별 요약", notes="bearer에 조회할 유저의 토큰, query에 조회 날짜를 입력해주세요 ex record/summary/?date=2023-01-26")
+    @GetMapping("/summary")
     public BaseResponse<GetDailyRes> getDailyRecord(Principal principal,
                                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         try {
@@ -102,7 +102,7 @@ public class RunningRecordController {
     }
 
     @ApiOperation(value="그룹 기록 일별 요약", notes="조회할 그룹 idx를 입력해주세요, query에 조회 날짜를 입력해주세요 ex record/daily/{clubIdx}/?date=2023-01-27")
-    @GetMapping("/daily/{clubIdx}/club")
+    @GetMapping("/summary/{clubIdx}/club")
     public BaseResponse<GetDailyRes> getDailyGroup(@PathVariable("clubIdx") Long idx, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         try {
             GetDailyRes dailyGroup = runningRecordService.getDailyGroup(idx, date);
@@ -112,11 +112,11 @@ public class RunningRecordController {
         }
     }
 
-    @ApiOperation(value="해당되는 월의 날짜별 개인 기록 요약", notes="bearer에 조회할 유저의 토큰, query에 년과 월을 입력해주세요 ex record/summary/?year=2023&month=1")
-    @GetMapping("/summary")
-    public BaseResponse<List<GetDailyRes>> getCalender(Principal principal, @RequestParam("year") Integer year, @RequestParam("month") Integer month) {
+    @ApiOperation(value="해당되는 월의 날짜별 개인 기록 모음", notes="bearer에 조회할 유저의 토큰, query에 년과 월을 입력해주세요 ex record/calender/?year=2023&month=1")
+    @GetMapping("/calender")
+    public BaseResponse<List<GetCalender>> getCalender(Principal principal, @RequestParam("year") Integer year, @RequestParam("month") Integer month) {
         try {
-            List<GetDailyRes> calender = runningRecordService.getCalender(principal, year, month);
+            List<GetCalender> calender = runningRecordService.getCalender(principal, year, month);
             return new BaseResponse<>(calender);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());

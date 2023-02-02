@@ -315,7 +315,7 @@ public class RunningRecordService {
      * @return
      * @throws BaseException
      */
-    public List<GetDailyRes> getCalender(Principal principal, Integer year, Integer month) throws BaseException {
+    public List<GetCalender> getCalender(Principal principal, Integer year, Integer month) throws BaseException {
         try {
             // principal에서 user 가져오기
             Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
@@ -330,11 +330,12 @@ public class RunningRecordService {
             // memberStatus에 해당하는 기록 중 해당 월만 갖고오기
             List<RunningRecordEntity> recordList = runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
 
-            // GetDailyRes로 변환
-            List<GetDailyRes> calender = new ArrayList<>();
+            // GetCalender로 변환
+            List<GetCalender> calender = new ArrayList<>();
             for (RunningRecordEntity record : recordList) {
                 calender.add(
-                        GetDailyRes.builder()
+                        GetCalender.builder()
+                                .recordIdx(record.getRunningRecordIdx())
                                 .date(record.getCreatedAt().toLocalDate())
                                 .totalTime(record.getTime())
                                 .totalDist(record.getDistance())
