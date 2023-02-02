@@ -44,7 +44,7 @@ public class MemberStatusService {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
 
-            List<MemberStatusEntity> validationList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(userProfileIdx);
+            List<MemberStatusEntity> validationList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
             if(!validationList.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.DUPLICATE_MEMBER_STATUS);
             }
@@ -111,7 +111,7 @@ public class MemberStatusService {
 
             //2. 해당 memberStatusIdx로 TimeTable 조회
             for(MemberStatusEntity memberStatus : memberStatusEntityList) {
-                List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx(memberStatus.getMemberStatusIdx());
+                List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatus.getMemberStatusIdx());
 
                 for(TimeTableEntity timeTableEntity : timeTableEntityList) {
                     GetTimeTableListRes timeTable = GetTimeTableListRes.builder()
@@ -148,7 +148,7 @@ public class MemberStatusService {
     public List<GetTimeTableListRes> getUserTimeTable(Long userProfileIdx) throws BaseException {
         try {
             //memberStatusIdx 찾기
-            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(userProfileIdx);
+            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
             if(memberStatusEntityList.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
@@ -180,7 +180,7 @@ public class MemberStatusService {
     @Transactional
     public List<GetTimeTableListRes> getTimeTablesByMemberStatusIdx(Long memberStatusIdx) throws BaseException {
         try {
-            List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx(memberStatusIdx);
+            List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatusIdx);
             List<GetTimeTableListRes> timeTableList = new ArrayList<>();
 
             for(TimeTableEntity timeTableEntity : timeTableEntityList) {
@@ -205,7 +205,7 @@ public class MemberStatusService {
     public void updateTimeTable(Long userProfileIdx, PostTimeTableReq postTimeTableReq) throws BaseException {
         try {
             //memberStatusIdx 찾기
-            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdx(userProfileIdx);
+            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
             if(memberStatusEntityList.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
