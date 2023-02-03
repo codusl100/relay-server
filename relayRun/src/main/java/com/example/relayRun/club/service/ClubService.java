@@ -1,10 +1,6 @@
 package com.example.relayRun.club.service;
 
-import com.example.relayRun.club.dto.GetClubDetailRes;
-import com.example.relayRun.club.dto.GetMemberOfClubRes;
-import com.example.relayRun.club.dto.PostClubReq;
-import com.example.relayRun.club.dto.GetClubListRes;
-import com.example.relayRun.club.dto.TimeTableDTO;
+import com.example.relayRun.club.dto.*;
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.entity.TimeTableEntity;
@@ -165,6 +161,28 @@ public class ClubService {
         memberStatusRepository.save(memberStatusEntity);
 
         memberStatusService.createTimeTable(memberStatusEntity.getMemberStatusIdx(), club.getTimeTable());
+    }
+
+    @Transactional
+    public void deleteClub(Principal principal, Long clubIdx) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if (optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findById(clubIdx);
+        if (optionalClubEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
+        }
+        ClubEntity clubEntity = optionalClubEntity.get();
+
+        if (clubEntity.getHostIdx().getUserIdx().equals(userEntity)) {
+            clubEntity.setStatus("inactive");
+            clubRepository.save(clubEntity);
+        } else {
+            throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
+        }
     }
 
 }

@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -72,6 +73,18 @@ public class ClubController {
             GetClubDetailRes getClubDetailRes = clubService.getClubDetail(clubIdx);
             getClubDetailRes.setGetMemberOfClubResList(getMemberOfClub(clubIdx, date).getResult());
             return new BaseResponse<>(getClubDetailRes);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹 삭제", notes="path variable로 그룹 아이디를 전달해주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/deletion")
+    public BaseResponse<String> deleteClub(Principal principal, @PathVariable Long clubIdx) {
+        try {
+            clubService.deleteClub(principal, clubIdx);
+            return new BaseResponse<>("그룹이 삭제되었습니다.");
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
