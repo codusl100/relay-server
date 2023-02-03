@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -89,9 +90,20 @@ public class RunningRecordService {
             recordEntity.setTime(0.0f);
             recordEntity.setPace(0.0f);
             recordEntity = runningRecordRepository.save(recordEntity);
-            PostRunningInitRes result = new PostRunningInitRes();
-            result.setRunningRecordIdx(recordEntity.getRunningRecordIdx());
-            return result;
+
+            Optional<TimeTableEntity> optionalTimeTable = timeTableRepository.findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
+                    memberStatus, RecordDataHandler.toIntDay(LocalDate.now().getDayOfWeek()), LocalTime.now(), LocalTime.now()
+            );
+            if (optionalTimeTable.isEmpty())
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
+            TimeTableEntity timeTable = optionalTimeTable.get();
+            return PostRunningInitRes.builder()
+                    .runningRecordIdx(recordEntity.getRunningRecordIdx())
+                    .start(timeTable.getStart())
+                    .end(timeTable.getEnd())
+                    .goalType(timeTable.getGoalType())
+                    .goal(timeTable.getGoal())
+                    .build();
         }catch(NullPointerException e){
             throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
         }
