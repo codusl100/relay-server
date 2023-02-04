@@ -227,6 +227,17 @@ public class RunningRecordService {
                 );
             }
 
+
+            Optional<TimeTableEntity> optTimeTable = timeTableRepository.
+                    findByMemberStatusIdxAndDay(
+                            record.getMemberStatusIdx(),
+                            record.getCreatedAt().getDayOfWeek().getValue()
+                    );
+            if (optTimeTable.isEmpty())
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
+
+            TimeTableEntity timeTable = optTimeTable.get();
+
             return GetRecordByIdxRes.builder()
                     .recordIdx(idx)
                     .date(record.getCreatedAt())
@@ -235,6 +246,9 @@ public class RunningRecordService {
                     .pace(record.getPace())
 
                     .goalStatus(record.getGoalStatus())
+                    .goalType(timeTable.getGoalType())
+                    .goalValue(timeTable.getGoal())
+
                     .locationList(locationList)
                     .build();
 
