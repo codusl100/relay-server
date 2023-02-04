@@ -13,6 +13,10 @@ import java.util.List;
 public class GetRecordByIdxRes {
     private Long recordIdx;
 
+    private String nickName;
+
+    private String clubName;
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime date;
 
