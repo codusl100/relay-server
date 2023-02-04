@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,14 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecordEnti
             @Param("year") Integer Year,
             @Param("month") Integer month,
             @Param("status") String status);
+
+    @Query(value = "select r.running_record_idx from running_record as r " +
+            "where r.member_status_idx in :idxList and " +
+            "Date(r.created_at) = :date and " +
+            "r.status = :status", nativeQuery = true)
+    Optional<Long> selectByMemberStatusAndDateAndStatus(
+            @Param("idxList") List<MemberStatusEntity> list,
+            @Param("date") LocalDate date,
+            @Param("status") String status);
+
 }

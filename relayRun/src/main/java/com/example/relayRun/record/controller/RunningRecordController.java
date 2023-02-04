@@ -7,16 +7,12 @@ import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
 
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -60,16 +56,18 @@ public class RunningRecordController {
         }
     }
 
-    // member_status_idx와 오늘 날짜로 조회 테스트 API
-    @ApiOperation(value="member_status_idx와 오늘 날짜로 조회", notes="Request Parameter : mid, date로 각 값을 입력해주세요")
+    // profile idx와 오늘 날짜로 조회
+    @ApiOperation(value="프로필 기록 날짜별 조회", notes="token과 query로 프로필 idx, date를 입력해주세요 ex) record/?idx=1&date=2023-01-26\n" +
+            "token이 없거나 해당 유저가 아닐 때는 위치 list가 null로 반환됩니다!")
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<GetRecordWithoutLocationRes>> getRecordWithoutLocation(@RequestParam("mid") Long memberStatusIdx, @RequestParam("date") String date) {
+    public BaseResponse<GetRecordByIdxRes> getRecordWithoutLocation(
+            Principal principal,
+            @RequestParam("idx") Long profileIdx,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
+    ) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
-            LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
-            List<GetRecordWithoutLocationRes> rec = runningRecordService.getRecordWithoutLocation(memberStatusIdx, startDate, endDate);
+            GetRecordByIdxRes rec = runningRecordService.getRecordByDate(principal, profileIdx, date);
             return new BaseResponse<>(rec);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());

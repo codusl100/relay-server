@@ -18,12 +18,12 @@ import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
 import com.example.relayRun.util.RecordDataHandler;
+import org.hibernate.NonUniqueResultException;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -255,8 +255,30 @@ public class RunningRecordService {
         }
     }
 
+
+    public GetRecordByIdxRes getRecordByDate(Principal principal, Long profileIdx, LocalDate date) throws BaseException {
+        // 프로필이 속한 모든 지원 목록
+        List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(profileIdx, "active");
+
+        try {
+            // 지원 목록에 해당하는 달리기 기록 중 해당 날짜에 맞는 기록idx (날짜별로 한번만 달리는 가정)
+            Optional<Long> recordIdx = runningRecordRepository.selectByMemberStatusAndDateAndStatus(statusList, date, "active");
+            if (recordIdx.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
+            }
+            return getRecordByIdx(principal, recordIdx.get());
+        } catch (BaseException e) {
+            // 날짜에 해당하는 기록이 없을 때
+            throw new BaseException((e.getStatus()));
+        } catch (NonUniqueResultException e) {
+            // 같은 날짜에 두개 이상 기록이 있을 때
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+
     /**
-     * 개인 기록 일별 조회 GET
+     * 개인 기록 일별 요약 GET
      * @param principal
      * @param date
      * @return
@@ -291,7 +313,7 @@ public class RunningRecordService {
     }
 
     /**
-     * 그룹 기록 일별 조회 GET
+     * 그룹 기록 일별 요약 GET
      * @param clubIdx
      * @param date
      * @return
