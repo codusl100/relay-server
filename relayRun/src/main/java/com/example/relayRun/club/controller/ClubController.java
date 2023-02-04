@@ -3,6 +3,7 @@ package com.example.relayRun.club.controller;
 import com.example.relayRun.club.dto.GetClubDetailRes;
 import com.example.relayRun.club.dto.GetClubListRes;
 import com.example.relayRun.club.dto.GetMemberOfClubRes;
+import com.example.relayRun.club.dto.GetTimeTableAndUserProfileRes;
 import com.example.relayRun.club.service.ClubService;
 import com.example.relayRun.club.service.MemberStatusService;
 import com.example.relayRun.record.service.RunningRecordService;
@@ -10,6 +11,7 @@ import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,17 +24,19 @@ import java.util.List;
 public class ClubController {
 
     private final ClubService clubService;
+    private final MemberStatusService memberStatusService;
     private final RunningRecordService runningRecordService;
 
     public ClubController(ClubService clubService, MemberStatusService memberStatusService, RunningRecordService runningRecordService) {
         this.clubService = clubService;
+        this.memberStatusService = memberStatusService;
         this.runningRecordService = runningRecordService;
     }
 
     @ApiOperation(value="그룹 목록 조회(전체, 검색)", notes="URI 뒤에 search parameter로 그룹 이름을 검색할 수 있다. 아무것도 넘기지 않을 경우 전체 목록이 조회된다.")
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<GetClubListRes>> getClubs(@RequestParam(required = false) String search) {
+    public BaseResponse<List<GetClubListRes>> getClubs(@ApiParam(value = "그룹 검색어")@RequestParam(required = false) String search) {
         try {
             List<GetClubListRes> clubList;
             if(search == null) {
@@ -46,10 +50,12 @@ public class ClubController {
         }
     }
 
-    @ApiOperation(value="그룹 멤버 관련 정보 조회", notes="path variable로 그룹 아이디, query string으로 현재 날짜 전달해주세요")
+    @ApiOperation(value="그룹 멤버 관련 정보 조회", notes="path variable로 그룹 아이디, query string으로 조회하고자 하는 날짜를 전달해주세요")
     @ResponseBody
     @GetMapping("/{clubIdx}/members")
-    public BaseResponse<List<GetMemberOfClubRes>> getMemberOfClub(@PathVariable Long clubIdx, @RequestParam("date") String date) {
+    public BaseResponse<List<GetMemberOfClubRes>> getMemberOfClub(
+            @ApiParam(value = "조회하고자 하는 그룹의 clubIdx")@PathVariable Long clubIdx,
+            @ApiParam(value = "조회하고자 하는 날짜")@RequestParam("date") String date) {
         try {
             List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx);
             for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
@@ -67,12 +73,26 @@ public class ClubController {
     @ApiOperation(value="그룹 페이지 정보 조회", notes="path variable로 그룹 아이디, query string으로 현재 날짜 전달해주세요")
     @ResponseBody
     @GetMapping("/{clubIdx}")
-    public BaseResponse<GetClubDetailRes> getClubDetail(@PathVariable Long clubIdx, @RequestParam("date") String date) {
+    public BaseResponse<GetClubDetailRes> getClubDetail(
+            @ApiParam(value = "조회하고자 하는 그룹의 clubIdx")@PathVariable Long clubIdx,
+            @ApiParam(value = "조회하고자 하는 날짜")@RequestParam("date") String date) {
         try {
             GetClubDetailRes getClubDetailRes = clubService.getClubDetail(clubIdx);
             getClubDetailRes.setGetMemberOfClubResList(getMemberOfClub(clubIdx, date).getResult());
             return new BaseResponse<>(getClubDetailRes);
         } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value = "그룹의 전체 시간표 조회", notes = "path variable로 조회하고자 하는 그룹의 clubIdx를 보내면 해당 그룹의 전체 시간표를 리스트 형식으로 반환합니다.")
+    @ResponseBody
+    @GetMapping("/{clubIdx}/time-tables")
+    public BaseResponse<List<GetTimeTableAndUserProfileRes>> getAllTimeTables(@ApiParam(value = "조회하고자 하는 그룹의 clubIdx")@PathVariable Long clubIdx) {
+        try {
+            List<GetTimeTableAndUserProfileRes> timeTableList = memberStatusService.getTimeTablesByClubIdx(clubIdx);
+            return new BaseResponse<>(timeTableList);
+        } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }
