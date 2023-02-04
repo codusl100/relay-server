@@ -396,4 +396,19 @@ public class RunningRecordService {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public List<GetClubCalenderInterface> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
+        Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
+        if (club.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
+        }
+
+        List<MemberStatusEntity> statusList = memberStatusRepository.findByClubIdxAndStatus(club.get(), "active");
+        System.out.println("statusList.size() = " + statusList.size());
+        
+        List<GetClubCalenderInterface> recordList =
+                runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus_2(statusList, year, month, "active");
+        System.out.println("recordList = " + recordList);
+        return recordList;
+    }
 }

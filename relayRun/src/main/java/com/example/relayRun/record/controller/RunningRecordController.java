@@ -120,4 +120,15 @@ public class RunningRecordController {
             return new BaseResponse(e.getStatus());
         }
     }
+
+    @ApiOperation(value="해당되는 월의 날짜별 그룹 기록 모음", notes=", 조회할 그룹 idx와, query에는 년과 월을 입력해주세요 ex record/calender/1/club?year=2023&month=1")
+    @GetMapping("/calender/{clubIdx}/club")
+    public BaseResponse<List<GetClubCalenderInterface>> getClubCalender(@PathVariable("clubIdx") Long idx, @RequestParam("year") Integer year, @RequestParam("month") Integer month) {
+        try {
+            List<GetClubCalenderInterface> calender = runningRecordService.getClubCalender(idx, year, month);
+            return new BaseResponse<>(calender);
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+    }
 }

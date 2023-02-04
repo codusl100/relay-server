@@ -1,5 +1,6 @@
 package com.example.relayRun.club.repository;
 
+import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +23,7 @@ public interface MemberStatusRepository extends JpaRepository<MemberStatusEntity
 
     @Query(value = "select * from member_status where user_profile_idx = :userProfileIdx limit 1", nativeQuery = true)
     MemberStatusEntity findByUserProfileIdx(Long userProfileIdx);
+
+    List<MemberStatusEntity> findByClubIdxAndStatus(ClubEntity club, String status);
     
 }
