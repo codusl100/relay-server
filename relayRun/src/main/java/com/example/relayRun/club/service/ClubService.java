@@ -3,7 +3,6 @@ package com.example.relayRun.club.service;
 import com.example.relayRun.club.dto.*;
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
-import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.club.repository.ClubRepository;
 import com.example.relayRun.club.repository.MemberStatusRepository;
 import com.example.relayRun.club.repository.TimeTableRepository;
@@ -14,16 +13,11 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
-import org.jsoup.Connection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.sql.Time;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,7 +61,7 @@ public class ClubService {
 
     public List<GetMemberOfClubRes> getMemberOfClub(Long clubIdx) throws BaseException {
         try {
-            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatus(clubIdx, "ACCEPTED");
+            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(clubIdx, "ACCEPTED", "active");
             if (memberStatusEntityList.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
             }
