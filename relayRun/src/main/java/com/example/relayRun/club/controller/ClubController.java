@@ -3,6 +3,7 @@ package com.example.relayRun.club.controller;
 import com.example.relayRun.club.dto.GetClubDetailRes;
 import com.example.relayRun.club.dto.GetClubListRes;
 import com.example.relayRun.club.dto.GetMemberOfClubRes;
+import com.example.relayRun.club.dto.PatchDeleteMemberReq;
 import com.example.relayRun.club.service.ClubService;
 import com.example.relayRun.club.service.MemberStatusService;
 import com.example.relayRun.record.service.RunningRecordService;
@@ -12,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -72,6 +74,18 @@ public class ClubController {
             GetClubDetailRes getClubDetailRes = clubService.getClubDetail(clubIdx);
             getClubDetailRes.setGetMemberOfClubResList(getMemberOfClub(clubIdx, date).getResult());
             return new BaseResponse<>(getClubDetailRes);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="멤버 강퇴", notes="")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/members/deletion")
+    public BaseResponse<String> deleteMember(Principal principal, @PathVariable Long clubIdx, PatchDeleteMemberReq request) {
+        try {
+            String userProfileName = clubService.deleteClubMember(principal, clubIdx, request);
+            return new BaseResponse<>(userProfileName + "이(가) 강퇴되었습니다.");
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

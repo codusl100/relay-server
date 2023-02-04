@@ -1,10 +1,6 @@
 package com.example.relayRun.club.service;
 
-import com.example.relayRun.club.dto.GetClubDetailRes;
-import com.example.relayRun.club.dto.GetMemberOfClubRes;
-import com.example.relayRun.club.dto.PostClubReq;
-import com.example.relayRun.club.dto.GetClubListRes;
-import com.example.relayRun.club.dto.TimeTableDTO;
+import com.example.relayRun.club.dto.*;
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.entity.TimeTableEntity;
@@ -18,6 +14,7 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import org.jsoup.Connection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,6 +90,41 @@ public class ClubService {
         } catch (Exception e) {
             System.out.println(e);
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public String deleteClubMember(Principal principal, Long clubIdx, PatchDeleteMemberReq request) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if (optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
+        if (optionalClubEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
+        }
+        ClubEntity clubEntity = optionalClubEntity.get();
+
+        if(clubEntity.getHostIdx().getUserIdx().equals(userEntity)) {
+            Optional<MemberStatusEntity> optionalMemberStatusEntity =
+                    memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(
+                            request.getUserProfileIdx(), "ACCEPTED", "active");
+            if (optionalMemberStatusEntity.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
+            }
+            MemberStatusEntity memberStatusEntity = optionalMemberStatusEntity.get();
+
+            Optional<UserProfileEntity> optionalUserProfileEntity = userProfileRepository.findByUserProfileIdxAndStatus(request.getUserProfileIdx(), "active");
+            if (optionalUserProfileEntity.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
+            }
+
+            memberStatusEntity.setStatus("inactive");
+            memberStatusRepository.save(memberStatusEntity);
+            return optionalUserProfileEntity.get().getNickName();
+        } else {
+            throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
         }
     }
 
