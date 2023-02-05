@@ -132,7 +132,7 @@ public class RunningRecordController {
         }
     }
 
-    @ApiOperation(value="해당 그룹의 월별 기록 조회", note회="조회할 그룹 idx, 년과 월을 입력해주세요 ex record/calender/club/?clubIdx=1&year=2023&month=1")
+    @ApiOperation(value="해당 그룹의 월별 기록 조회", notes="조회할 그룹 idx, 년과 월을 입력해주세요 ex record/calender/club/?clubIdx=1&year=2023&month=1")
     @GetMapping("/calender/club")
     public BaseResponse<List<GetCalender>> getClubCalender(
             @ApiParam(value = "조회하고자 하는 그룹의 식별자")@RequestParam("clubIdx") Long clubIdx,
