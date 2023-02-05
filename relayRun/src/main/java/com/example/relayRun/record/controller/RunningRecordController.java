@@ -110,11 +110,11 @@ public class RunningRecordController {
         }
     }
 
-    @ApiOperation(value="해당되는 월의 날짜별 개인 기록 모음", notes="bearer에 조회할 유저의 토큰, query에 년과 월을 입력해주세요 ex record/calender/?year=2023&month=1")
-    @GetMapping("/calender")
-    public BaseResponse<List<GetCalender>> getCalender(Principal principal, @RequestParam("year") Integer year, @RequestParam("month") Integer month) {
+    @ApiOperation(value="해당되는 월의 날짜별 개인(프로필) 기록 모음", notes="path에 프로필 idx, query에 년과 월을 입력해주세요 ex record/calender/{profileidx}?year=2023&month=1")
+    @GetMapping("/calender/{profileIdx}")
+    public BaseResponse<List<GetCalender>> getCalender(@PathVariable Long profileIdx, @RequestParam("year") Integer year, @RequestParam("month") Integer month) {
         try {
-            List<GetCalender> calender = runningRecordService.getCalender(principal, year, month);
+            List<GetCalender> calender = runningRecordService.getCalender(profileIdx, year, month);
             return new BaseResponse<>(calender);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());

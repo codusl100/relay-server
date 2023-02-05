@@ -354,30 +354,28 @@ public class RunningRecordService {
 
     /**
      * 개인 기록 캘린더
-     * @param principal
+     * @param profileIdx
      * @param year
      * @param month
      * @return
      * @throws BaseException
      */
-    public List<GetCalender> getCalender(Principal principal, Integer year, Integer month) throws BaseException {
+    public List<GetCalender> getCalender(Long profileIdx, Integer year, Integer month) throws BaseException {
         try {
-            // principal에서 user 가져오기
-            Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
-
-            if (user.isEmpty()) {
-                throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+            // 유효한 프로필인지 확인
+            Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.
+                    findByUserProfileIdxAndStatus(profileIdx, "active");
+            if (optionalUserProfile.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
 
-            // user의 모든 memberStatus 가져오기
-            List<MemberStatusEntity> applyList = getApplyList(user.get());
+            // profile의 모든 memberStatus 가져오기
+            List<MemberStatusEntity> applyList = memberStatusRepository.
+                    findByUserProfileIdx_UserProfileIdxAndStatus(profileIdx, "active");
 
             // memberStatus에 해당하는 기록 중 해당 월만 갖고오기
             List<GetCalender> calender = getRecordByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
             return calender;
-
-        } catch (NullPointerException e) { // principal이 없거나 맞지 않을 때
-            throw new BaseException(BaseResponseStatus.EMPTY_TOKEN);
 
         } catch (Exception e) {
             System.out.println(e);
