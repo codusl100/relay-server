@@ -1,6 +1,6 @@
 package com.example.relayRun.user.entity;
 
-import com.example.relayRun.user.repository.UserProfileRepository;
+import com.example.relayRun.fcm.entity.UserDeviceEntity;
 import com.example.relayRun.util.BaseTimeEntity;
 import com.example.relayRun.util.Role;
 import lombok.AllArgsConstructor;
@@ -44,6 +44,8 @@ public class UserEntity extends BaseTimeEntity {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "userProfileIdx", orphanRemoval = true)
     private List<UserProfileEntity> userProfileEntities = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "userDeviceIdx", orphanRemoval = true)
+    private List<UserDeviceEntity> userDeviceEntities = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

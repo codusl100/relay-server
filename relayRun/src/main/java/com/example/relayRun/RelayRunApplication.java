@@ -1,5 +1,6 @@
 package com.example.relayRun;
 
+import com.google.firebase.FirebaseApp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -9,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class RelayRunApplication {
 
 	public static void main(String[] args) {
+		FirebaseApp.initializeApp();
 		SpringApplication.run(RelayRunApplication.class, args);
 	}
-
 }
