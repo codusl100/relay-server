@@ -163,7 +163,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @GetMapping("/emailConfirm")
+    @PostMapping("/emailConfirm")
     @ApiOperation(value="인증 번호 비교", notes="이메일로 발급받으신 인증번호를 RequestBody에 넣어서 String으로 인증번호 인증 성공/실패 여부 반환하도록 했습니다!")
     public BaseResponse<String> confirmEmail(Principal principal, @RequestBody GetEmailCodeReq code) throws BaseException {
         if (this.userService.confirmEmail(principal, code)){
