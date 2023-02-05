@@ -2,7 +2,7 @@ package com.example.relayRun.record.repository;
 
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
-import com.example.relayRun.record.dto.GetClubCalender;
+import com.example.relayRun.record.dto.GetCalenderInterface;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,11 +22,14 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecordEnti
     @Query("select r from RunningRecordEntity r where r.memberStatusIdx.memberStatusIdx = :memberStatusIdx and r.createdAt between :startDate and :endDate")
     List<RunningRecordEntity> selectByMemberStatusIdxAndDate(@Param("memberStatusIdx") Long memberStatusIdx, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "select * from running_record as r " +
+    @Query(value = "select DATE(r.created_at) as date, sum(r.time) as totalTime, sum(r.distance) as totalDist, avg(r.pace) as avgPace " +
+            "from running_record as r " +
             "where r.member_status_idx in :idxList and " +
             "YEAR(r.created_at) = :year and MONTH(r.created_at) = :month and " +
-            "r.status = :status", nativeQuery = true)
-    List<RunningRecordEntity> selectByMemberStatusAndYearAndMonthAndStatus(
+            "r.status = :status " +
+            "group by DATE(r.created_at) " +
+            "order by DATE(r.created_at)", nativeQuery = true)
+    List<GetCalenderInterface> selectByMemberStatusAndYearAndMonthAndStatus(
             @Param("idxList") List<MemberStatusEntity> list,
             @Param("year") Integer Year,
             @Param("month") Integer month,
