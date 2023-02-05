@@ -205,13 +205,15 @@ public class RunningRecordService {
      */
     public GetRecordByIdxRes getRecordByIdx(Long idx) throws BaseException {
         try {
-            Optional<RunningRecordEntity> record = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
-            if (record.isEmpty()) {
+            Optional<RunningRecordEntity> optRecord = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
+            if (optRecord.isEmpty()) {
                 throw new Exception("RECORD_UNAVAILABLE");
             }
 
+            RunningRecordEntity record = optRecord.get();
+
 //            List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
-            List<LocationEntity> getLocations = record.get().getLocations();
+            List<LocationEntity> getLocations = record.getLocations();
 
             List<GetLocationRes> locationList = new ArrayList<>();
             for (LocationEntity location : getLocations) {
@@ -225,13 +227,28 @@ public class RunningRecordService {
                 );
             }
 
+
+            Optional<TimeTableEntity> optTimeTable = timeTableRepository.
+                    findByMemberStatusIdxAndDay(
+                            record.getMemberStatusIdx(),
+                            record.getCreatedAt().getDayOfWeek().getValue()
+                    );
+            if (optTimeTable.isEmpty())
+                throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
+
+            TimeTableEntity timeTable = optTimeTable.get();
+
             return GetRecordByIdxRes.builder()
                     .recordIdx(idx)
-                    .date(record.get().getCreatedAt())
-                    .time(record.get().getTime())
-                    .distance(record.get().getDistance())
-                    .pace(record.get().getPace())
-                    .goalStatus(record.get().getGoalStatus())
+                    .date(record.getCreatedAt())
+                    .time(record.getTime())
+                    .distance(record.getDistance())
+                    .pace(record.getPace())
+
+                    .goalStatus(record.getGoalStatus())
+                    .goalType(timeTable.getGoalType())
+                    .goalValue(timeTable.getGoal())
+
                     .locationList(locationList)
                     .build();
 
@@ -315,7 +332,7 @@ public class RunningRecordService {
             applyList.addAll(statusList);
         }
         return applyList;
-}
+    }
 
     /**
      * 개인 기록 캘린더
