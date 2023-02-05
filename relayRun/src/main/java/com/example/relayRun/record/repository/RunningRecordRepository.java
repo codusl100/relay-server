@@ -3,7 +3,6 @@ package com.example.relayRun.record.repository;
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.record.dto.GetClubCalender;
-import com.example.relayRun.record.dto.GetClubCalenderInterface;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,7 +38,7 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecordEnti
             "r.status = :status " +
             "group by DATE(r.created_at) " +
             "order by DATE(r.created_at)", nativeQuery = true)
-    List<Tuple> selectByMemberStatusAndYearAndMonthAndStatus_2(
+    List<Tuple> selectByMemberStatusAndYearAndMonthAndStatus_Tuple(
             @Param("idxList") List<MemberStatusEntity> list,
             @Param("year") Integer Year,
             @Param("month") Integer month,

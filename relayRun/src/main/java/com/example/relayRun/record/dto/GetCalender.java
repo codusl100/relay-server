@@ -9,14 +9,12 @@ import java.time.LocalDate;
 @Builder
 @Getter
 public class GetCalender {
-    Long recordIdx;
-
     @JsonFormat(pattern="yyyy-MM-dd")
     LocalDate date;
 
-    float totalTime;
+    Double totalTime;
 
-    float totalDist;
+    Double totalDist;
 
-    float avgPace;
+    Double avgPace;
 }

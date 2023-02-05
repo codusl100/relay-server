@@ -373,22 +373,7 @@ public class RunningRecordService {
             List<MemberStatusEntity> applyList = getApplyList(user.get());
 
             // memberStatus에 해당하는 기록 중 해당 월만 갖고오기
-            List<RunningRecordEntity> recordList = runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
-
-            // GetCalender로 변환
-            List<GetCalender> calender = new ArrayList<>();
-            for (RunningRecordEntity record : recordList) {
-                calender.add(
-                        GetCalender.builder()
-                                .recordIdx(record.getRunningRecordIdx())
-                                .date(record.getCreatedAt().toLocalDate())
-                                .totalTime(record.getTime())
-                                .totalDist(record.getDistance())
-                                .avgPace(record.getPace())
-                                .build()
-                );
-            }
-
+            List<GetCalender> calender = getRecordByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
             return calender;
 
         } catch (NullPointerException e) { // principal이 없거나 맞지 않을 때
@@ -400,29 +385,35 @@ public class RunningRecordService {
         }
     }
 
-    public List<GetClubCalender> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
+    public List<GetCalender> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
         Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (club.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
         }
 
         List<MemberStatusEntity> statusList = memberStatusRepository.findByClubIdxAndStatus(club.get(), "active");
-        System.out.println("statusList.size() = " + statusList.size());
-        
-        List<Tuple> recordTuple =
-                runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus_2(statusList, year, month, "active");
 
-        List<GetClubCalender> recordList = recordTuple.stream()
-                        .map(t -> GetClubCalender
-                                .builder()
-                                .date(t.get(0, Date.class).toLocalDate())
-                                .totalTime(t.get(1, Double.class))
-                                .totalDist(t.get(2, Double.class))
-                                .avgPace(t.get(3, Double.class))
-                                .build()
-                        ).collect(Collectors.toList());
+        List<GetCalender> calender = getRecordByMemberStatusAndYearAndMonthAndStatus(statusList, year, month, "active");
+        return calender;
+    }
 
-        System.out.println("recordList = " + recordList);
-        return recordList;
+    public List<GetCalender> getRecordByMemberStatusAndYearAndMonthAndStatus(
+            List<MemberStatusEntity> memberStatusEntityList,
+            Integer year, Integer month, String status )
+    {
+        List<Tuple> calenderTuple =
+                runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus_Tuple(
+                        memberStatusEntityList, year, month, status);
+
+        List<GetCalender> calender = calenderTuple.stream()
+                .map(t -> GetCalender
+                        .builder()
+                        .date(t.get(0, Date.class).toLocalDate())
+                        .totalTime(t.get(1, Double.class))
+                        .totalDist(t.get(2, Double.class))
+                        .avgPace(t.get(3, Double.class))
+                        .build()
+                ).collect(Collectors.toList());
+        return calender;
     }
 }
