@@ -23,6 +23,7 @@ import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Tuple;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RunningRecordService {
@@ -397,7 +399,7 @@ public class RunningRecordService {
         }
     }
 
-    public List<GetClubCalenderInterface> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
+    public List<GetClubCalender> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
         Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (club.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
@@ -406,8 +408,19 @@ public class RunningRecordService {
         List<MemberStatusEntity> statusList = memberStatusRepository.findByClubIdxAndStatus(club.get(), "active");
         System.out.println("statusList.size() = " + statusList.size());
         
-        List<GetClubCalenderInterface> recordList =
+        List<Tuple> recordTuple =
                 runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus_2(statusList, year, month, "active");
+
+        List<GetClubCalender> recordList = recordTuple.stream()
+                        .map(t -> GetClubCalender
+                                .builder()
+//                                .date(t.get(0, LocalDateTime.class))
+                                .totalTime(t.get(0, Double.class))
+                                .totalDist(t.get(1, Double.class))
+                                .avgPace(t.get(2, Double.class))
+                                .build()
+                        ).collect(Collectors.toList());
+
         System.out.println("recordList = " + recordList);
         return recordList;
     }

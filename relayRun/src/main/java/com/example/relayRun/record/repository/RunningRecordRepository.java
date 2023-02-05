@@ -2,12 +2,14 @@ package com.example.relayRun.record.repository;
 
 import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
+import com.example.relayRun.record.dto.GetClubCalender;
 import com.example.relayRun.record.dto.GetClubCalenderInterface;
 import com.example.relayRun.record.entity.RunningRecordEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.Tuple;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,8 +36,9 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecordEnti
     @Query(value = "select sum(r.time), sum(r.distance), avg(r.pace) from runningmen.running_record as r " +
             "where r.member_status_idx in :idxList and " +
             "YEAR(r.created_at) = :year and MONTH(r.created_at) = :month and " +
-            "r.status = :status", nativeQuery = true)
-    List<GetClubCalenderInterface> selectByMemberStatusAndYearAndMonthAndStatus_2(
+            "r.status = :status " +
+            "", nativeQuery = true)
+    List<Tuple> selectByMemberStatusAndYearAndMonthAndStatus_2(
             @Param("idxList") List<MemberStatusEntity> list,
             @Param("year") Integer Year,
             @Param("month") Integer month,

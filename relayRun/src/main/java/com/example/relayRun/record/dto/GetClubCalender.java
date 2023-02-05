@@ -9,10 +9,10 @@ public class GetClubCalender {
 //    @JsonFormat(pattern="yyyy-MM-dd")
 //    LocalDate date;
 
-    float totalTime;
+    Double totalTime;
 
-    float totalDist;
+    Double totalDist;
 
-    float avgPace;
+    Double avgPace;
 
 }
