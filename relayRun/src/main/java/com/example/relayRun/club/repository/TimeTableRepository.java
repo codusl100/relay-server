@@ -22,4 +22,6 @@ public interface TimeTableRepository extends JpaRepository<TimeTableEntity, Long
             MemberStatusEntity memberStatusIdx,
             int day, LocalTime start, LocalTime end
     );
+
+    Optional<TimeTableEntity> findByMemberStatusIdxAndDay(MemberStatusEntity memberStatus, int day);
 }

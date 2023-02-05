@@ -73,20 +73,23 @@ public class RunningRecordService {
                     runningInitReq.getProfileIdx(),
                     "ACCEPTED"
             );
-            if (optionalMemberStatus.isEmpty()){
+            if (optionalMemberStatus.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
-            }
+
             Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findById(runningInitReq.getProfileIdx());
             if (optionalUserProfile.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_PROFILE_IDX);
             UserProfileEntity userProfileParam = optionalUserProfile.get();
+
             Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
             if (optionalUser.isEmpty())
                 throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
             UserEntity userEntityPrincipal = optionalUser.get();
+
             if (!userEntityPrincipal.getUserIdx().equals(userProfileParam.getUserIdx().getUserIdx()))
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             MemberStatusEntity memberStatus = optionalMemberStatus.get();
+
             RunningRecordEntity recordEntity = new RunningRecordEntity();
             recordEntity.setMemberStatusIdx(memberStatus);
             recordEntity.setDistance(0.0f);
@@ -100,6 +103,7 @@ public class RunningRecordService {
             if (optionalTimeTable.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
             TimeTableEntity timeTable = optionalTimeTable.get();
+
             return PostRunningInitRes.builder()
                     .runningRecordIdx(recordEntity.getRunningRecordIdx())
                     .start(timeTable.getStart())
@@ -119,10 +123,12 @@ public class RunningRecordService {
                 throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_RECORD_ID);
             }
             RunningRecordEntity oldRecord = oldOptionalRecord.get();
+
             Optional<UserEntity> optionalUserPrincipal = userRepository.findByEmail(principal.getName());
             if (optionalUserPrincipal.isEmpty())
                 throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
             UserEntity userPrincipal = optionalUserPrincipal.get();
+
             if (!oldRecord.getMemberStatusIdx().getUserProfileIdx().getUserIdx().equals(userPrincipal))
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             List<LocationEntity> locations = RecordDataHandler.toEntityList(runningFinishReq.getLocations());
@@ -138,9 +144,10 @@ public class RunningRecordService {
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
             // calculate success, running time
             TimeTableEntity timeTable = optionalTimeTable.get();
-            if (oldRecord.getRunningStatus().equals("finish")) {
+
+            if (oldRecord.getRunningStatus().equals("finish"))
                 throw new BaseException(BaseResponseStatus.POST_RECORD_ALREADY_FINISH);
-            }
+
             Float seconds = RecordDataHandler.toSecond(timeFormat);
             String isSuccess =  RecordDataHandler.isSuccess(
                     timeTable.getGoalType(),
@@ -208,19 +215,21 @@ public class RunningRecordService {
      */
     public GetRecordByIdxRes getRecordByIdx(Principal principal, Long idx) throws BaseException {
         try {
-            Optional<RunningRecordEntity> record = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
-            if (record.isEmpty()) {
+            Optional<RunningRecordEntity> optRecord = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
+            if (optRecord.isEmpty()) {
                 throw new Exception("RECORD_UNAVAILABLE");
             }
+
+            RunningRecordEntity record = optRecord.get();
 
 //            List<GetLocationRes> locationList = locationRepository.findByRecordIdx_RunningRecordIdx(idx);
             List<GetLocationRes> locationList = new ArrayList<>();
 
             if (principal != null) {
                 Optional<UserEntity> user = userRepository.findByEmail(principal.getName());
-                if (user.get().equals(record.get().getMemberStatusIdx().getUserProfileIdx().getUserIdx())) {
+                if (user.get().equals(record.getMemberStatusIdx().getUserProfileIdx().getUserIdx())) {
                     // 자기 자신의 기록에서만 위치가 보이도록
-                    List<LocationEntity> getLocations = record.get().getLocations();
+                    List<LocationEntity> getLocations = record.getLocations();
                     for (LocationEntity location : getLocations) {
                         locationList.add(
                                 GetLocationRes.builder()
@@ -236,13 +245,13 @@ public class RunningRecordService {
 
             return GetRecordByIdxRes.builder()
                     .recordIdx(idx)
-                    .nickName(record.get().getMemberStatusIdx().getUserProfileIdx().getNickName())
-                    .clubName(record.get().getMemberStatusIdx().getClubIdx().getName())
-                    .date(record.get().getCreatedAt())
-                    .time(record.get().getTime())
-                    .distance(record.get().getDistance())
-                    .pace(record.get().getPace())
-                    .goalStatus(record.get().getGoalStatus())
+                    .nickName(record.getMemberStatusIdx().getUserProfileIdx().getNickName())
+                    .clubName(record.getMemberStatusIdx().getClubIdx().getName())
+                    .date(record.getCreatedAt())
+                    .time(record.getTime())
+                    .distance(record.getDistance())
+                    .pace(record.getPace())
+                    .goalStatus(record.getGoalStatus())
                     .locationList(locationList)
                     .build();
 
@@ -350,7 +359,7 @@ public class RunningRecordService {
             applyList.addAll(statusList);
         }
         return applyList;
-}
+    }
 
     /**
      * 개인 기록 캘린더
@@ -377,7 +386,7 @@ public class RunningRecordService {
             return getRecordByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
 
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
