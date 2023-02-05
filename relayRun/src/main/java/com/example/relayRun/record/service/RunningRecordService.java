@@ -267,6 +267,14 @@ public class RunningRecordService {
         }
     }
 
+    public GetRecordByIdxRes setProfileGoalInfo(GetRecordByIdxRes recordByIdxRes, Long userProfileIdx, LocalDate date) {
+        Optional<MemberStatusEntity> optionalMemberStatusEntity = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
+        Optional<TimeTableEntity> optionalTimeTableEntity = timeTableRepository.findByMemberStatusIdxAndDay(optionalMemberStatusEntity.get(), RecordDataHandler.toIntDay(date.getDayOfWeek()));
+        recordByIdxRes.setGoalType(optionalTimeTableEntity.get().getGoalType());
+        recordByIdxRes.setGoalValue(optionalTimeTableEntity.get().getGoal());
+        return recordByIdxRes;
+    }
+
 
     public GetRecordByIdxRes getRecordByDate(Principal principal, Long profileIdx, LocalDate date) throws BaseException {
         // 프로필이 속한 모든 지원 목록
@@ -278,7 +286,9 @@ public class RunningRecordService {
             if (recordIdx.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
             }
-            return getRecordByIdx(principal, recordIdx.get());
+            GetRecordByIdxRes result = getRecordByIdx(principal, recordIdx.get());
+            result = setProfileGoalInfo(result, profileIdx, date);
+            return result;
         } catch (BaseException e) {
             // 날짜에 해당하는 기록이 없을 때
             throw new BaseException((e.getStatus()));
@@ -290,7 +300,7 @@ public class RunningRecordService {
 
 
     /**
-     * 개인 기록 일별 요약 GET
+     * 개인 기록 일별 요약 GET회 (프로필이 많아지는 경우에만 사용)
      * @param principal
      * @param date
      * @return
@@ -339,7 +349,10 @@ public class RunningRecordService {
             List<RunningRecordEntity> records = runningRecordRepository
                     .findByMemberStatusIdx_ClubIdxAndCreatedAtBetweenAndRunningStatus(club.get(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), "finish");
 
-            return RecordDataHandler.get_summary(records, date);
+            GetDailyRes result = RecordDataHandler.get_summary(records, date);
+            result.setGoalType(club.get().getGoalType());
+            result.setGoalValue(club.get().getGoal());
+            return result;
         } catch (Exception e) {
             if (e.getMessage().equals("CLUB_UNAVAILABLE")) {
                 throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);

@@ -58,7 +58,7 @@ public class RunningRecordController {
     }
 
     // profile idx와 오늘 날짜로 조회
-    @ApiOperation(value="프로필 기록 날짜별 조회", notes="위치 원할시 token 필요, query로는 프로필 idx, date를 입력해주세요 ex) record/?idx=1&date=2023-01-26\n" +
+    @ApiOperation(value="해당 프로필 일별 기록 조회", notes="위치 원할시 token 필요, query로는 프로필 idx, date를 입력해주세요 ex) record/?idx=1&date=2023-01-26\n" +
             "token이 없거나 해당 유저가 아닐 때는 위치 list가 null로 반환됩니다!")
     @ResponseBody
     @GetMapping("")
@@ -76,8 +76,8 @@ public class RunningRecordController {
     }
 
     // 기록 세부 조회
-    @ApiOperation(value="기록 idx로 조회 -> 날짜별 조회 이용", notes="path variable에 조회할 기록의 idx를 입력해주세요")
-    @GetMapping("/{idx}")
+    @ApiOperation(value="기록 idx로 조회 -> 임시, 날짜별 조회를 이용", notes="path variable에 조회할 기록의 idx를 입력해주세요")
+    @GetMapping("/{recordIdx}")
     public BaseResponse<GetRecordByIdxRes> getRecordByIdx(
             Principal principal,
             @ApiParam(value = "조회하고자 하는 기록 식별자")@PathVariable("recordIdx") Long recordIdx
@@ -90,8 +90,7 @@ public class RunningRecordController {
         }
     }
 
-    // 하루 기록 조회
-    @ApiOperation(value="개인 기록 일별 요약(요약이므로 세부 기록 조회를 위해서는 날짜별 조회 API 사용)", notes="bearer에 조회할 유저의 토큰, query에 조회 날짜를 입력해주세요 ex record/summary/?date=2023-01-26")
+    @ApiOperation(value="개인 기록 일별 요약(요약이므로 세부 기록 조회를 위해서는 날짜별 조회 API 사용, 프로필이 많아지는 경우에만 사용)", notes="bearer에 조회할 유저의 토큰, query에 조회 날짜를 입력해주세요 ex record/summary/?date=2023-01-26")
     @GetMapping("/summary")
     public BaseResponse<GetDailyRes> getDailyRecord(
             Principal principal,
@@ -104,7 +103,7 @@ public class RunningRecordController {
         }
     }
 
-    @ApiOperation(value="그룹 기록 일별 요약", notes="조회할 그룹 idx를 입력해주세요, query에 조회 날짜를 입력해주세요 ex record/summary/club/?clubIdx=1&date=2023-01-27")
+    @ApiOperation(value="해당 그룹 일별 기록 조회", notes="조회할 그룹 idx를 입력해주세요, query에 조회 날짜를 입력해주세요 ex record/summary/club/?clubIdx=1&date=2023-01-27")
     @GetMapping("/summary/club")
     public BaseResponse<GetDailyRes> getDailyGroup(
             @ApiParam(value = "조회하고자 하는 그룹의 식별자")@RequestParam("clubIdx") Long clubIdx,
@@ -118,7 +117,7 @@ public class RunningRecordController {
         }
     }
 
-    @ApiOperation(value="해당되는 월의 날짜별 개인(프로필) 기록 모음", notes="조회할 프로필 idx, 년과 월을 입력해주세요 ex record/calender/?profileIdx=1&year=2023&month=1")
+    @ApiOperation(value="해당 프로필의 월별 기록 조회", notes="조회할 프로필 idx, 년과 월을 입력해주세요 ex record/calender/?profileIdx=1&year=2023&month=1")
     @GetMapping("/calender")
     public BaseResponse<List<GetCalender>> getCalender(
             @ApiParam(value = "조회하고자 하는 유저의 프로필 식별자")@RequestParam("profileIdx") Long profileIdx,
@@ -133,7 +132,7 @@ public class RunningRecordController {
         }
     }
 
-    @ApiOperation(value="해당되는 월의 날짜별 그룹 기록 모음", notes="조회할 그룹 idx, 년과 월을 입력해주세요 ex record/calender/club/?clubIdx=1&year=2023&month=1")
+    @ApiOperation(value="해당 그룹의 월별 기록 조회", note회="조회할 그룹 idx, 년과 월을 입력해주세요 ex record/calender/club/?clubIdx=1&year=2023&month=1")
     @GetMapping("/calender/club")
     public BaseResponse<List<GetCalender>> getClubCalender(
             @ApiParam(value = "조회하고자 하는 그룹의 식별자")@RequestParam("clubIdx") Long clubIdx,
