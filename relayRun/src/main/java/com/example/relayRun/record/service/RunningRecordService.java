@@ -374,8 +374,7 @@ public class RunningRecordService {
                     findByUserProfileIdx_UserProfileIdxAndStatus(profileIdx, "active");
 
             // memberStatus에 해당하는 기록 중 해당 월만 갖고오기
-            List<GetCalender> calender = getRecordByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
-            return calender;
+            return getRecordByMemberStatusAndYearAndMonthAndStatus(applyList, year, month, "active");
 
         } catch (Exception e) {
             System.out.println(e);
@@ -391,8 +390,7 @@ public class RunningRecordService {
 
         List<MemberStatusEntity> statusList = memberStatusRepository.findByClubIdxAndStatus(club.get(), "active");
 
-        List<GetCalender> calender = getRecordByMemberStatusAndYearAndMonthAndStatus(statusList, year, month, "active");
-        return calender;
+        return getRecordByMemberStatusAndYearAndMonthAndStatus(statusList, year, month, "active");
     }
 
     public List<GetCalender> getRecordByMemberStatusAndYearAndMonthAndStatus(
@@ -403,7 +401,7 @@ public class RunningRecordService {
                 runningRecordRepository.selectByMemberStatusAndYearAndMonthAndStatus_Tuple(
                         memberStatusEntityList, year, month, status);
 
-        List<GetCalender> calender = calenderTuple.stream()
+        return calenderTuple.stream()
                 .map(t -> GetCalender
                         .builder()
                         .date(t.get(0, Date.class).toLocalDate())
@@ -412,6 +410,5 @@ public class RunningRecordService {
                         .avgPace(t.get(3, Double.class))
                         .build()
                 ).collect(Collectors.toList());
-        return calender;
     }
 }
