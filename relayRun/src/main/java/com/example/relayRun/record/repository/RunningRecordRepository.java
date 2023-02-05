@@ -33,11 +33,12 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecordEnti
             @Param("month") Integer month,
             @Param("status") String status);
 
-    @Query(value = "select sum(r.time), sum(r.distance), avg(r.pace) from runningmen.running_record as r " +
+    @Query(value = "select DATE(r.created_at), sum(r.time), sum(r.distance), avg(r.pace) from running_record as r " +
             "where r.member_status_idx in :idxList and " +
             "YEAR(r.created_at) = :year and MONTH(r.created_at) = :month and " +
             "r.status = :status " +
-            "", nativeQuery = true)
+            "group by DATE(r.created_at) " +
+            "order by DATE(r.created_at)", nativeQuery = true)
     List<Tuple> selectByMemberStatusAndYearAndMonthAndStatus_2(
             @Param("idxList") List<MemberStatusEntity> list,
             @Param("year") Integer Year,

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.Tuple;
 import java.security.Principal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -414,10 +415,10 @@ public class RunningRecordService {
         List<GetClubCalender> recordList = recordTuple.stream()
                         .map(t -> GetClubCalender
                                 .builder()
-//                                .date(t.get(0, LocalDateTime.class))
-                                .totalTime(t.get(0, Double.class))
-                                .totalDist(t.get(1, Double.class))
-                                .avgPace(t.get(2, Double.class))
+                                .date(t.get(0, Date.class).toLocalDate())
+                                .totalTime(t.get(1, Double.class))
+                                .totalDist(t.get(2, Double.class))
+                                .avgPace(t.get(3, Double.class))
                                 .build()
                         ).collect(Collectors.toList());
 
