@@ -272,15 +272,35 @@ public class UserService {
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         }
         UserEntity userEntity = optionalUserEntity.get();
+
+        UserProfileEntity userProfileEntity = buildProfile(userEntity,
+                                        profileReq.getNickname(),
+                                        profileReq.getImgUrl(),
+                                        profileReq.getIsAlarmOn(),
+                                        profileReq.getStatusMsg());
+
+        return userProfileEntity.getUserProfileIdx();
+    }
+
+    /**
+     *
+     * @param userEntity
+     * @param nickname
+     * @param imgURL
+     * @param isAlarmOn
+     * @param statusMsg
+     * @return UserProfileEntity
+     */
+    public UserProfileEntity buildProfile(UserEntity userEntity, String nickname, String imgURL, String isAlarmOn, String statusMsg) {
         UserProfileEntity userProfileEntity = UserProfileEntity.builder()
                 .userIdx(userEntity)
-                .nickName(profileReq.getNickname())
-                .imgURL(profileReq.getImgUrl())
-                .isAlarmOn(profileReq.getIsAlarmOn())
-                .statusMsg(profileReq.getStatusMsg())
+                .nickName(nickname)
+                .imgURL(imgURL)
+                .isAlarmOn(isAlarmOn)
+                .statusMsg(statusMsg)
                 .build();
         userProfileEntity = userProfileRepository.save(userProfileEntity);
-        return userProfileEntity.getUserProfileIdx();
+        return userProfileEntity;
     }
 
     public void changeAlarm(Principal principal, Long profileIdx) throws BaseException {
