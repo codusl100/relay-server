@@ -131,6 +131,17 @@ public class UserController {
     }
 
     @ResponseBody
+    @ApiOperation(value = "알람 수신 변경", notes ="알람 수신을 변경하고자 하는 유저의 프로필 idx 식별자를 Path variable에 담아주세요!")
+    @PatchMapping("/changeAlarm/{profileIdx}")
+    public BaseResponse<String> changeAlarm(Principal principal, @PathVariable("profileIdx") Long profileIdx) {
+        try{
+            this.userService.changeAlarm(principal, profileIdx);
+            return new BaseResponse<>("알람 설정 변경을 완료했습니다.");
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+    
     @ApiOperation(value = "유저 프로필 세부 조회", notes ="Path variable로 상세 조회할 프로필 Idx 식별자 넣어주세요!")
     @GetMapping("/profileList/{profileIdx}")
     public BaseResponse<GetProfileRes> getUserProfile(Principal principal, @PathVariable("profileIdx") Long profileIdx) throws BaseException {
@@ -143,7 +154,8 @@ public class UserController {
     }
     @ResponseBody
     @PostMapping("/email")
-    @ApiOperation(value="인증 번호 이메일 발급", notes="네이버 메일 (@naver.com) 형식의 이메일만 메일 전송이 가능합니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!")
+    @ApiOperation(value="인증 번호 이메일 발급", notes="bearer에 토큰을 넣어주시면 가입된 이메일로 인증 메일이 전송됩니다. 인증 번호 유효 시간은 5분으로, 시간이 지나면 코드는 삭제됩니다!\n" +
+            "네이버 메일 (@naver.com) 형식의 이메일만 발신자로 설정이 가능하고, 이 주소는 서버측에 문의 후 넣어주세요.")
     public BaseResponse<String> authEmail(Principal principal, @RequestBody @Valid PostEmailReq request) throws Exception {
         String code = this.userService.sendSimpleMessage(principal, request.getEmail());
         log.info("인증 코드 : " + code);
@@ -151,7 +163,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @GetMapping("/emailConfirm")
+    @PostMapping("/emailConfirm")
     @ApiOperation(value="인증 번호 비교", notes="이메일로 발급받으신 인증번호를 RequestBody에 넣어서 String으로 인증번호 인증 성공/실패 여부 반환하도록 했습니다!")
     public BaseResponse<String> confirmEmail(Principal principal, @RequestBody GetEmailCodeReq code) throws BaseException {
         if (this.userService.confirmEmail(principal, code)){
@@ -159,5 +171,13 @@ public class UserController {
         } else {
             return new BaseResponse<>("인증번호 인증에 실패하였습니다.");
         }
+    }
+
+    @ResponseBody
+    @PatchMapping("/changeProfile")
+    @ApiOperation(value="프로필 변경", notes="프로필 닉네임, 이미지(아바타), 상태 메세지 중 변경할 것들을 선택해서 Body에 담아주세요!")
+    public BaseResponse<String> changeProfile (Principal principal, @RequestBody PatchProfileReq profileReq) throws BaseException {
+        this.userProfileService.changeProfile(principal, profileReq);
+        return new BaseResponse<>("프로필 변경을 완료했습니다.");
     }
 }
