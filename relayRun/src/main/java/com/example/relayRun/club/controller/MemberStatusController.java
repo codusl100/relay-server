@@ -1,9 +1,6 @@
 package com.example.relayRun.club.controller;
 
-import com.example.relayRun.club.dto.GetTimeTableAndUserProfileRes;
-import com.example.relayRun.club.dto.GetTimeTableListRes;
-import com.example.relayRun.club.dto.PostMemberStatusReq;
-import com.example.relayRun.club.dto.PostTimeTableReq;
+import com.example.relayRun.club.dto.*;
 import com.example.relayRun.club.service.MemberStatusService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -12,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,30 +30,6 @@ public class MemberStatusController {
         try {
             memberStatusService.createMemberStatus(clubIdx, memberStatus);
             return new BaseResponse<>("그룹 신청 및 시간표 등록 완료");
-        } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus());
-        }
-    }
-
-//    @ApiOperation(value = "시간표 등록", notes = "path variable로 직전에 반환 받은 memberStatusIdx, body로는 신청자의 시간표 정보를 리스트 형식으로 보내면 시간표 등록이 완료됩니다.")
-//    @ResponseBody
-//    @PostMapping("/{memberStatusIdx}/time-tables")
-//    public BaseResponse<String> createTimeTable(@ApiParam(value = "직전에 반환 받은 memberStatusIdx") @PathVariable Long memberStatusIdx, @ApiParam(value = "신청자의 시간표 정보(리스트 형식)") @Valid @RequestBody PostTimeTableReq postTimeTableReq) {
-//        try {
-//            memberStatusService.createTimeTable(memberStatusIdx, postTimeTableReq);
-//            return new BaseResponse<>("시간표 등록 완료");
-//        } catch (BaseException e) {
-//            return new BaseResponse<>(e.getStatus());
-//        }
-//    }
-
-    @ApiOperation(value = "그룹의 전체 시간표 조회", notes = "path variable로 조회하고자 하는 그룹의 clubIdx를 보내면 해당 그룹의 전체 시간표를 리스트 형식으로 반환합니다.")
-    @ResponseBody
-    @GetMapping("/{clubIdx}/time-tables")
-    public BaseResponse<List<GetTimeTableAndUserProfileRes>> getAllTimeTables(@ApiParam(value = "조회하고자 하는 그룹의 clubIdx")@PathVariable Long clubIdx) {
-        try {
-            List<GetTimeTableAndUserProfileRes> timeTableList = memberStatusService.getTimeTablesByClubIdx(clubIdx);
-            return new BaseResponse<>(timeTableList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
@@ -92,6 +66,17 @@ public class MemberStatusController {
             memberStatusService.updateTimeTable(userProfileIdx, postTimeTableReq);
             return new BaseResponse<>("시간표 수정 완료");
         } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+    @ApiOperation(value="멤버 강퇴", notes="")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/members/deletion")
+    public BaseResponse<String> deleteMember(Principal principal, @PathVariable Long clubIdx, PatchDeleteMemberReq request) {
+        try {
+            String userProfileName = memberStatusService.deleteClubMember(principal, clubIdx, request);
+            return new BaseResponse<>(userProfileName + "이(가) 강퇴되었습니다.");
+        } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }
