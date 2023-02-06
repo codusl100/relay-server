@@ -12,6 +12,7 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -51,6 +52,16 @@ public class UserService {
     private JavaMailSender javaMailSender;
 
     private RedisUtil redisUtil;
+
+    private String bucketURL = "https://runningmen-bucket.s3.ap-northeast-2.amazonaws.com";
+
+    private HashMap<Integer, String> avatar = new HashMap<>() {{
+        put(1, bucketURL + "/1.png");
+        put(2, bucketURL + "/2.png");
+        put(3, bucketURL + "/3.png");
+        put(4, bucketURL + "/4.png");
+        put(5, bucketURL + "/5.png");
+    }};
 
 
     public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository,
@@ -94,16 +105,18 @@ public class UserService {
                 .loginType(LoginType.BASIC)
                 .role(Role.ROLE_USER)
                 .build();
-        user.setPwd(password);
 
         userEntity = userRepository.save(userEntity);
-        UserProfileEntity userProfileEntity = UserProfileEntity.builder()
-                .nickName("기본 닉네임")
-                .imgURL("기본 이미지")
-                .statusMsg("안녕하세요")
-                .userIdx(userEntity)
-                .build();
-        userProfileRepository.save(userProfileEntity);
+
+        Random random = new Random();
+        // 프로필 자동 생성
+        UserProfileEntity userProfileEntity = buildProfile(
+                userEntity,
+                userEntity.getName(),
+                avatar.get(random.nextInt(5) + 1),
+                "y",
+                "안녕하세요");
+
         return token(user);
 
     }
