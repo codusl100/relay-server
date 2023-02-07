@@ -2,16 +2,14 @@ package com.example.relayRun.club.entity;
 
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.util.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @DynamicInsert
 @Table(name = "club")
