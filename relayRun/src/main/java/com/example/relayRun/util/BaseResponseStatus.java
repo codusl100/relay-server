@@ -54,6 +54,8 @@ public enum BaseResponseStatus {
     USER_PROFILE_EMPTY(false, 4000, "유효하지 않은 유저 프로필 인덱스입니다."),
     DUPLICATE_MEMBER_STATUS(false, 4000, "이미 그룹에 존재하는 유저 프로필입니다."),
     CLUB_EMPTY(false, 4000, "유효하지 않은 그룹 인덱스입니다."),
+    ERROR_DUPLICATE_CLUB(false, 4801, "두개 이상의 그룹에 가입된 유저입니다. (비정상)"),
+
     DUPLICATE_TIMETABLE(false, 4000, "중복된 시간표입니다."),
     POST_MEMBER_STATUS_FAIL(false, 4000, "그룹 신청에 실패하였습니다."),
     MEMBER_STATUS_EMPTY(false, 4000, "신청된 그룹이 존재하지 않습니다."),
