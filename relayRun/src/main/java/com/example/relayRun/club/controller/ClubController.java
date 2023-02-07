@@ -140,7 +140,7 @@ public class ClubController {
     @PatchMapping("/{clubIdx}/recruit-recruiting")
     public BaseResponse<String> patchRecruitRecruiting(@PathVariable("clubIdx") Long clubIdx){
         try {
-            clubService.updateClubRecruitFinished(clubIdx);
+            clubService.updateClubRecruitRecruiting(clubIdx);
             return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
