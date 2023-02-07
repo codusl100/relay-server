@@ -239,10 +239,15 @@ public class MemberStatusService {
             if (optionalUserProfileEntity.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
+            UserProfileEntity userProfileEntity = optionalUserProfileEntity.get();
+
+            if (userProfileEntity.getUserIdx().equals(userEntity)) {
+                throw new BaseException(BaseResponseStatus.PATCH_HOST_DROPPED_INVALID);
+            }
 
             memberStatusEntity.setApplyStatus("DROPPED");
             memberStatusRepository.save(memberStatusEntity);
-            return optionalUserProfileEntity.get().getNickName();
+            return userProfileEntity.getNickName();
         } else {
             throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
         }
