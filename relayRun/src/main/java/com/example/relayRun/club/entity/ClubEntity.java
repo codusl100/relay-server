@@ -2,10 +2,7 @@ package com.example.relayRun.club.entity;
 
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.util.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
