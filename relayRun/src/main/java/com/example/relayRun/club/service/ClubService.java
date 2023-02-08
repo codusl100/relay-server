@@ -59,7 +59,7 @@ public class ClubService {
     }
 
     public List<GetMemberOfClubRes> getMemberOfClub(Long clubIdx) throws BaseException {
-        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatus(clubIdx, "ACCEPTED");
+        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(clubIdx, "ACCEPTED", "active");
         if (memberStatusEntityList.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
         }

@@ -71,6 +71,7 @@ public enum BaseResponseStatus {
      * */
     PATCH_PASSWORD_CHECK_WRONG(false, 7000, "비밀번호 확인란을 다시 확인해주세요."),
     PATCH_NOT_HOST(false, 7001, "해당 그룹의 방장이 아닙니다."),
+    PATCH_HOST_DROPPED_INVALID(false, 7002, "방장은 강퇴할 수 없습니다."),
 
     /*
      * 8000 : delete
