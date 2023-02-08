@@ -30,27 +30,7 @@ jobs:
         with:
           java-version: '11'
           distribution: 'zulu'
-      - name: Setup MySQL
-        uses: samin/mysql-action@v1
-        with:
-          character set server: 'utf8' 
-          mysql database: 'RUNNINGMEN' 
-          mysql user: 'runningmen'
-          mysql password: ${{ secrets.MYSQL_PASSWORD }} # github Secret 탭에서 설정하세요!
-      - name: Copy Secret
-        env:
-          OCCUPY_SECRET: ${{ secrets.OCCUPY_SECRET }}
-          OCCUPY_SECRET_DIR: src/main/resources
-          OCCUPY_SECRET_DIR_FILE_NAME: application-secret.yml
-        run: echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
-      
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-        shell: bash
-      
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test
-        shell: bash
+
   deploy:
     name: CD
     needs: build
@@ -82,22 +62,34 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
         shell: bash
-        
-      - name: Make zip file
-        run: zip -r ./$GITHUB_SHA.zip .
-        shell: bash
 
+      # 전송할 파일을 담을 디렉토리 생성
+      - name: Make Directory for deliver
+        run: mkdir deploy
+
+      # Jar 파일 Copy
+      - name: Copy Jar
+        run: cp ./build/libs/*.jar ./deploy/
+
+      # appspec.yml Copy
+      - name: Copy appspec
+        run: cp ./appspec.yml ./deploy/
+
+      # script files Copy
+      - name: Copy script
+        run: cp ./scripts/*.sh ./deploy
+
+      # jar, appspec, script 압축
+      - name: Make zip file
+        run: zip -r ./$GITHUB_SHA.zip ./deploy
+        shell: bash
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          
-      # script files 복사
-      - name: Copy script
-        run: cp ./scripts/*.sh ./deploy
-      
+
       # S3에 업로드
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
