@@ -135,4 +135,40 @@ public class ClubController {
         }
     }
 
+    @ApiOperation(value="그룹의 모집완료 전환", notes="모집 인원이 모두 다 차면 자동 모집완료 처리 해야합니다.")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/recruit-finished")
+    public BaseResponse<String> patchRecruitFinished(@PathVariable("clubIdx") Long clubIdx){
+        try {
+            clubService.updateClubRecruitFinished(clubIdx);
+            return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹의 모집중 전환", notes="모집 인원이 모두 다 찬 상황에서 팀원이 나가면 자동 모집중 처리 해야합니다.")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/recruit-recruiting")
+    public BaseResponse<String> patchRecruitRecruiting(@PathVariable("clubIdx") Long clubIdx){
+        try {
+            clubService.updateClubRecruitRecruiting(clubIdx);
+            return new BaseResponse<>("그룹의 모집 상태를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @ApiOperation(value="그룹 정보 변경 (방장만 가능)", notes="access 토큰, 그룹 식별자, 변경하고자 하는 그룹 정보 값 전체를 넘겨주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}")
+    public BaseResponse<String> patchClubInfo(Principal principal, @PathVariable("clubIdx") Long clubIdx, @RequestBody PatchClubInfoReq clubInfoReq){
+        try {
+            clubService.updateClubInfo(principal, clubIdx, clubInfoReq);
+            return new BaseResponse<>("그룹의 정보를 변경하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
 }
