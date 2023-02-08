@@ -10,6 +10,7 @@ import io.swagger.annotations.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,6 +28,27 @@ public class ClubController {
         this.clubService = clubService;
         this.memberStatusService = memberStatusService;
         this.runningRecordService = runningRecordService;
+    }
+
+    @ApiOperation(value="메인 페이지", notes="헤더로 access 토큰, path variable로 userProfileIdx를 보내주세요.")
+    @ResponseBody
+    @GetMapping("/home/{userProfileIdx}")
+    public BaseResponse<List<GetMemberOfClubRes>> getHome(Principal principal,
+                                                          @ApiParam(value = "조회하고자 하는 유저의 userProfileIdx")@PathVariable Long userProfileIdx) {
+        try {
+            Long clubIdx = clubService.getClubIdx(principal, userProfileIdx);
+            List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx);
+            for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
+                LocalDate date = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
+                LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
+                getMemberOfClubRes.setRunningRecord(runningRecordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
+            }
+            return new BaseResponse<>(getMemberOfClubResList);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ApiOperation(value="그룹 목록 조회(전체, 검색)", notes="URI 뒤에 search parameter로 그룹 이름을 검색할 수 있다. 아무것도 넘기지 않을 경우 전체 목록이 조회된다.")
