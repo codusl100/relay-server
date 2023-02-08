@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class RelayRunApplication {
 
 	public static void main(String[] args) {
-		FirebaseApp.initializeApp();
 		SpringApplication.run(RelayRunApplication.class, args);
 	}
 }
