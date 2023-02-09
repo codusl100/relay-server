@@ -60,7 +60,7 @@ public class UserController {
         try {
             TokenDto token = this.userService.logIn(user);
             try{
-                fcmService.sendMessage(user.getEmail());
+                fcmService.sendMessageByEmail(user.getEmail(), "login 알람", "로그인 성공");
             }catch(BaseException e) {
                 log.error(e.getMessage());
             }

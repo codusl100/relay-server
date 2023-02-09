@@ -31,7 +31,7 @@ public class PostClubReq {
     private String imgURL;
 
     @ApiModelProperty(example="방장 식별자", hidden = true)
-    private UserProfileEntity hostIdx;
+    private Long hostIdx;
 
     @ApiModelProperty(example="최대 인원 수", required = true)
     private Integer maxNum;
