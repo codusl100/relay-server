@@ -5,8 +5,9 @@ name: CI & CD
 on:
   push:
     branches: [ main ] # main branch로 push 될 때 실행됩니다.
-  pull_request:
-    branches: [ main ]  # main branch로 pull request될 때 실행됩니다.
+# -- PR 전부가 아닌 리뷰 완료 후 main에 머지된거만 작동하도록 변경하겠습니다 --
+#  pull_request:
+#    branches: [ main ]  # main branch로 pull request될 때 실행됩니다.
 
 # 해당 yml 내에서 사용할 key - value
 env:
