@@ -39,7 +39,7 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, 4778,"이메일을 입력해주세요"),
     POST_USERS_EMPTY_NAME(false, 4779,"이름을 입력해주세요"),
 
-    POST_RECORD_INVALID_CLUB_ACCESS(false, 4900, "그룹에 가입되지 않은 프로필입니다."),
+    POST_RECORD_INVALID_CLUB_ACCESS(false, 4900, "해당 그룹에 가입되지 않은 프로필입니다."),
     POST_RECORD_INVALID_RECORD_ID(false, 4901, "유효하지 않은 레코드 아이디입니다."),
     POST_PARSE_ERROR(false, 4902, "포인트 형식에 맞지 않습니다."),
 

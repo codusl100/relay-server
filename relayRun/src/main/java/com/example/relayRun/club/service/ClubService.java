@@ -235,9 +235,9 @@ public class ClubService {
             throw new BaseException(BaseResponseStatus.PATCH_NOT_HOST);
         }
 
-        Optional<MemberStatusEntity> optionalMemberStatusEntity =
-                memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(
-                        hostReq.getNextHostProfileIdx(), "ACTIVE", "ACCEPTED"
+        Optional<MemberStatusEntity> optionalMemberStatusEntity = memberStatusRepository
+                .findByUserProfileIdx_UserProfileIdxAndClubIdx_ClubIdxAndApplyStatusAndStatus(
+                        hostReq.getNextHostProfileIdx(), clubIdx, "ACCEPTED", "ACTIVE"
                 );
         if (optionalMemberStatusEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
