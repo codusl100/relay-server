@@ -41,6 +41,31 @@ public class ClubService {
         this.memberStatusService = memberStatusService;
     }
 
+    public Long getClubIdx(Principal principal, Long userProfileIdx) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if (optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+
+        Optional<UserProfileEntity> optionalUserProfileEntity = userProfileRepository.findByUserProfileIdx(userProfileIdx);
+        if (optionalUserProfileEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
+        }
+        UserProfileEntity userProfileEntity = optionalUserProfileEntity.get();
+
+        if(!userProfileEntity.getUserIdx().equals(userEntity)) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_FIND_USER);
+        }
+
+        Optional<MemberStatusEntity> memberStatusEntity = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
+        if(memberStatusEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
+        }
+
+        return memberStatusEntity.get().getClubIdx().getClubIdx();
+    }
+
     public List<GetClubListRes> getClubs() throws BaseException {
         try {
             return clubRepository.findByOrderByRecruitStatusDesc();
@@ -59,7 +84,7 @@ public class ClubService {
     }
 
     public List<GetMemberOfClubRes> getMemberOfClub(Long clubIdx) throws BaseException {
-        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatus(clubIdx, "ACCEPTED");
+        List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(clubIdx, "ACCEPTED", "active");
         if (memberStatusEntityList.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
         }
