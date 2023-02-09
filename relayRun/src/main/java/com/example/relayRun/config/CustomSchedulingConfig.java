@@ -22,6 +22,12 @@ public class CustomSchedulingConfig implements SchedulingConfigurer {
         threadPoolTaskScheduler.initialize();
         return threadPoolTaskScheduler;
     }
+    @Bean
+    public ScheduledTaskRegistrar scheduledTaskRegistrar() {
+        ScheduledTaskRegistrar scheduledTaskRegistrar = new ScheduledTaskRegistrar();
+        scheduledTaskRegistrar.setScheduler(taskScheduler());
+        return scheduledTaskRegistrar;
+    }
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {

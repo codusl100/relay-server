@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.Principal;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -144,10 +145,10 @@ public class FCMService {
 
     }
 
-   public PostDeviceRes saveDeviceToken(PostDeviceReq req) throws BaseException {
-        Optional<UserEntity> optionalUser = userRepository.findByEmail(req.getEmail());
+   public PostDeviceRes saveDeviceToken(Principal principal, PostDeviceReq req) throws BaseException {
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
         if (optionalUser.isEmpty())
-            throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         UserEntity user = optionalUser.get();
         Optional<UserDeviceEntity> optionalDevice = userDeviceRepository.findByUserDeviceTokenAndUserIdx(req.getUserDeviceID(), user);
         if (optionalDevice.isPresent())
@@ -195,7 +196,7 @@ public class FCMService {
         }
         UserEntity user = optionalUser.get();
         try {
-            sendMessageById(user.getUserIdx(), "뛸 시간입니다!", start.toString() + "부터 달리기 시작하세요!");
+            sendMessageById(user.getUserIdx(),  start.toString() + "부터 달리기 시작하세요!", "뛸 시간입니다!");
         } catch (BaseException e) {
             log.error(e.getMessage());
         }

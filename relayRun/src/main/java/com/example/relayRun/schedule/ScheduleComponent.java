@@ -9,43 +9,47 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.config.ContextLifecycleScheduledTaskRegistrar;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.sql.Timestamp;
+import java.time.*;
+import java.util.Date;
 import java.util.List;
 
 @Component
 @Slf4j
 public class ScheduleComponent {
     private TimeTableRepository timeTableRepository;
-    private TaskScheduler taskScheduler;
+    private ScheduledTaskRegistrar scheduledTaskRegistrar;
     private NotifyEventPublisher publisher;
 
     public ScheduleComponent(TimeTableRepository timeTableRepository,
-                             TaskScheduler taskScheduler,
+                             ScheduledTaskRegistrar scheduledTaskRegistrar,
                              NotifyEventPublisher publisher) {
         this.timeTableRepository = timeTableRepository;
-        this.taskScheduler = taskScheduler;
+        this.scheduledTaskRegistrar = scheduledTaskRegistrar;
         this.publisher = publisher;
     }
 
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void scanTimeTable() {
-        LocalDateTime today = LocalDateTime.now();
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
         List<TimeTableEntity> timeTables = timeTableRepository.findAllByDay(today.getDayOfWeek().getValue());
         if (timeTables.isEmpty()) {
             log.info("no timetable entity today");
         }else {
             log.info("reserve notify actions");
             timeTables.forEach(timetable-> {
-                if (today.toLocalTime().isAfter(timetable.getStart()))
+                if (now.isAfter(timetable.getStart()))
                     return ;
                 log.info(timetable.getStart().toString());
-                Duration delay = Duration.between(today.toLocalTime(), timetable.getStart());
-                log.info("after " + Duration.between(timetable.getStart(),today.toLocalTime()).getSeconds() + " run event is published");
-                taskScheduler.scheduleWithFixedDelay(new NotifyToRun(timetable,publisher), delay);
+               scheduledTaskRegistrar.getScheduler().schedule(
+                        new NotifyToRun(timetable,publisher),
+                        Timestamp.valueOf(LocalDateTime.of(today, timetable.getStart()))
+                );
             });
         }
     }

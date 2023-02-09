@@ -26,6 +26,7 @@ public class NotifyToRun implements Runnable{
             return ;
         }
         log.info("publish time to run event");
+        log.info("public {} {}", timeTable.getMemberStatusIdx().getMemberStatusIdx(), timeTable.getStart().toString());
         publisher.publishNotifyEvent(TimeToRunEvent.builder()
                 .memberStatusIdx(timeTable.getMemberStatusIdx().getMemberStatusIdx())
                 .start(timeTable.getStart())
