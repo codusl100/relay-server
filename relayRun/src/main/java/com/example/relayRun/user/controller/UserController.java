@@ -59,11 +59,6 @@ public class UserController {
         }
         try {
             TokenDto token = this.userService.logIn(user);
-            try{
-                fcmService.sendMessageByEmail(user.getEmail(), "login 알람", "로그인 성공");
-            }catch(BaseException e) {
-                log.error(e.getMessage());
-            }
             return new BaseResponse<>(token);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
