@@ -56,6 +56,7 @@ public enum BaseResponseStatus {
     CLUB_EMPTY(false, 4000, "유효하지 않은 그룹 인덱스입니다."),
     DUPLICATE_TIMETABLE(false, 4000, "중복된 시간표입니다."),
     POST_MEMBER_STATUS_FAIL(false, 4004, "그룹 신청에 실패하였습니다"),
+    POST_MEMBER_STATUS_FAIL(false, 4000, "그룹 신청에 실패하였습니다."),
     MEMBER_STATUS_EMPTY(false, 4000, "신청된 그룹이 존재하지 않습니다."),
     POST_TIME_TABLE_FAIL(false, 4000, "시간표 등록에 실패하였습니다."),
     INVALID_MEMBER_STATUS(false, 4000, "유효하지 않은 member status 인덱스입니다."),

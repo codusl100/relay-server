@@ -149,7 +149,6 @@ public class ClubService {
         if (clubReq.getContent().isEmpty()) {
             throw new BaseException(BaseResponseStatus.POST_CLUBS_CONTENTS_EMPTY);
         }
-
         ClubEntity clubEntity = ClubEntity.builder()
                 .name(clubReq.getName())
                 .content(clubReq.getContent())
