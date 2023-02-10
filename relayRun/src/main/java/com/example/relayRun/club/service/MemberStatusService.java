@@ -67,6 +67,8 @@ public class MemberStatusService {
             List<TimeTableDTO> timeTables = memberStatus.getTimeTables();
 
             this.createTimeTable(memberStatusIdx, timeTables);
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.POST_MEMBER_STATUS_FAIL);
         }
