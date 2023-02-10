@@ -36,7 +36,7 @@ public class MemberStatusService {
         this.clubRepository = clubRepository;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public void createMemberStatus(Long clubIdx, PostMemberStatusReq memberStatus) throws BaseException {
         try {
             Long userProfileIdx = memberStatus.getUserProfileIdx();
@@ -69,8 +69,10 @@ public class MemberStatusService {
             Long memberStatusIdx = memberStatusEntity.getMemberStatusIdx();
             List<TimeTableDTO> timeTables = memberStatus.getTimeTables();
 
+            // 이 함수가 실패(시간표 생성 못함)일 경우 위 memberStatus에 대한 rollback 적용
             this.createTimeTable(memberStatusIdx, timeTables);
-        } catch (BaseException e) {
+
+        } catch (BaseException e) { // profile 존재 x, 그룹 존재 x, 시간표 등록 실패일 경우
             throw new BaseException(e.getStatus());
         } catch (NonUniqueResultException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
             throw new BaseException(BaseResponseStatus.ERROR_DUPLICATE_CLUB);
