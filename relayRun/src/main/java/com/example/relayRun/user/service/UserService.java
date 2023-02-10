@@ -106,7 +106,7 @@ public class UserService {
                 .role(Role.ROLE_USER)
                 .build();
 
-        userEntity = userRepository.save(userEntity);
+        userRepository.save(userEntity);
 
         Random random = new Random();
         // 프로필 자동 생성
@@ -116,6 +116,8 @@ public class UserService {
                 avatar.get(random.nextInt(5) + 1),
                 "y",
                 "안녕하세요");
+
+        userProfileRepository.save(userProfileEntity);
 
         return token(user);
 
