@@ -11,6 +11,7 @@ import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import org.hibernate.NonUniqueResultException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -44,8 +45,10 @@ public class MemberStatusService {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
 
-            List<MemberStatusEntity> validationList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
-            if(!validationList.isEmpty()) {
+            Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.
+                    findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
+            if (!optionalMemberStatus.isEmpty()) {
+                // 이미 그룹 하나에 들어가있는 경우
                 throw new BaseException(BaseResponseStatus.DUPLICATE_MEMBER_STATUS);
             }
 
@@ -69,6 +72,8 @@ public class MemberStatusService {
             this.createTimeTable(memberStatusIdx, timeTables);
         } catch (BaseException e) {
             throw new BaseException(e.getStatus());
+        } catch (NonUniqueResultException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
+            throw new BaseException(BaseResponseStatus.ERROR_DUPLICATE_CLUB);
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.POST_MEMBER_STATUS_FAIL);
         }
