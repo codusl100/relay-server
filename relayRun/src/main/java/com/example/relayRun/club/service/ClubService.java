@@ -102,7 +102,7 @@ public class ClubService {
     }
 
     // 그룹 생성
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public void makesClub(Principal principal, PostClubReq clubReq) throws BaseException {
         try {
             Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
