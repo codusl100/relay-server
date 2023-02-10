@@ -22,6 +22,7 @@ public enum BaseResponseStatus {
     INVALID_DATE_FORMAT(false, 2101, "yyyy-mm-dd의 날짜 형식을 입력해주세요."),
 
     CLUB_UNAVAILABLE(false, 2200, "존재하지 않는 그룹입니다."),
+    CLUB_CLOSED(false, 2201, "모집이 완료된 그룹입니다."),
 
     FAILED_TO_FIND_USER(false, 2010, "유효하지 않은 인증 코드입니다."),
     /*

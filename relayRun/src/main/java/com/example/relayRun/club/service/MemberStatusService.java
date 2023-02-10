@@ -57,6 +57,9 @@ public class MemberStatusService {
             if (club.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
             }
+            if (club.get().getRecruitStatus() != "recruiting") {
+                throw new BaseException(BaseResponseStatus.CLUB_CLOSED);
+            }
 
             //member_status 등록
             MemberStatusEntity memberStatusEntity = MemberStatusEntity.builder()
