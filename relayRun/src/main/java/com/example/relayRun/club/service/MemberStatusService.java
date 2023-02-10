@@ -40,8 +40,8 @@ public class MemberStatusService {
     public void createMemberStatus(Long clubIdx, PostMemberStatusReq memberStatus) throws BaseException {
         try {
             Long userProfileIdx = memberStatus.getUserProfileIdx();
-            Optional<UserProfileEntity> userProfile = userProfileRepository.findByUserProfileIdx(userProfileIdx);
-            if(userProfile.isEmpty()) {
+            Optional<UserProfileEntity> userProfile = userProfileRepository.findByUserProfileIdxAndStatus(userProfileIdx, "active");
+            if (userProfile.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
 
@@ -54,8 +54,8 @@ public class MemberStatusService {
 
             //신청 대상 그룹 정보
             Optional<ClubEntity> club = clubRepository.findById(clubIdx);
-            if(club.isEmpty()) {
-                throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            if (club.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
             }
 
             //member_status 등록
@@ -76,7 +76,7 @@ public class MemberStatusService {
             throw new BaseException(e.getStatus());
         } catch (NonUniqueResultException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
             throw new BaseException(BaseResponseStatus.ERROR_DUPLICATE_CLUB);
-        } catch (Exception e) {
+        } catch (Exception e) { // 이외의 경우 에러처리
             throw new BaseException(BaseResponseStatus.POST_MEMBER_STATUS_FAIL);
         }
     }
