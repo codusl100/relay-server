@@ -1,12 +1,14 @@
 package com.example.relayRun.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskHolder;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @Configuration
@@ -21,12 +23,6 @@ public class CustomSchedulingConfig implements SchedulingConfigurer {
         threadPoolTaskScheduler.setThreadNamePrefix("D_SCHEDULE");
         threadPoolTaskScheduler.initialize();
         return threadPoolTaskScheduler;
-    }
-    @Bean
-    public ScheduledTaskRegistrar scheduledTaskRegistrar() {
-        ScheduledTaskRegistrar scheduledTaskRegistrar = new ScheduledTaskRegistrar();
-        scheduledTaskRegistrar.setScheduler(taskScheduler());
-        return scheduledTaskRegistrar;
     }
 
     @Override
