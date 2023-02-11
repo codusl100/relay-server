@@ -11,7 +11,7 @@ import java.time.LocalTime;
 @Getter
 @AllArgsConstructor
 @Builder
-public class GetTimeTableListRes {
+public class GetTimeTableRes {
     @ApiModelProperty(example = "시간표 인덱스")
     private Long timeTableIdx;
 

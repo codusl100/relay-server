@@ -13,10 +13,13 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import com.example.relayRun.util.RecordDataHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -117,7 +120,7 @@ public class MemberStatusService {
 
             //2. 해당 memberStatusIdx로 TimeTable 조회
             for(MemberStatusEntity memberStatusEntity : memberStatusEntityList) {
-                List<GetTimeTableListRes> timeTableList = new ArrayList<>(getTimeTablesByMemberStatusIdx(memberStatusEntity.getMemberStatusIdx()));
+                List<GetTimeTableRes> timeTableList = new ArrayList<>(getTimeTablesByMemberStatusIdx(memberStatusEntity.getMemberStatusIdx()));
 
                 //유저 정보
                 Long userProfileIdx = memberStatusEntity.getUserProfileIdx().getUserProfileIdx();
@@ -138,7 +141,7 @@ public class MemberStatusService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetTimeTableListRes> getUserTimeTable(Long userProfileIdx) throws BaseException {
+    public List<GetTimeTableRes> getUserTimeTable(Long userProfileIdx) throws BaseException {
         try {
             //memberStatusIdx 찾기
             List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
@@ -156,13 +159,13 @@ public class MemberStatusService {
     }
 
     @Transactional
-    public List<GetTimeTableListRes> getTimeTablesByMemberStatusIdx(Long memberStatusIdx) throws BaseException {
+    public List<GetTimeTableRes> getTimeTablesByMemberStatusIdx(Long memberStatusIdx) throws BaseException {
         try {
             List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatusIdx);
-            List<GetTimeTableListRes> timeTableList = new ArrayList<>();
+            List<GetTimeTableRes> timeTableList = new ArrayList<>();
 
             for(TimeTableEntity timeTableEntity : timeTableEntityList) {
-                GetTimeTableListRes timeTable = GetTimeTableListRes.builder()
+                GetTimeTableRes timeTable = GetTimeTableRes.builder()
                         .timeTableIdx(timeTableEntity.getTimeTableIdx())
                         .day(timeTableEntity.getDay())
                         .start(timeTableEntity.getStart())
@@ -177,6 +180,26 @@ public class MemberStatusService {
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
+    }
+
+
+    @Transactional
+    public GetTimeTableRes getTimeTablesByMemberStatusIdxAndDate(Long memberStatusIdx, String date) throws BaseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        int day = RecordDataHandler.toIntDay(LocalDateTime.parse(date+ " 00:00:00" , formatter).getDayOfWeek());
+        Optional<TimeTableEntity> optionalTimeTableEntity = timeTableRepository.findByMemberStatusIdx_MemberStatusIdxAndDay(memberStatusIdx, day);
+        if(optionalTimeTableEntity.isEmpty()) {
+            return null;
+        }
+        TimeTableEntity timeTableEntity = optionalTimeTableEntity.get();
+        return GetTimeTableRes.builder()
+                .timeTableIdx(timeTableEntity.getTimeTableIdx())
+                .day(timeTableEntity.getDay())
+                .start(timeTableEntity.getStart())
+                .end(timeTableEntity.getEnd())
+                .goalType(timeTableEntity.getGoalType())
+                .goal(timeTableEntity.getGoal())
+                .build();
     }
 
     @Transactional

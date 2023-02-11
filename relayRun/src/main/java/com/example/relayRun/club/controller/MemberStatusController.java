@@ -38,9 +38,9 @@ public class MemberStatusController {
     // memberStatusIdx 별 시간표 반환 테스트
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<GetTimeTableListRes>> getTimeTablesByMemberStatusIdx(@RequestParam("mid") Long memberStatusIdx) {
+    public BaseResponse<List<GetTimeTableRes>> getTimeTablesByMemberStatusIdx(@RequestParam("mid") Long memberStatusIdx) {
         try {
-            List<GetTimeTableListRes> timeTableList = memberStatusService.getTimeTablesByMemberStatusIdx(memberStatusIdx);
+            List<GetTimeTableRes> timeTableList = memberStatusService.getTimeTablesByMemberStatusIdx(memberStatusIdx);
             return new BaseResponse<>(timeTableList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -50,12 +50,12 @@ public class MemberStatusController {
     @ApiOperation(value = "개인 시간표 조회", notes = "path variable로 조회하고자 하는 유저의 userProfileIdx를 보내면 해당 유저의 시간표를 리스트 형식으로 반환합니다.")
     @ResponseBody
     @GetMapping("/time-tables/{userProfileIdx}")
-    public BaseResponse<List<GetTimeTableListRes>> getUserTimeTable(
+    public BaseResponse<List<GetTimeTableRes>> getUserTimeTable(
             @ApiParam(value = "조회하고자 하는 유저의 userProfileIdx") @PathVariable Long userProfileIdx
 
     ) {
         try {
-            List<GetTimeTableListRes> timeTableList = memberStatusService.getUserTimeTable(userProfileIdx);
+            List<GetTimeTableRes> timeTableList = memberStatusService.getUserTimeTable(userProfileIdx);
             return new BaseResponse<>(timeTableList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());

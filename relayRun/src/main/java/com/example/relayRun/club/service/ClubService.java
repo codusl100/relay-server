@@ -107,6 +107,7 @@ public class ClubService {
             LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
             LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
             getMemberOfClubRes.setRunningRecord(runningRecordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
+            getMemberOfClubRes.setTimeTableRes(memberStatusService.getTimeTablesByMemberStatusIdxAndDate(getMemberOfClubRes.getMemberStatusIdx(), date));
         }
         return getMemberOfClubResList;
     }
