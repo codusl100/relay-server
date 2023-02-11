@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -45,11 +43,11 @@ public class ClubController {
     @ApiOperation(value="그룹 목록 조회(전체, 검색)", notes="URI 뒤에 search parameter로 그룹 이름을 검색할 수 있다. 아무것도 넘기지 않을 경우 전체 목록이 조회된다.")
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<GetClubListRes>> getClubs(
+    public BaseResponse<List<GetClubDetailRes>> getClubs(
             @ApiParam(value = "그룹 검색어")@RequestParam(required = false) String search
     ) {
         try {
-            List<GetClubListRes> clubList;
+            List<GetClubDetailRes> clubList;
             if(search == null) {
                 clubList = clubService.getClubs();
             } else {
@@ -95,7 +93,7 @@ public class ClubController {
     ) {
         try {
             List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx, date);
-            getMemberOfClubResList = clubService.getRecordOfMembers(getMemberOfClubResList, date);
+            getMemberOfClubResList = clubService.getRecordAndTimetableOfMembers(getMemberOfClubResList, date);
             return new BaseResponse<>(getMemberOfClubResList);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());

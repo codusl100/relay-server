@@ -12,8 +12,10 @@ import java.util.Optional;
 public interface ClubRepository extends JpaRepository <ClubEntity, Long> {
     Optional<ClubEntity> findByClubIdx(Long clubIdx);
     List<GetClubListRes> findByOrderByRecruitStatusDesc();
+    List<ClubEntity> findByStatusOrderByCreatedAtDesc(String Status);
     List<ClubEntity> findAll();
-    List<GetClubListRes> findByNameContaining(String search);
+//    List<GetClubListRes> findByNameContaining(String search);
+    List<ClubEntity> findByNameContainingAndStatus(String search, String status);
     Optional<ClubEntity> findByClubIdxAndStatus(Long id, String status);
 
 }

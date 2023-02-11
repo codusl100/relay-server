@@ -70,17 +70,30 @@ public class ClubService {
         return memberStatusEntity.get().getClubIdx().getClubIdx();
     }
 
-    public List<GetClubListRes> getClubs() throws BaseException {
+    public List<GetClubDetailRes> getClubs() throws BaseException {
         try {
-            return clubRepository.findByOrderByRecruitStatusDesc();
+            List<GetClubDetailRes> getClubDetailResList = new ArrayList<>();
+            List<ClubEntity> clubEntityList = clubRepository.findByStatusOrderByCreatedAtDesc("active");
+            String now_date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            for (ClubEntity clubEntity : clubEntityList) {
+                getClubDetailResList.add(getClubDetail(clubEntity.getClubIdx(), now_date));
+            }
+            return getClubDetailResList;
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
-    public List<GetClubListRes> getClubsByName(String search) throws BaseException {
+    public List<GetClubDetailRes> getClubsByName(String search) throws BaseException {
         try {
-            return clubRepository.findByNameContaining(search);
+            List<GetClubDetailRes> getClubDetailResList = new ArrayList<>();
+            List<ClubEntity> clubEntityList = clubRepository.findByNameContainingAndStatus(search, "active");
+            String now_date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            for (ClubEntity clubEntity : clubEntityList) {
+                GetClubDetailRes getClubDetailRes = getClubDetail(clubEntity.getClubIdx(), now_date);
+                getClubDetailResList.add(getClubDetailRes);
+            }
+            return getClubDetailResList;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
@@ -88,7 +101,7 @@ public class ClubService {
     }
 
     @Transactional
-    public List<GetMemberOfClubRes> getRecordOfMembers(List<GetMemberOfClubRes> getMemberOfClubResList, String date) throws BaseException {
+    public List<GetMemberOfClubRes> getRecordAndTimetableOfMembers(List<GetMemberOfClubRes> getMemberOfClubResList, String date) throws BaseException {
         for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
@@ -120,7 +133,7 @@ public class ClubService {
             getMemberOfClubList.add(getMemberOfClubRes);
         }
 
-        return getRecordOfMembers(getMemberOfClubList, date);
+        return getRecordAndTimetableOfMembers(getMemberOfClubList, date);
     }
 
     @Transactional
