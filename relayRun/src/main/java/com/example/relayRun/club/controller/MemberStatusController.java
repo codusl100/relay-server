@@ -51,7 +51,8 @@ public class MemberStatusController {
     @ResponseBody
     @GetMapping("/time-tables/{userProfileIdx}")
     public BaseResponse<List<GetTimeTableListRes>> getUserTimeTable(
-            @ApiParam(value = "조회하고자 하는 유저의 userProfileIdx")@PathVariable Long userProfileIdx
+            @ApiParam(value = "조회하고자 하는 유저의 userProfileIdx") @PathVariable Long userProfileIdx
+
     ) {
         try {
             List<GetTimeTableListRes> timeTableList = memberStatusService.getUserTimeTable(userProfileIdx);

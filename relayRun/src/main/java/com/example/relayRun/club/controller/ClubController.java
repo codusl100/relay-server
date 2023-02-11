@@ -70,7 +70,8 @@ public class ClubController {
             @ApiResponse(code = 404, message = "서버 문제 발생"),
             @ApiResponse(code = 500, message = "페이지를 찾을 수 없습니다")
     })
-    @ApiOperation(value="그룹 생성(방장)", notes="path variable에는 방장 idx, body에는 이름, 소개, 이미지, 최대인원, 레벨, 목표 분류(선택), 목표치 입력\n" +
+    @ApiOperation(value="그룹 생성(방장)", notes="token 필요 / body에는 이름, 방장 idx, 소개, 이미지, 최대인원, 레벨, 목표 분류(선택), 목표치 입력\n" +
+
             "hostIdx에는 그룹을 생성하려는 유저의 프로필 식별자값 (int)를 넣어주시면 됩니다!!\n" +
             "timetable 예시는 디스코드에 적어두었습니다!")
     public BaseResponse<String> makeClub(
@@ -177,5 +178,16 @@ public class ClubController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-
+    
+    @ApiOperation(value="그룹 방장 위임", notes="path variable로 클럽 아이디를 전달하고 현재 프로필 아이디, 방장이 될 유저의 프로필 아이디를 body로 전달해주세요")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/host-change")
+    public BaseResponse<String> patchClubHost(Principal principal, @PathVariable("clubIdx") Long clubIdx, @RequestBody PatchHostReq hostReq) {
+        try {
+            clubService.updateClubHost(principal, clubIdx, hostReq);
+            return new BaseResponse<>("방장을 위임 하였습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }

@@ -39,7 +39,7 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, 4778,"이메일을 입력해주세요"),
     POST_USERS_EMPTY_NAME(false, 4779,"이름을 입력해주세요"),
 
-    POST_RECORD_INVALID_CLUB_ACCESS(false, 4900, "그룹에 가입되지 않은 프로필입니다."),
+    POST_RECORD_INVALID_CLUB_ACCESS(false, 4900, "해당 그룹에 가입되지 않은 프로필입니다."),
     POST_RECORD_INVALID_RECORD_ID(false, 4901, "유효하지 않은 레코드 아이디입니다."),
     POST_PARSE_ERROR(false, 4902, "포인트 형식에 맞지 않습니다."),
 
@@ -55,7 +55,7 @@ public enum BaseResponseStatus {
     DUPLICATE_MEMBER_STATUS(false, 4000, "이미 그룹에 존재하는 유저 프로필입니다."),
     CLUB_EMPTY(false, 4000, "유효하지 않은 그룹 인덱스입니다."),
     DUPLICATE_TIMETABLE(false, 4000, "중복된 시간표입니다."),
-    POST_MEMBER_STATUS_FAIL(false, 4000, "그룹 신청에 실패하였습니다."),
+    POST_MEMBER_STATUS_FAIL(false, 4004, "그룹 신청에 실패하였습니다"),
     MEMBER_STATUS_EMPTY(false, 4000, "신청된 그룹이 존재하지 않습니다."),
     POST_TIME_TABLE_FAIL(false, 4000, "시간표 등록에 실패하였습니다."),
     INVALID_MEMBER_STATUS(false, 4000, "유효하지 않은 member status 인덱스입니다."),
@@ -70,8 +70,9 @@ public enum BaseResponseStatus {
      * 7000 : PATCH
      * */
     PATCH_PASSWORD_CHECK_WRONG(false, 7000, "비밀번호 확인란을 다시 확인해주세요."),
-    PATCH_NOT_HOST(false, 7001, "해당 그룹의 방장이 아닙니다."),
-    PATCH_HOST_DROPPED_INVALID(false, 7002, "방장은 강퇴할 수 없습니다."),
+    PATCH_CLUB_ID_WRONG(false, 7001, "해당 그룹은 없는 그룹입니다."),
+    PATCH_NOT_HOST(false, 7002, "해당 그룹의 방장이 아닙니다."),
+    PATCH_HOST_DROPPED_INVALID(false, 7003, "방장은 강퇴할 수 없습니다."),
 
     /*
      * 8000 : delete
