@@ -12,12 +12,13 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import com.example.relayRun.record.service.RunningRecordService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -30,15 +31,18 @@ public class ClubService {
     private final MemberStatusRepository memberStatusRepository;
     private final MemberStatusService memberStatusService;
 
+    private final RunningRecordService runningRecordService;
+
     public ClubService(ClubRepository clubRepository, UserRepository userRepository, UserProfileRepository userProfileRepository,
                        MemberStatusRepository memberStatusRepository,
-                       MemberStatusService memberStatusService) {
+                       MemberStatusService memberStatusService, RunningRecordService runningRecordService) {
 
         this.clubRepository = clubRepository;
         this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
         this.memberStatusRepository = memberStatusRepository;
         this.memberStatusService = memberStatusService;
+        this.runningRecordService = runningRecordService;
     }
 
     public Long getClubIdx(Principal principal, Long userProfileIdx) throws BaseException {
@@ -66,29 +70,55 @@ public class ClubService {
         return memberStatusEntity.get().getClubIdx().getClubIdx();
     }
 
-    public List<GetClubListRes> getClubs() throws BaseException {
+    public List<GetClubDetailRes> getClubs() throws BaseException {
         try {
-            return clubRepository.findByOrderByRecruitStatusDesc();
+            List<GetClubDetailRes> getClubDetailResList = new ArrayList<>();
+            List<ClubEntity> clubEntityList = clubRepository.findByStatusOrderByCreatedAtDesc("active");
+            String now_date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            for (ClubEntity clubEntity : clubEntityList) {
+                getClubDetailResList.add(getClubDetail(clubEntity.getClubIdx(), now_date));
+            }
+            return getClubDetailResList;
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
-    public List<GetClubListRes> getClubsByName(String search) throws BaseException {
+    public List<GetClubDetailRes> getClubsByName(String search) throws BaseException {
         try {
-            return clubRepository.findByNameContaining(search);
+            List<GetClubDetailRes> getClubDetailResList = new ArrayList<>();
+            List<ClubEntity> clubEntityList = clubRepository.findByNameContainingAndStatus(search, "active");
+            String now_date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            for (ClubEntity clubEntity : clubEntityList) {
+                GetClubDetailRes getClubDetailRes = getClubDetail(clubEntity.getClubIdx(), now_date);
+                getClubDetailResList.add(getClubDetailRes);
+            }
+            return getClubDetailResList;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
-    public List<GetMemberOfClubRes> getMemberOfClub(Long clubIdx) throws BaseException {
+    @Transactional
+    public List<GetMemberOfClubRes> getRecordAndTimetableOfMembers(List<GetMemberOfClubRes> getMemberOfClubResList, String date) throws BaseException {
+        for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
+            LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
+            getMemberOfClubRes.setRunningRecord(runningRecordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
+            getMemberOfClubRes.setTimeTableRes(memberStatusService.getTimeTablesByMemberStatusIdxAndDate(getMemberOfClubRes.getMemberStatusIdx(), date));
+        }
+        return getMemberOfClubResList;
+    }
+
+    @Transactional
+    public List<GetMemberOfClubRes> getMemberOfClub(Long clubIdx, String date) throws BaseException {
         List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(clubIdx, "ACCEPTED", "active");
         if (memberStatusEntityList.isEmpty()) {
             throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
         }
-        List<GetMemberOfClubRes> res = new ArrayList<>();
+        List<GetMemberOfClubRes> getMemberOfClubList = new ArrayList<>();
         for (MemberStatusEntity memberStatusEntity : memberStatusEntityList) {
             UserProfileEntity userProfileEntity = memberStatusEntity.getUserProfileIdx();
             GetMemberProfileRes getMemberProfileRes = GetMemberProfileRes.builder()
@@ -101,17 +131,22 @@ public class ClubService {
                     .memberStatusIdx(memberStatusEntity.getMemberStatusIdx())
                     .userProfile(getMemberProfileRes)
                     .build();
-            res.add(getMemberOfClubRes);
+            getMemberOfClubList.add(getMemberOfClubRes);
         }
-        return res;
+
+        return getRecordAndTimetableOfMembers(getMemberOfClubList, date);
     }
 
-    public GetClubDetailRes getClubDetail(Long clubIdx) throws BaseException {
+    @Transactional
+    public GetClubDetailRes getClubDetail(Long clubIdx, String date) throws BaseException {
         Optional<ClubEntity> optional = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
         }
         ClubEntity clubEntity = optional.get();
+
+        List<GetMemberOfClubRes> getMemberOfClubResList = getMemberOfClub(clubIdx, date);
+
         return GetClubDetailRes.builder()
                 .clubIdx(clubEntity.getClubIdx())
                 .imgURL(clubEntity.getImgURL())
@@ -121,7 +156,9 @@ public class ClubService {
                 .level(clubEntity.getLevel())
                 .goalType(clubEntity.getGoalType())
                 .goal(clubEntity.getGoal())
+                .getMemberOfClubResList(getMemberOfClubResList)
                 .build();
+
     }
 
     // 그룹 생성

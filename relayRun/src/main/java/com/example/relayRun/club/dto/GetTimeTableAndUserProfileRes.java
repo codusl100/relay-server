@@ -21,5 +21,5 @@ public class GetTimeTableAndUserProfileRes {
     private String nickName;
 
     @ApiModelProperty(example = "해당 프로필 시간표")
-    private List<GetTimeTableListRes> timeTables;
+    private List<GetTimeTableRes> timeTables;
 }

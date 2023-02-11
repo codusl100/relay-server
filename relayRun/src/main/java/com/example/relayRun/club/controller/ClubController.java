@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -22,12 +20,10 @@ public class ClubController {
 
     private final ClubService clubService;
     private final MemberStatusService memberStatusService;
-    private final RunningRecordService runningRecordService;
 
     public ClubController(ClubService clubService, MemberStatusService memberStatusService, RunningRecordService runningRecordService) {
         this.clubService = clubService;
         this.memberStatusService = memberStatusService;
-        this.runningRecordService = runningRecordService;
     }
 
     @ApiOperation(value="메인 페이지", notes="헤더로 access 토큰, path variable로 userProfileIdx를 보내주세요.")
@@ -37,14 +33,7 @@ public class ClubController {
                                                           @ApiParam(value = "조회하고자 하는 유저의 userProfileIdx")@PathVariable Long userProfileIdx) {
         try {
             Long clubIdx = clubService.getClubIdx(principal, userProfileIdx);
-            List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx);
-            for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
-                LocalDate date = LocalDate.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
-                LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
-                getMemberOfClubRes.setRunningRecord(runningRecordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
-            }
+            List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx, LocalDate.now().toString());
             return new BaseResponse<>(getMemberOfClubResList);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -54,11 +43,11 @@ public class ClubController {
     @ApiOperation(value="그룹 목록 조회(전체, 검색)", notes="URI 뒤에 search parameter로 그룹 이름을 검색할 수 있다. 아무것도 넘기지 않을 경우 전체 목록이 조회된다.")
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<GetClubListRes>> getClubs(
+    public BaseResponse<List<GetClubDetailRes>> getClubs(
             @ApiParam(value = "그룹 검색어")@RequestParam(required = false) String search
     ) {
         try {
-            List<GetClubListRes> clubList;
+            List<GetClubDetailRes> clubList;
             if(search == null) {
                 clubList = clubService.getClubs();
             } else {
@@ -103,13 +92,8 @@ public class ClubController {
             @ApiParam(value = "조회하고자 하는 날짜")@RequestParam("date") String date
     ) {
         try {
-            List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx);
-            for(GetMemberOfClubRes getMemberOfClubRes : getMemberOfClubResList) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime startDate = LocalDateTime.parse(date + " 00:00:00", formatter);
-                LocalDateTime endDate = LocalDateTime.parse(date + " 23:59:59", formatter);
-                getMemberOfClubRes.setRunningRecord(runningRecordService.getRecordWithoutLocation(getMemberOfClubRes.getMemberStatusIdx(), startDate, endDate));
-            }
+            List<GetMemberOfClubRes> getMemberOfClubResList = clubService.getMemberOfClub(clubIdx, date);
+            getMemberOfClubResList = clubService.getRecordAndTimetableOfMembers(getMemberOfClubResList, date);
             return new BaseResponse<>(getMemberOfClubResList);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -124,8 +108,7 @@ public class ClubController {
             @ApiParam(value = "조회하고자 하는 날짜")@RequestParam("date") String date
     ) {
         try {
-            GetClubDetailRes getClubDetailRes = clubService.getClubDetail(clubIdx);
-            getClubDetailRes.setGetMemberOfClubResList(getMemberOfClub(clubIdx, date).getResult());
+            GetClubDetailRes getClubDetailRes = clubService.getClubDetail(clubIdx, date);
             return new BaseResponse<>(getClubDetailRes);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
