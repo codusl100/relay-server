@@ -4,14 +4,13 @@ import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.event.NotifyEventPublisher;
 import com.example.relayRun.event.TimeToRunEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 
 @Slf4j
-public class NotifyToRun implements Runnable{
+public class NotifyToRunTask implements Runnable{
     TimeTableEntity timeTable;
     private NotifyEventPublisher publisher;
 
-    public NotifyToRun(TimeTableEntity timeTable, NotifyEventPublisher publisher) {
+    public NotifyToRunTask(TimeTableEntity timeTable, NotifyEventPublisher publisher) {
         this.timeTable = timeTable;
         this.publisher = publisher;
     }
