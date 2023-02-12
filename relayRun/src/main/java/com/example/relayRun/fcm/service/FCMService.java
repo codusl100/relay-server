@@ -24,6 +24,7 @@ import org.jsoup.Connection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -73,7 +74,7 @@ public class FCMService {
         try{
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(
-                            GoogleCredentials.fromStream(new FileInputStream(fcmKeyPath))
+                            GoogleCredentials.fromStream(new ClassPathResource(fcmKeyPath).getInputStream())
                                     .createScoped(List.of(fcmKeyScope))
                     )
                     .setProjectId(fcmKeyProjectId)
