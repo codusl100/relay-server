@@ -254,6 +254,8 @@ public class RunningRecordService {
                     .distance(record.getDistance())
                     .pace(record.getPace())
                     .goalStatus(record.getGoalStatus())
+                    .goalType(record.getGoalType())
+                    .goalValue(record.getGoal())
                     .locationList(locationList)
                     .build();
 
@@ -269,15 +271,6 @@ public class RunningRecordService {
         }
     }
 
-    public GetRecordByIdxRes setProfileGoalInfo(GetRecordByIdxRes recordByIdxRes, Long userProfileIdx, LocalDate date) {
-        Optional<MemberStatusEntity> optionalMemberStatusEntity = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
-        Optional<TimeTableEntity> optionalTimeTableEntity = timeTableRepository.findByMemberStatusIdxAndDay(optionalMemberStatusEntity.get(), RecordDataHandler.toIntDay(date.getDayOfWeek()));
-        recordByIdxRes.setGoalType(optionalTimeTableEntity.get().getGoalType());
-        recordByIdxRes.setGoalValue(optionalTimeTableEntity.get().getGoal());
-        return recordByIdxRes;
-    }
-
-
     public GetRecordByIdxRes getRecordByDate(Principal principal, Long profileIdx, LocalDate date) throws BaseException {
         // 프로필이 속한 모든 지원 목록
         List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(profileIdx, "active");
@@ -289,7 +282,6 @@ public class RunningRecordService {
                 throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
             }
             GetRecordByIdxRes result = getRecordByIdx(principal, recordIdx.get());
-            result = setProfileGoalInfo(result, profileIdx, date);
             return result;
         } catch (BaseException e) {
             // 날짜에 해당하는 기록이 없을 때
