@@ -57,7 +57,7 @@ public class MemberStatusService {
             if (club.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
             }
-            if (club.get().getRecruitStatus() != "recruiting") {
+            if (!club.get().getRecruitStatus().equals("recruiting")) {
                 throw new BaseException(BaseResponseStatus.CLUB_CLOSED);
             }
 
