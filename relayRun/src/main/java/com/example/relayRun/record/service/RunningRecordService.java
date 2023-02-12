@@ -90,19 +90,21 @@ public class RunningRecordService {
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             MemberStatusEntity memberStatus = optionalMemberStatus.get();
 
-            RunningRecordEntity recordEntity = new RunningRecordEntity();
-            recordEntity.setMemberStatusIdx(memberStatus);
-            recordEntity.setDistance(0.0f);
-            recordEntity.setTime(0.0f);
-            recordEntity.setPace(0.0f);
-            recordEntity = runningRecordRepository.save(recordEntity);
-
             Optional<TimeTableEntity> optionalTimeTable = timeTableRepository.findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
                     memberStatus, RecordDataHandler.toIntDay(LocalDate.now().getDayOfWeek()), LocalTime.now(), LocalTime.now()
             );
             if (optionalTimeTable.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
             TimeTableEntity timeTable = optionalTimeTable.get();
+
+            RunningRecordEntity recordEntity = new RunningRecordEntity();
+            recordEntity.setMemberStatusIdx(memberStatus);
+            recordEntity.setDistance(0.0f);
+            recordEntity.setTime(0.0f);
+            recordEntity.setPace(0.0f);
+            recordEntity.setGoal(timeTable.getGoal());
+            recordEntity.setGoalType(timeTable.getGoalType());
+            recordEntity = runningRecordRepository.save(recordEntity);
 
             return PostRunningInitRes.builder()
                     .runningRecordIdx(recordEntity.getRunningRecordIdx())
