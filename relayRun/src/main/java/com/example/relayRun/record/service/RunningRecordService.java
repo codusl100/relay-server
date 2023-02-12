@@ -21,6 +21,7 @@ import com.example.relayRun.util.RecordDataHandler;
 import org.hibernate.NonUniqueResultException;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Tuple;
@@ -286,9 +287,9 @@ public class RunningRecordService {
         } catch (BaseException e) {
             // 날짜에 해당하는 기록이 없을 때
             throw new BaseException((e.getStatus()));
-        } catch (NonUniqueResultException e) {
+        } catch (IncorrectResultSizeDataAccessException e) {
             // 같은 날짜에 두개 이상 기록이 있을 때
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(BaseResponseStatus.DUPLICATE_RECORD);
         }
     }
 

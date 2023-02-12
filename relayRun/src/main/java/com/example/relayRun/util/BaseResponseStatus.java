@@ -20,6 +20,7 @@ public enum BaseResponseStatus {
     // 달리기단;
     RECORD_UNAVAILABLE(false, 2100,"기록이 존재하지 않습니다."),
     INVALID_DATE_FORMAT(false, 2101, "yyyy-mm-dd의 날짜 형식을 입력해주세요."),
+    DUPLICATE_RECORD(false, 2102, "해당 날짜에 기록이 두개 이상 존재합니다. (서버 문의)"),
 
     CLUB_UNAVAILABLE(false, 2200, "존재하지 않는 그룹입니다."),
     CLUB_CLOSED(false, 2201, "모집이 완료된 그룹입니다."),
