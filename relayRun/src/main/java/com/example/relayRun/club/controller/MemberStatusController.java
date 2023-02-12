@@ -1,9 +1,6 @@
 package com.example.relayRun.club.controller;
 
-import com.example.relayRun.club.dto.GetTimeTableAndUserProfileRes;
-import com.example.relayRun.club.dto.GetTimeTableListRes;
-import com.example.relayRun.club.dto.PostMemberStatusReq;
-import com.example.relayRun.club.dto.PostTimeTableReq;
+import com.example.relayRun.club.dto.*;
 import com.example.relayRun.club.service.MemberStatusService;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponse;
@@ -12,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -40,9 +38,9 @@ public class MemberStatusController {
     // memberStatusIdx 별 시간표 반환 테스트
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<List<GetTimeTableListRes>> getTimeTablesByMemberStatusIdx(@RequestParam("mid") Long memberStatusIdx) {
+    public BaseResponse<List<GetTimeTableRes>> getTimeTablesByMemberStatusIdx(@RequestParam("mid") Long memberStatusIdx) {
         try {
-            List<GetTimeTableListRes> timeTableList = memberStatusService.getTimeTablesByMemberStatusIdx(memberStatusIdx);
+            List<GetTimeTableRes> timeTableList = memberStatusService.getTimeTablesByMemberStatusIdx(memberStatusIdx);
             return new BaseResponse<>(timeTableList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -52,9 +50,12 @@ public class MemberStatusController {
     @ApiOperation(value = "개인 시간표 조회", notes = "path variable로 조회하고자 하는 유저의 userProfileIdx를 보내면 해당 유저의 시간표를 리스트 형식으로 반환합니다.")
     @ResponseBody
     @GetMapping("/time-tables/{userProfileIdx}")
-    public BaseResponse<List<GetTimeTableListRes>> getUserTimeTable(@ApiParam(value = "조회하고자 하는 유저의 userProfileIdx")@PathVariable Long userProfileIdx) {
+    public BaseResponse<List<GetTimeTableRes>> getUserTimeTable(
+            @ApiParam(value = "조회하고자 하는 유저의 userProfileIdx") @PathVariable Long userProfileIdx
+
+    ) {
         try {
-            List<GetTimeTableListRes> timeTableList = memberStatusService.getUserTimeTable(userProfileIdx);
+            List<GetTimeTableRes> timeTableList = memberStatusService.getUserTimeTable(userProfileIdx);
             return new BaseResponse<>(timeTableList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -63,11 +64,28 @@ public class MemberStatusController {
     @ApiOperation(value = "시간표 수정", notes = "path variable로 수정하고자 하는 유저의 userProfileIdx, body로는 해당 유저의 시간표 정보를 리스트 형식으로 보내면 시간표 수정이 완료됩니다.")
     @ResponseBody
     @PostMapping("/time-tables/{userProfileIdx}")
-    public BaseResponse<String> updateTimeTable(@ApiParam(value = "수정하고자 하는 유저의 userProfileIdx") @PathVariable Long userProfileIdx, @ApiParam(value = "유저의 시간표 정보(리스트 형식)") @Valid @RequestBody PostTimeTableReq postTimeTableReq) {
+    public BaseResponse<String> updateTimeTable(
+            @ApiParam(value = "수정하고자 하는 유저의 userProfileIdx") @PathVariable Long userProfileIdx,
+            @ApiParam(value = "유저의 시간표 정보(리스트 형식)") @Valid @RequestBody PostTimeTableReq postTimeTableReq
+    ) {
         try {
             memberStatusService.updateTimeTable(userProfileIdx, postTimeTableReq);
             return new BaseResponse<>("시간표 수정 완료");
         } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+    @ApiOperation(value="멤버 강퇴", notes="")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}/members/deletion")
+    public BaseResponse<String> deleteMember(
+            Principal principal,
+            @PathVariable Long clubIdx,
+            @RequestBody PatchDeleteMemberReq patchDeleteMemberReq) {
+        try {
+            String userProfileName = memberStatusService.deleteClubMember(principal, clubIdx, patchDeleteMemberReq);
+            return new BaseResponse<>(userProfileName + "이(가) 강퇴되었습니다.");
+        } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }

@@ -20,11 +20,14 @@ public interface MemberStatusRepository extends JpaRepository<MemberStatusEntity
 
     List<MemberStatusEntity> findByClubIdx_ClubIdx(Long clubIdx);
 
-    List<MemberStatusEntity> findAllByClubIdx_ClubIdxAndApplyStatus(Long clubIdx, String applyStatus);
+    List<MemberStatusEntity> findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(Long clubIdx, String applyStatus, String status);
 
     @Query(value = "select * from member_status where user_profile_idx = :userProfileIdx limit 1", nativeQuery = true)
     MemberStatusEntity findByUserProfileIdx(Long userProfileIdx);
 
     List<MemberStatusEntity> findByClubIdxAndStatus(ClubEntity club, String status);
+
     
+    Optional<MemberStatusEntity> findByUserProfileIdx_UserProfileIdxAndClubIdx_ClubIdxAndApplyStatusAndStatus(Long userProfileIdx, Long clubIdx, String applyStatus, String status);
+
 }

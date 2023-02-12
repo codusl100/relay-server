@@ -48,10 +48,10 @@ public class ClubEntity extends BaseTimeEntity {
     @Column()
     private Float goal;
 
-    @Column(columnDefinition = "varchar(10) default 'recruiting'")
+    @Column(columnDefinition = "varchar(10) default 'RECRUITING'")
     private String recruitStatus;
 
-    @Column(columnDefinition = "varchar(10) default 'active'")
+    @Column(columnDefinition = "varchar(10) default 'ACTIVE'")
     private String status;
 
     @Builder
