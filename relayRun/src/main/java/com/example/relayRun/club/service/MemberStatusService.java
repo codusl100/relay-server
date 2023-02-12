@@ -67,7 +67,7 @@ public class MemberStatusService {
             // clubIdx로 누적 memberstatus 조회
             Long num = memberStatusRepository.findByClubIdx(club.get().getClubIdx());
             System.out.println("신청 인원 수 : "+ num);
-            if(num >= club.get().getMaxNum() || club.get().getRecruitStatus().equals("finished")) { // maxNum보다 신청인원 많거나 모집 완료 상태면
+            if(num >= club.get().getMaxNum()) { // maxNum보다 신청인원 많으면
                 club.get().changeRecruitStatus("finished");
                 clubRepository.save(club.get());
                 throw new BaseException(BaseResponseStatus.FAILED_TO_APPLY_CLUB);
