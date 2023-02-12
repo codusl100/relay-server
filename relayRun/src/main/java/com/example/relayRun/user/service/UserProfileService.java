@@ -11,6 +11,7 @@ import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.user.dto.GetUserProfileClubRes;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NonUniqueResultException;
@@ -44,7 +45,7 @@ public class UserProfileService {
         try {
             optionalStatus = memberStatusRepository.
                     findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
-        } catch (NonUniqueResultException e){
+        } catch (IncorrectResultSizeDataAccessException e){
             // 프로필이 두개 이상의 그룹에 들어가 있을 때 (비정상 활동)
             throw new BaseException(BaseResponseStatus.ERROR_DUPLICATE_CLUB);
         }
