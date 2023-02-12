@@ -52,6 +52,7 @@ public enum BaseResponseStatus {
     POST_ALARM_INVALID_FCM_TOKEN(false, 4500, "유효하지 않은 FCM 토큰입니다"),
     POST_ALARM_INVALID_EMAIL(false, 4501, "유효하지 않은 이메일입니다."),
     POST_ALARM_DUPLICATED_TOKEN(false, 4502, "이미 저장된 토큰입니다."),
+    POST_ALARM_INVALID_PROFILE(false, 4503, "유효하지 않은 프로필입니다."),
     POST_USERS_INVALID_EMAIL(false, 5000, "이메일 양식이 맞지 않습니다."),
     POST_USERS_INVALID_PWD(false, 5001, "비밀번호 양식이 맞지 않습니다."),
     POST_REVIEW_IMG_ERROR(false, 5001, "리뷰 이미지 에러입니다."),

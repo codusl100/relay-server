@@ -2,6 +2,7 @@ package com.example.relayRun.fcm.service;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
+import com.example.relayRun.club.repository.TimeTableRepository;
 import com.example.relayRun.event.TimeToRunEvent;
 import com.example.relayRun.fcm.dto.PostDeviceReq;
 import com.example.relayRun.fcm.dto.PostDeviceRes;
@@ -52,16 +53,20 @@ public class FCMService {
     UserProfileRepository userProfileRepository;
     MemberStatusRepository memberStatusRepository;
 
+    TimeTableRepository timeTableRepository;
+
     public FCMService(UserRepository userRepository,
                       MemberStatusRepository memberStatusRepository,
                       UserProfileRepository userProfileRepository,
-                      UserDeviceRepository userDeviceRepository
+                      UserDeviceRepository userDeviceRepository,
+                      TimeTableRepository timeTableRepository
     )
     {
         this.userRepository = userRepository;
         this.userDeviceRepository = userDeviceRepository;
         this.memberStatusRepository = memberStatusRepository;
         this.userProfileRepository = userProfileRepository;
+        this.timeTableRepository = timeTableRepository;
     }
     @PostConstruct
     public void init(){
@@ -84,7 +89,7 @@ public class FCMService {
         }
     }
 
-    public void sendMessageByEmail(String email, String body, String title) throws BaseException {
+    private void sendMessageByEmail(String email, String body, String title) throws BaseException {
         Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty())
             throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_EMAIL);
@@ -92,11 +97,19 @@ public class FCMService {
         sendMessageById(user.getUserIdx(), body, title);
     }
 
-    public void sendMessageById(Long userIdx, String body, String title) throws BaseException {
+    private void sendMessageById(Long userIdx, String body, String title) throws BaseException {
         List<UserDeviceEntity> devices = userDeviceRepository.findAllByUserIdx_UserIdx(userIdx);
         if (devices.isEmpty())
             throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
         sendMessagesByToken(devices,body, title);
+    }
+
+    private void sendMessageByProfileId(Long userProfileIdx, String body, String title) throws BaseException {
+        Optional<UserEntity> optionalUser = userRepository.findById(userProfileIdx);
+        if (optionalUser.isEmpty())
+            throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_PROFILE);
+        UserEntity user = optionalUser.get();
+        sendMessageById(user.getUserIdx(), body, title);
     }
 
     private void    sendMessagesByToken(List<UserDeviceEntity> devices, String body, String title) throws BaseException {
@@ -167,7 +180,7 @@ public class FCMService {
     public void deleteDeviceToken(PostDeviceReq req) throws BaseException {
         Optional<UserEntity> optionalUser = userRepository.findByEmail(req.getEmail());
         if (optionalUser.isEmpty())
-            throw new BaseException(BaseResponseStatus.FAILED_TO_SEARCH);
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         UserEntity user = optionalUser.get();
         Optional<UserDeviceEntity> optionalDevice = userDeviceRepository.findByUserDeviceTokenAndUserIdx(req.getUserDeviceID(), user);
         if (optionalDevice.isEmpty())
@@ -200,5 +213,9 @@ public class FCMService {
         } catch (BaseException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public void sendBatonTouchMessage(Long fromProfile, int day, LocalTime end) {
+
     }
 }

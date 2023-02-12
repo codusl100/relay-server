@@ -4,6 +4,8 @@ import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.ClubRepository;
 import com.example.relayRun.club.repository.MemberStatusRepository;
+import com.example.relayRun.event.BatonTouchEvent;
+import com.example.relayRun.event.NotifyEventPublisher;
 import com.example.relayRun.record.dto.*;
 import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
@@ -18,6 +20,7 @@ import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
 import com.example.relayRun.util.RecordDataHandler;
+import org.aspectj.weaver.ast.Not;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +43,8 @@ public class RunningRecordService {
     UserRepository userRepository;
     ClubRepository clubRepository;
     TimeTableRepository timeTableRepository;
+
+    NotifyEventPublisher notifyEventPublisher;
     @Autowired
     public RunningRecordService(RunningRecordRepository runningRecordRepository,
                                 LocationRepository locationRepository,
@@ -47,7 +52,8 @@ public class RunningRecordService {
                                 TimeTableRepository timeTableRepository,
                                 UserProfileRepository userProfileRepository,
                                 UserRepository userRepository,
-                                ClubRepository clubRepository) {
+                                ClubRepository clubRepository,
+                                NotifyEventPublisher notifyEventPublisher) {
         this.runningRecordRepository = runningRecordRepository;
         this.locationRepository = locationRepository;
         this.memberStatusRepository = memberStatusRepository;
@@ -55,6 +61,7 @@ public class RunningRecordService {
         this.userProfileRepository = userProfileRepository;
         this.clubRepository = clubRepository;
         this.timeTableRepository = timeTableRepository;
+        this.notifyEventPublisher = notifyEventPublisher;
     }
 
     /**

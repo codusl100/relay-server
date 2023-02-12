@@ -2,6 +2,7 @@ package com.example.relayRun.record.entity;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.util.BaseTimeEntity;
+import com.example.relayRun.util.GoalType;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -41,6 +42,13 @@ public class RunningRecordEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private Float time;
 
+    @Column(nullable = false)
+    private Float goal;
+
+    @Column(name = "goalType", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private GoalType goalType;
+
     @Column(columnDefinition = "varchar(1) default 'n'")
     private String goalStatus;
 
@@ -49,4 +57,5 @@ public class RunningRecordEntity extends BaseTimeEntity {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="recordIdx", orphanRemoval = true)
     private List<LocationEntity> locations = new ArrayList<>();
+
 }
