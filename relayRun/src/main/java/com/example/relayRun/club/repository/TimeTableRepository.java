@@ -6,8 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.sql.Time;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +25,6 @@ public interface TimeTableRepository extends JpaRepository<TimeTableEntity, Long
     );
 
     List<TimeTableEntity> findAllByDay(int day);
+    Optional<TimeTableEntity> findByMemberStatusIdxAndDay(MemberStatusEntity memberStatus, int day);
+    Optional<TimeTableEntity> findByMemberStatusIdx_MemberStatusIdxAndDay(Long memberStatusIdx, int day);
 }

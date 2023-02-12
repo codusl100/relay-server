@@ -10,9 +10,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostMemberStatusReq {
-    @ApiModelProperty(example = "유저의 프로필 인덱스")
+@ApiModel(value = "멤버 강퇴 모델")
+public class PatchDeleteMemberReq {
+    @ApiModelProperty(example = "강퇴 유저 프로필 idx", required = true)
     private Long userProfileIdx;
-
-    private List<TimeTableDTO> timeTables;
 }
