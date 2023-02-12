@@ -156,6 +156,8 @@ public class ClubService {
                 .level(clubEntity.getLevel())
                 .goalType(clubEntity.getGoalType())
                 .goal(clubEntity.getGoal())
+                .recruitStatus(clubEntity.getRecruitStatus())
+                .maxNum(clubEntity.getMaxNum())
                 .getMemberOfClubResList(getMemberOfClubResList)
                 .build();
 
