@@ -1,9 +1,9 @@
 package com.example.relayRun.fcm.service;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
+import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
 import com.example.relayRun.club.repository.TimeTableRepository;
-import com.example.relayRun.event.TimeToRunEvent;
 import com.example.relayRun.fcm.dto.PostDeviceReq;
 import com.example.relayRun.fcm.dto.PostDeviceRes;
 import com.example.relayRun.fcm.entity.UserDeviceEntity;
@@ -14,24 +14,15 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
+
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
-import org.jsoup.Connection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.io.ClassPathResource;
+
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,15 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FCMService {
-    @Value("${fcm.key.path}")
-    private String fcmKeyPath;
-
-    @Value("${fcm.key.scope}")
-    private String fcmKeyScope;
-
-    @Value("${fcm.key.projectId}")
-    private String fcmKeyProjectId;
-
+    FCMSenderSerivce senderService;
     UserRepository userRepository;
     UserDeviceRepository userDeviceRepository;
     UserProfileRepository userProfileRepository;
@@ -56,110 +39,24 @@ public class FCMService {
 
     TimeTableRepository timeTableRepository;
 
-    public FCMService(UserRepository userRepository,
-                      MemberStatusRepository memberStatusRepository,
-                      UserProfileRepository userProfileRepository,
-                      UserDeviceRepository userDeviceRepository,
-                      TimeTableRepository timeTableRepository
+    public FCMService(
+            FCMSenderSerivce senderService,
+            UserRepository userRepository,
+            MemberStatusRepository memberStatusRepository,
+            UserProfileRepository userProfileRepository,
+            UserDeviceRepository userDeviceRepository,
+            TimeTableRepository timeTableRepository
     )
     {
+        this.senderService = senderService;
         this.userRepository = userRepository;
         this.userDeviceRepository = userDeviceRepository;
         this.memberStatusRepository = memberStatusRepository;
         this.userProfileRepository = userProfileRepository;
         this.timeTableRepository = timeTableRepository;
     }
-    @PostConstruct
-    public void init(){
-        try{
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(
-                            GoogleCredentials.fromStream(new ClassPathResource(fcmKeyPath).getInputStream())
-                                    .createScoped(List.of(fcmKeyScope))
-                    )
-                    .setProjectId(fcmKeyProjectId)
-                    .build();
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options, "com.example.relay");
-                log.info("Firebase application has been initialized");
-            }
-            FirebaseApp.initializeApp(options);
-        }catch(IOException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-    }
 
-    private void sendMessageByEmail(String email, String body, String title) throws BaseException {
-        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty())
-            throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_EMAIL);
-        UserEntity user = optionalUser.get();
-        sendMessageById(user.getUserIdx(), body, title);
-    }
-
-    private void sendMessageById(Long userIdx, String body, String title) throws BaseException {
-        List<UserDeviceEntity> devices = userDeviceRepository.findAllByUserIdx_UserIdx(userIdx);
-        if (devices.isEmpty())
-            throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
-        sendMessagesByToken(devices,body, title);
-    }
-
-    private void sendMessageByProfileId(Long userProfileIdx, String body, String title) throws BaseException {
-        Optional<UserEntity> optionalUser = userRepository.findById(userProfileIdx);
-        if (optionalUser.isEmpty())
-            throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_PROFILE);
-        UserEntity user = optionalUser.get();
-        sendMessageById(user.getUserIdx(), body, title);
-    }
-
-    private void    sendMessagesByToken(List<UserDeviceEntity> devices, String body, String title) throws BaseException {
-        List<Message> messages = devices.stream()
-                .map(
-                        device-> Message.builder()
-                                .setToken(device.getUserDeviceToken())
-                                .setNotification( Notification.builder()
-                                        .setBody(body)
-                                        .setTitle(title)
-                                        .build()
-                                )
-                                .build()
-                ).collect(Collectors.toList());
-        try{
-            FirebaseMessaging.getInstance().sendAll(messages)
-                    .getResponses().stream()
-                    .map(response -> {
-                        if (response.isSuccessful())
-                            log.info(response.getMessageId());
-                        else
-                            log.error(response.getException().getMessage());
-                        return response;
-                    });
-        }catch(FirebaseMessagingException e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
-        }
-    }
-    private void    sendMessageByToken(String token, String body, String title) throws BaseException{
-        Message message = Message.builder()
-                .setToken(token)
-                .setNotification(Notification.builder()
-                        .setBody(body)
-                        .setTitle(title)
-                        .build()
-                )
-                .build();
-        try{
-            FirebaseMessaging.getInstance().send(message);
-            log.info("알람 요청 성공");
-        }catch(FirebaseMessagingException e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
-        }
-
-    }
-
-   public PostDeviceRes saveDeviceToken(Principal principal, PostDeviceReq req) throws BaseException {
+    public PostDeviceRes saveDeviceToken(Principal principal, PostDeviceReq req) throws BaseException {
         Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
         if (optionalUser.isEmpty())
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
@@ -172,7 +69,7 @@ public class FCMService {
                 .userIdx(user)
                 .build();
         userDeviceRepository.save(userDevice);
-        sendMessageByToken(req.getUserDeviceID(), "디바이스 토큰 저장", "저장 성공");
+        senderService.sendMessageByToken(req.getUserDeviceID(), "디바이스 토큰 저장", "저장 성공");
         return PostDeviceRes.builder()
                 .status("성공")
                 .build();
@@ -210,13 +107,33 @@ public class FCMService {
         }
         UserEntity user = optionalUser.get();
         try {
-            sendMessageById(user.getUserIdx(),  start.toString() + "부터 달리기 시작하세요!", "뛸 시간입니다!");
+            senderService.sendMessageById(user.getUserIdx(),  start.toString() + "부터 달리기 시작하세요!", "뛸 시간입니다!");
         } catch (BaseException e) {
             log.error(e.getMessage());
         }
     }
 
-    public void sendBatonTouchMessage(Long fromProfile, int day, LocalTime end) {
-
+    public void sendBatonTouchMessage(Long fromProfile, int day, LocalTime end) throws BaseException {
+        Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository
+                .findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(fromProfile, "ACCEPTED", "active");
+        if (optionalMemberStatus.isEmpty())
+            throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
+        MemberStatusEntity memberStatus = optionalMemberStatus.get();
+        Optional<TimeTableEntity> optionalTimeTable = timeTableRepository.findByClubAndDayAndAfterTime(
+                memberStatus.getClubIdx().getClubIdx(), day, end.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+        );
+        if (optionalTimeTable.isEmpty()) {
+            // 오늘 다음 완주자 없을 시 그룹원 모두에게 알람
+            senderService.sendMessageToGroup(memberStatus.getClubIdx().getClubIdx(),
+                    memberStatus.getClubIdx().getName() + "그룹 완주를 축하합니다. 내일도 힘내봐요!",
+                    "오늘의 런닝 그룹 완주!");
+        }else {
+            TimeTableEntity timeTable = optionalTimeTable.get();
+            senderService.sendMessageById(
+                    timeTable.getMemberStatusIdx().getUserProfileIdx().getUserIdx().getUserIdx(),
+                    memberStatus.getUserProfileIdx().getNickName() + "님이 바톤을 넘겼습니다! 꼭 달려주세요!",
+                    "바톤터치!"
+            );
+        }
     }
 }

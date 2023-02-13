@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class NotifyEventPublisher {
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishNotifyEvent(TimeToRunEvent event) {
+    public void publishNotifyEvent(Object event) {
         applicationEventPublisher.publishEvent(event);
     }
 }

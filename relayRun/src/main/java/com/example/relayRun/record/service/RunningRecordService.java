@@ -173,6 +173,12 @@ public class RunningRecordService {
             }
             locationRepository.saveAll(locations);
             runningRecordRepository.save(oldRecord);
+            notifyEventPublisher.publishNotifyEvent(
+                    BatonTouchEvent.builder()
+                        .fromUserProfile(oldRecord.getMemberStatusIdx().getUserProfileIdx().getUserProfileIdx())
+                        .day(timeTable.getDay())
+                        .endTime(timeTable.getEnd()).build()
+            );
             return new PostRunningFinishRes(isSuccess);
         } catch (ParseException e) {
             throw new BaseException(BaseResponseStatus.POST_PARSE_ERROR);
