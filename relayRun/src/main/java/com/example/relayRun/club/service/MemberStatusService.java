@@ -7,6 +7,7 @@ import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.club.repository.ClubRepository;
 import com.example.relayRun.club.repository.MemberStatusRepository;
 import com.example.relayRun.club.repository.TimeTableRepository;
+import com.example.relayRun.schedule.ScheduleService;
 import com.example.relayRun.user.entity.UserEntity;
 import com.example.relayRun.user.entity.UserProfileEntity;
 import com.example.relayRun.user.repository.UserProfileRepository;
@@ -34,16 +35,20 @@ public class MemberStatusService {
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
 
+    private final ScheduleService scheduleService;
+
     public MemberStatusService(MemberStatusRepository memberStatusRepository,
                                TimeTableRepository timeTableRepository,
                                UserProfileRepository userProfileRepository,
                                ClubRepository clubRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               ScheduleService scheduleService) {
         this.memberStatusRepository = memberStatusRepository;
         this.timeTableRepository = timeTableRepository;
         this.userProfileRepository = userProfileRepository;
         this.clubRepository = clubRepository;
         this.userRepository = userRepository;
+        this.scheduleService = scheduleService;
     }
 
     @Transactional(rollbackFor = BaseException.class)
@@ -113,6 +118,7 @@ public class MemberStatusService {
                         .build();
 
                 timeTableRepository.save(timeTableEntity);
+                scheduleService.scheduleTimeTable(timeTableEntity);
             }
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.POST_TIME_TABLE_FAIL);
