@@ -61,7 +61,7 @@ public class MemberStatusService {
             }
 
             //신청 대상 그룹 정보
-            Optional<ClubEntity> club = clubRepository.findById(clubIdx);
+            Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
             if (club.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
             }

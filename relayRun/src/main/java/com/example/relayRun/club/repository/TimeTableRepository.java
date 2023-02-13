@@ -17,13 +17,11 @@ public interface TimeTableRepository extends JpaRepository<TimeTableEntity, Long
                                         @Param(value = "day") Integer day,
                                         @Param(value = "start") LocalTime start,
                                         @Param(value = "end") LocalTime end);
-
     List<TimeTableEntity> findByMemberStatusIdx_MemberStatusIdx(Long memberStatusIdx);
     Optional<TimeTableEntity> findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
             MemberStatusEntity memberStatusIdx,
             int day, LocalTime start, LocalTime end
     );
-
     Optional<TimeTableEntity> findByMemberStatusIdxAndDay(MemberStatusEntity memberStatus, int day);
     Optional<TimeTableEntity> findByMemberStatusIdx_MemberStatusIdxAndDay(Long memberStatusIdx, int day);
 }
