@@ -21,9 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MemberStatusService {
@@ -79,11 +77,11 @@ public class MemberStatusService {
 
             memberStatusRepository.save(memberStatusEntity);
 
-            Long memberStatusIdx = memberStatusEntity.getMemberStatusIdx();
+            //Long memberStatusIdx = memberStatusEntity.getMemberStatusIdx();
             List<TimeTableDTO> timeTables = memberStatus.getTimeTables();
 
             // 이 함수가 실패(시간표 생성 못함)일 경우 위 memberStatus에 대한 rollback 적용
-            this.createTimeTable(memberStatusIdx, timeTables);
+            this.createTimeTable(memberStatusEntity, timeTables);
 
         } catch (BaseException e) { // profile 존재 x, 그룹 존재 x, 시간표 등록 실패일 경우
             throw new BaseException(e.getStatus());
@@ -95,16 +93,34 @@ public class MemberStatusService {
     }
 
     @Transactional
-    public void createTimeTable(Long memberStatusIdx, List<TimeTableDTO> timeTables) throws BaseException {
+    public void createTimeTable(MemberStatusEntity memberStatus, List<TimeTableDTO> timeTables) throws BaseException {
         try {
-            Optional<MemberStatusEntity> memberStatusEntity = memberStatusRepository.findById(memberStatusIdx);
-            if(memberStatusEntity.isEmpty()) {
-                throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
+//            Optional<MemberStatusEntity> memberStatusEntity = memberStatusRepository.findById(memberStatusIdx);
+//            if(memberStatusEntity.isEmpty()) {
+//                throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
+//            }
+
+            Long clubIdx = memberStatus.getClubIdx().getClubIdx();
+            //하루에 두 번 뛰는 경우
+            List<Integer> dayList = new ArrayList<>();
+            for (TimeTableDTO timeTable : timeTables) {
+                dayList.add(timeTable.getDay());
+            }
+            Set<Integer> daySet = new HashSet<>(dayList);
+            if (daySet.size() != dayList.size()){
+                throw new BaseException(BaseResponseStatus.REPEATED_TIMETABLE);
             }
 
             for (TimeTableDTO timeTable : timeTables) {
+                //중복 시간표 비교
+                List<Long> duplicateTimeTableList = timeTableRepository.selectDuplicateTimeTable(clubIdx,
+                        timeTable.getDay(), timeTable.getStart(), timeTable.getEnd());
+                if(duplicateTimeTableList.size() > 0) {
+                    throw new BaseException(BaseResponseStatus.DUPLICATE_TIMETABLE);
+                }
+
                 TimeTableEntity timeTableEntity = TimeTableEntity.builder()
-                        .memberStatusIdx(memberStatusEntity.get())
+                        .memberStatusIdx(memberStatus)
                         .day(timeTable.getDay())
                         .start(timeTable.getStart())
                         .end(timeTable.getEnd())
@@ -196,7 +212,7 @@ public class MemberStatusService {
 
 
     @Transactional
-    public GetTimeTableRes getTimeTablesByMemberStatusIdxAndDate(Long memberStatusIdx, String date) throws BaseException {
+    public GetTimeTableRes getTimeTablesByMemberStatusIdxAndDate(Long memberStatusIdx, String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         int day = RecordDataHandler.toIntDay(LocalDateTime.parse(date+ " 00:00:00" , formatter).getDayOfWeek());
         Optional<TimeTableEntity> optionalTimeTableEntity = timeTableRepository.findByMemberStatusIdx_MemberStatusIdxAndDay(memberStatusIdx, day);

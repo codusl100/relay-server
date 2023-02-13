@@ -220,7 +220,7 @@ public class ClubService {
             memberStatusRepository.save(memberStatusEntity);
 
             // host timetable update
-            memberStatusService.createTimeTable(memberStatusEntity.getMemberStatusIdx(), clubReq.getTimeTable());
+            memberStatusService.createTimeTable(memberStatusEntity, clubReq.getTimeTable());
 
         } catch (BaseException e) {
             throw new BaseException(e.getStatus());
