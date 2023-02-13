@@ -140,7 +140,7 @@ public class MemberStatusService {
     public List<GetTimeTableAndUserProfileRes> getTimeTablesByClubIdx(Long clubIdx) throws BaseException {
         try {
             //1. clubIdx로 memberStatus 조회
-            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByClubIdx_ClubIdx(clubIdx);
+            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(clubIdx, "ACCEPTED", "active");
             if(memberStatusEntityList.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.CLUB_EMPTY);
             }
@@ -173,13 +173,13 @@ public class MemberStatusService {
     public List<GetTimeTableRes> getUserTimeTable(Long userProfileIdx) throws BaseException {
         try {
             //memberStatusIdx 찾기
-            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
-            if(memberStatusEntityList.isEmpty()) {
+            Optional<MemberStatusEntity> memberStatusEntity = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
+            if(memberStatusEntity.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
 
             //memberStatusIdx로 시간표 조회
-            Long memberStatusIdx = memberStatusEntityList.get(0).getMemberStatusIdx();
+            Long memberStatusIdx = memberStatusEntity.get().getMemberStatusIdx();
 
             return getTimeTablesByMemberStatusIdx(memberStatusIdx);
         } catch (Exception e) {
@@ -235,13 +235,13 @@ public class MemberStatusService {
     public void updateTimeTable(Long userProfileIdx, PostTimeTableReq postTimeTableReq) throws BaseException {
         try {
             //memberStatusIdx 찾기
-            List<MemberStatusEntity> memberStatusEntityList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(userProfileIdx, "active");
-            if(memberStatusEntityList.isEmpty()) {
+            Optional<MemberStatusEntity> memberStatusEntity = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
+            if(memberStatusEntity.isEmpty()) {
                 throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
             }
 
             //memberStatusIdx로 시간표 조회
-            Long memberStatusIdx = memberStatusEntityList.get(0).getMemberStatusIdx();
+            Long memberStatusIdx = memberStatusEntity.get().getMemberStatusIdx();
             List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatusIdx);
 
             timeTableRepository.deleteAll(timeTableEntityList);
@@ -250,7 +250,7 @@ public class MemberStatusService {
 
             for (int i = 0; i < timeTables.size(); i++) {
                 TimeTableEntity timeTableEntity = TimeTableEntity.builder()
-                        .memberStatusIdx(memberStatusEntityList.get(0))
+                        .memberStatusIdx(memberStatusEntity.get())
                         .day(timeTables.get(i).getDay())
                         .start(timeTables.get(i).getStart())
                         .end(timeTables.get(i).getEnd())
