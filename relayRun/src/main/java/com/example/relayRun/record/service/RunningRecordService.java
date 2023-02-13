@@ -218,7 +218,7 @@ public class RunningRecordService {
 
 
     /**
-     * 기록 세부 조회 GET
+     * 기록 idx로 조회 GET
      * @param idx
      * @return
      * @throws BaseException
@@ -277,6 +277,14 @@ public class RunningRecordService {
         }
     }
 
+    /**
+     * 프로필 데일리 기록 GET
+     * @param principal
+     * @param profileIdx
+     * @param date
+     * @return
+     * @throws BaseException
+     */
     public GetRecordByIdxRes getRecordByDate(Principal principal, Long profileIdx, LocalDate date) throws BaseException {
         // 프로필이 속한 모든 지원 목록
         List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(profileIdx, "active");
@@ -300,7 +308,7 @@ public class RunningRecordService {
 
 
     /**
-     * 개인 기록 일별 요약 GET (프로필이 많아지는 경우에만 사용)
+     * 개인 기록 일별 요약 GET (프로필이 많아지는 경우에만 사용, 지금은 사용 x)
      * @param principal
      * @param date
      * @return
@@ -335,7 +343,7 @@ public class RunningRecordService {
     }
 
     /**
-     * 그룹 기록 일별 요약 GET
+     * 그룹 기록 일별(데일리) 요약 GET
      * @param clubIdx
      * @param date
      * @return
@@ -413,6 +421,14 @@ public class RunningRecordService {
         }
     }
 
+    /**
+     * 그룹 먼슬리 GET
+     * @param clubIdx
+     * @param year
+     * @param month
+     * @return
+     * @throws BaseException
+     */
     public List<GetCalender> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
         Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (club.isEmpty()) {
