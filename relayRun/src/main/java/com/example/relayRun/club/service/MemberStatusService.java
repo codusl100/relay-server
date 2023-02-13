@@ -182,6 +182,8 @@ public class MemberStatusService {
             Long memberStatusIdx = memberStatusEntity.get().getMemberStatusIdx();
 
             return getTimeTablesByMemberStatusIdx(memberStatusIdx);
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
@@ -244,22 +246,14 @@ public class MemberStatusService {
             Long memberStatusIdx = memberStatusEntity.get().getMemberStatusIdx();
             List<TimeTableEntity> timeTableEntityList = timeTableRepository.findByMemberStatusIdx_MemberStatusIdx(memberStatusIdx);
 
+            // 기존 시간표 삭제
             timeTableRepository.deleteAll(timeTableEntityList);
 
-            List<TimeTableDTO> timeTables = postTimeTableReq.getTimeTables();
+            // 새로운 시간표 등록
+            createTimeTable(memberStatusEntity.get(), postTimeTableReq.getTimeTables());
 
-            for (int i = 0; i < timeTables.size(); i++) {
-                TimeTableEntity timeTableEntity = TimeTableEntity.builder()
-                        .memberStatusIdx(memberStatusEntity.get())
-                        .day(timeTables.get(i).getDay())
-                        .start(timeTables.get(i).getStart())
-                        .end(timeTables.get(i).getEnd())
-                        .goal(timeTables.get(i).getGoal())
-                        .goalType(timeTables.get(i).getGoalType())
-                        .build();
-
-                timeTableRepository.save(timeTableEntity);
-            }
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.POST_TIME_TABLE_FAIL);
         }
