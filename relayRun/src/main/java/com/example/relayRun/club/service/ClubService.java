@@ -34,6 +34,8 @@ public class ClubService {
 
     private final RunningRecordService runningRecordService;
 
+    private String bucketURL = "https://team23-bucket.s3.ap-northeast-2.amazonaws.com/public/club";
+
     public ClubService(ClubRepository clubRepository, UserRepository userRepository, UserProfileRepository userProfileRepository,
                        MemberStatusRepository memberStatusRepository,
                        MemberStatusService memberStatusService, RunningRecordService runningRecordService) {
@@ -203,7 +205,7 @@ public class ClubService {
             ClubEntity clubEntity = ClubEntity.builder()
                     .name(clubReq.getName())
                     .content(clubReq.getContent())
-                    .imgURL(clubReq.getImgURL())
+                    .imgURL(bucketURL + "/yellow.png")
                     .hostIdx(userProfileEntity)
                     .maxNum(clubReq.getMaxNum())
                     .level(clubReq.getLevel())
