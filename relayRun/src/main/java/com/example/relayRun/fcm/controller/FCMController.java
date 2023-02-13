@@ -28,10 +28,10 @@ public class FCMController {
         }
     }
 
-    @DeleteMapping("/")
+    @PostMapping("/delete")
     public BaseResponse<String> deleteToken(Principal principal, @RequestBody PostDeviceReq req) {
         try{
-            fcmService.deleteDeviceToken(req);
+            fcmService.deleteDeviceToken(principal, req);
             return new BaseResponse<>("삭제 성공");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
