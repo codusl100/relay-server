@@ -233,7 +233,7 @@ public class MemberStatusService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public void updateTimeTable(Long userProfileIdx, PostTimeTableReq postTimeTableReq) throws BaseException {
         try {
             //memberStatusIdx 찾기
