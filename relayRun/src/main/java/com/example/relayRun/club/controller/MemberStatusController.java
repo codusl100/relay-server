@@ -75,6 +75,23 @@ public class MemberStatusController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    @ApiOperation(value="그룹 나가기", notes="헤더로 access 토큰, path variable로 clubIdx, body로 userProfileIdx를 보내면 그룹 나가기가 완료됩니다.")
+    @ResponseBody
+    @PatchMapping("/{clubIdx}")
+    public BaseResponse<String> leaveClub(
+            Principal principal,
+            @PathVariable Long clubIdx,
+            @Valid @RequestBody PatchDeleteMemberReq patchDeleteMemberReq) {
+        try {
+            Long userProfileIdx = patchDeleteMemberReq.getUserProfileIdx();
+            memberStatusService.updateMemberStatus(principal, clubIdx, userProfileIdx);
+            return new BaseResponse<>("그룹 나가기 완료");
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
     @ApiOperation(value="멤버 강퇴", notes="")
     @ResponseBody
     @PatchMapping("/{clubIdx}/members/deletion")

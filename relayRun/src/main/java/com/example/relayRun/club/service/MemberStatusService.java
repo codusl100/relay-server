@@ -265,6 +265,40 @@ public class MemberStatusService {
         }
     }
 
+    public void updateMemberStatus(Principal principal, Long clubIdx, Long userProfileIdx) throws BaseException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
+        if (optionalUserEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+
+        Optional<UserProfileEntity> optionalUserProfileEntity = userProfileRepository.findByUserProfileIdxAndStatus(userProfileIdx, "active");
+        if (optionalUserProfileEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.USER_PROFILE_EMPTY);
+        }
+        UserProfileEntity userProfileEntity = optionalUserProfileEntity.get();
+
+        if (!userProfileEntity.getUserIdx().equals(userEntity)) {
+            throw new BaseException(BaseResponseStatus.FAILED_TO_FIND_USER);
+        }
+
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
+        if (optionalClubEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
+        }
+
+        Optional<MemberStatusEntity> optionalMemberStatusEntity =
+                memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(
+                        userProfileIdx, "ACCEPTED", "active");
+        if (optionalMemberStatusEntity.isEmpty()) {
+            throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
+        }
+        MemberStatusEntity memberStatusEntity = optionalMemberStatusEntity.get();
+
+        memberStatusEntity.setApplyStatus("LEFT");
+        memberStatusRepository.save(memberStatusEntity);
+    }
+
     public String deleteClubMember(Principal principal, Long clubIdx, PatchDeleteMemberReq request) throws BaseException {
         Optional<UserEntity> optionalUserEntity = userRepository.findByEmail(principal.getName());
         if (optionalUserEntity.isEmpty()) {
