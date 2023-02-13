@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -90,6 +91,12 @@ public class RunningRecordService {
             if (!userEntityPrincipal.getUserIdx().equals(userProfileParam.getUserIdx().getUserIdx()))
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             MemberStatusEntity memberStatus = optionalMemberStatus.get();
+
+            // 오늘 뛴 기록이 있는지 확인
+            Optional<Long> recordIdx = runningRecordRepository.selectByMemberStatusAndDateAndStatus(Arrays.asList(memberStatus), LocalDate.now(), "active");
+            if (!recordIdx.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.POST_RECORD_ALREADY_RUN);
+            }
 
             Optional<TimeTableEntity> optionalTimeTable = timeTableRepository.findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
                     memberStatus, RecordDataHandler.toIntDay(LocalDate.now().getDayOfWeek()), LocalTime.now(), LocalTime.now()

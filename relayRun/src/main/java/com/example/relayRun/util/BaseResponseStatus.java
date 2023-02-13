@@ -49,6 +49,8 @@ public enum BaseResponseStatus {
     POST_RECORD_ALREADY_FINISH(false, 4904, "이미 끝난 기록입니다."),
     POST_RECORD_NO_PROFILE_IDX(false, 4905, "존재하지 않는 프로필 아이디입니다."),
     POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL(false, 4906, "요청한 프로필 아이디와 로그인 아이디가 일치하지 않습니다."),
+    POST_RECORD_ALREADY_RUN(false, 4907, "이미 오늘 뛴 기록이 있습니다."),
+
     POST_USERS_INVALID_EMAIL(false, 5000, "이메일 양식이 맞지 않습니다."),
     POST_USERS_INVALID_PWD(false, 5001, "비밀번호 양식이 맞지 않습니다."),
     POST_REVIEW_IMG_ERROR(false, 5001, "리뷰 이미지 에러입니다."),
