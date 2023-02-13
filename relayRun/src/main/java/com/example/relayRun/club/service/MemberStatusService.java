@@ -99,8 +99,6 @@ public class MemberStatusService {
 //            if(memberStatusEntity.isEmpty()) {
 //                throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
 //            }
-
-            Long clubIdx = memberStatus.getClubIdx().getClubIdx();
             //하루에 두 번 뛰는 경우
             List<Integer> dayList = new ArrayList<>();
             for (TimeTableDTO timeTable : timeTables) {
@@ -108,15 +106,16 @@ public class MemberStatusService {
             }
             Set<Integer> daySet = new HashSet<>(dayList);
             if (daySet.size() != dayList.size()){
-                throw new BaseException(BaseResponseStatus.REPEATED_TIMETABLE);
+                throw new Exception("REPEATED");
             }
 
+            Long clubIdx = memberStatus.getClubIdx().getClubIdx();
             for (TimeTableDTO timeTable : timeTables) {
                 //중복 시간표 비교
                 List<Long> duplicateTimeTableList = timeTableRepository.selectDuplicateTimeTable(clubIdx,
                         timeTable.getDay(), timeTable.getStart(), timeTable.getEnd());
                 if(duplicateTimeTableList.size() > 0) {
-                    throw new BaseException(BaseResponseStatus.DUPLICATE_TIMETABLE);
+                    throw new Exception("DUPLICATED");
                 }
 
                 TimeTableEntity timeTableEntity = TimeTableEntity.builder()
@@ -131,7 +130,9 @@ public class MemberStatusService {
                 timeTableRepository.save(timeTableEntity);
             }
         } catch (Exception e) {
-            throw new BaseException(BaseResponseStatus.POST_TIME_TABLE_FAIL);
+            if(e.getMessage().equals("REPEATED")) throw new BaseException(BaseResponseStatus.REPEATED_TIMETABLE);
+            else if(e.getMessage().equals("DUPLICATED")) throw new BaseException(BaseResponseStatus.DUPLICATE_TIMETABLE);
+            else throw new BaseException(BaseResponseStatus.POST_TIME_TABLE_FAIL);
         }
     }
 
