@@ -114,12 +114,12 @@ public class FCMService {
         }
         UserEntity user = optionalUser.get();
         try {
-            senderService.sendMessageById(user.getUserIdx(),
-                    NotificationMessage.builder()
-                                .title("뛸 시간입니다!")
-                                .body(start.toString() + "부터 달리기 시작하세요!")
-                            .build()
-            );
+            NotificationMessage message = NotificationMessage.builder()
+                    .title("뛸 시간입니다!")
+                    .body(start.toString() + "부터 달리기 시작하세요!")
+                    .build();
+//            senderService.sendMessageById(user.getUserIdx(), message);
+            senderService.sendMessageToAll(message);
         } catch (BaseException e) {
             log.error(e.getMessage());
         }
@@ -131,27 +131,29 @@ public class FCMService {
         if (optionalMemberStatus.isEmpty())
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
         MemberStatusEntity memberStatus = optionalMemberStatus.get();
+        // 다음 시간표를 가져옴.
         Optional<TimeTableEntity> optionalTimeTable = timeTableRepository.findByClubAndDayAndAfterTime(
                 memberStatus.getClubIdx().getClubIdx(), day, end.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
         );
         if (optionalTimeTable.isEmpty()) {
             // 오늘 다음 완주자 없을 시 그룹원 모두에게 알람
-            senderService.sendMessageToGroup(
-                    memberStatus.getClubIdx().getClubIdx(),
-                    NotificationMessage.builder()
-                                .title("오늘의 런닝 그룹 완주!")
-                                .body(memberStatus.getClubIdx().getName() + "그룹 완주를 축하합니다. 내일도 힘내봐요!")
-                            .build()
-            );
+            NotificationMessage message =  NotificationMessage.builder()
+                    .title("오늘의 런닝 그룹 완주!")
+                    .body(memberStatus.getClubIdx().getName() + "그룹 완주를 축하합니다. 내일도 힘내봐요!")
+                    .build();
+//            senderService.sendMessageToGroup(memberStatus.getClubIdx().getClubIdx(), message);
+            senderService.sendMessageToAll(message);
         }else {
             TimeTableEntity timeTable = optionalTimeTable.get();
-            senderService.sendMessageById(
-                    timeTable.getMemberStatusIdx().getUserProfileIdx().getUserIdx().getUserIdx(),
-                    NotificationMessage.builder()
-                                .title("바톤터치!")
-                                .body(memberStatus.getUserProfileIdx().getNickName() + "님이 바톤을 넘겼습니다! 꼭 달려주세요!")
-                            .build()
-            );
+            NotificationMessage message = NotificationMessage.builder()
+                    .title("바톤터치!")
+                    .body(memberStatus.getUserProfileIdx().getNickName() + "님이 바톤을 넘겼습니다! 꼭 달려주세요!")
+                    .build();
+//            senderService.sendMessageById(
+//                    timeTable.getMemberStatusIdx().getUserProfileIdx().getUserIdx().getUserIdx(),
+//                    message
+//            );
+            senderService.sendMessageToAll(message);
         }
     }
 }
