@@ -4,6 +4,7 @@ import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.entity.TimeTableEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
 import com.example.relayRun.club.repository.TimeTableRepository;
+import com.example.relayRun.fcm.dto.NotificationMessage;
 import com.example.relayRun.fcm.dto.PostDeviceReq;
 import com.example.relayRun.fcm.dto.PostDeviceRes;
 import com.example.relayRun.fcm.entity.UserDeviceEntity;
@@ -18,6 +19,7 @@ import com.example.relayRun.util.BaseResponseStatus;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
 
+import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -69,7 +71,12 @@ public class FCMService {
                 .userIdx(user)
                 .build();
         userDeviceRepository.save(userDevice);
-        senderService.sendMessageByToken(req.getUserDeviceID(), "디바이스 토큰 저장", "저장 성공");
+        senderService.sendMessageByToken(req.getUserDeviceID(),
+                NotificationMessage.builder()
+                        .title("저장 성공")
+                        .body("디바이스 토큰 저장")
+                        .build()
+        );
         return PostDeviceRes.builder()
                 .status("성공")
                 .build();
@@ -107,7 +114,12 @@ public class FCMService {
         }
         UserEntity user = optionalUser.get();
         try {
-            senderService.sendMessageById(user.getUserIdx(),  start.toString() + "부터 달리기 시작하세요!", "뛸 시간입니다!");
+            senderService.sendMessageById(user.getUserIdx(),
+                    NotificationMessage.builder()
+                                .title("뛸 시간입니다!")
+                                .body(start.toString() + "부터 달리기 시작하세요!")
+                            .build()
+            );
         } catch (BaseException e) {
             log.error(e.getMessage());
         }
@@ -124,15 +136,21 @@ public class FCMService {
         );
         if (optionalTimeTable.isEmpty()) {
             // 오늘 다음 완주자 없을 시 그룹원 모두에게 알람
-            senderService.sendMessageToGroup(memberStatus.getClubIdx().getClubIdx(),
-                    memberStatus.getClubIdx().getName() + "그룹 완주를 축하합니다. 내일도 힘내봐요!",
-                    "오늘의 런닝 그룹 완주!");
+            senderService.sendMessageToGroup(
+                    memberStatus.getClubIdx().getClubIdx(),
+                    NotificationMessage.builder()
+                                .title("오늘의 런닝 그룹 완주!")
+                                .body(memberStatus.getClubIdx().getName() + "그룹 완주를 축하합니다. 내일도 힘내봐요!")
+                            .build()
+            );
         }else {
             TimeTableEntity timeTable = optionalTimeTable.get();
             senderService.sendMessageById(
                     timeTable.getMemberStatusIdx().getUserProfileIdx().getUserIdx().getUserIdx(),
-                    memberStatus.getUserProfileIdx().getNickName() + "님이 바톤을 넘겼습니다! 꼭 달려주세요!",
-                    "바톤터치!"
+                    NotificationMessage.builder()
+                                .title("바톤터치!")
+                                .body(memberStatus.getUserProfileIdx().getNickName() + "님이 바톤을 넘겼습니다! 꼭 달려주세요!")
+                            .build()
             );
         }
     }

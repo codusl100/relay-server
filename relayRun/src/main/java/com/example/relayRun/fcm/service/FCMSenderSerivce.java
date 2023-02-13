@@ -2,6 +2,7 @@ package com.example.relayRun.fcm.service;
 
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.MemberStatusRepository;
+import com.example.relayRun.fcm.dto.NotificationMessage;
 import com.example.relayRun.fcm.dto.PostDeviceReq;
 import com.example.relayRun.fcm.dto.PostDeviceRes;
 import com.example.relayRun.fcm.entity.UserDeviceEntity;
@@ -77,27 +78,27 @@ public class FCMSenderSerivce {
         }
     }
 
-    public void sendMessageByEmail(String email, String body, String title) throws BaseException {
+    public void sendMessageByEmail(String email, NotificationMessage notificationMessage) throws BaseException {
         Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty())
             throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_EMAIL);
         UserEntity user = optionalUser.get();
-        sendMessageById(user.getUserIdx(), body, title);
+        sendMessageById(user.getUserIdx(), notificationMessage);
     }
 
-    public void sendMessageById(Long userIdx, String body, String title) throws BaseException {
+    public void sendMessageById(Long userIdx, NotificationMessage notificationMessage) throws BaseException {
         List<UserDeviceEntity> devices = userDeviceRepository.findAllByUserIdx_UserIdx(userIdx);
         if (devices.isEmpty())
             throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
-        sendMessagesByToken(devices,body, title);
+        sendMessagesByToken(devices,notificationMessage);
     }
 
-    public void sendMessageToAll(String body, String title) throws BaseException {
+    public void sendMessageToAll(NotificationMessage notificationMessage) throws BaseException {
         List<UserDeviceEntity> devices = userDeviceRepository.findAll();
-        sendMessagesByToken(devices, body, title);
+        sendMessagesByToken(devices, notificationMessage);
     }
 
-    public void sendMessageToGroup(Long clubIdx, String body, String title) throws BaseException {
+    public void sendMessageToGroup(Long clubIdx, NotificationMessage notificationMessage) throws BaseException {
         List<MemberStatusEntity> members = memberStatusRepository.findAllByClubIdx_ClubIdxAndApplyStatusAndStatus(
                 clubIdx, "ACCEPTED", "active"
         );
@@ -110,16 +111,16 @@ public class FCMSenderSerivce {
             );
             tokenList.addAll(tokens);
         });
-        sendMessagesByToken(tokenList, body, title);
+        sendMessagesByToken(tokenList, notificationMessage);
     }
-    public void    sendMessagesByToken(List<UserDeviceEntity> devices, String body, String title) throws BaseException {
+    public void    sendMessagesByToken(List<UserDeviceEntity> devices, NotificationMessage notificationMessage) throws BaseException {
         List<Message> messages = devices.stream()
                 .map(
                         device-> Message.builder()
                                 .setToken(device.getUserDeviceToken())
                                 .setNotification( Notification.builder()
-                                        .setBody(body)
-                                        .setTitle(title)
+                                        .setBody(notificationMessage.getBody())
+                                        .setTitle(notificationMessage.getTitle())
                                         .build()
                                 )
                                 .build()
@@ -139,12 +140,12 @@ public class FCMSenderSerivce {
             throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
         }
     }
-    public void    sendMessageByToken(String token, String body, String title) throws BaseException{
+    public void    sendMessageByToken(String token, NotificationMessage notificationMessage) throws BaseException{
         Message message = Message.builder()
                 .setToken(token)
                 .setNotification(Notification.builder()
-                        .setBody(body)
-                        .setTitle(title)
+                        .setBody(notificationMessage.getBody())
+                        .setTitle(notificationMessage.getTitle())
                         .build()
                 )
                 .build();
