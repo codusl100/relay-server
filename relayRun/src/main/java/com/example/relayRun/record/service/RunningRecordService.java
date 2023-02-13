@@ -227,7 +227,7 @@ public class RunningRecordService {
         try {
             Optional<RunningRecordEntity> optRecord = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
             if (optRecord.isEmpty()) {
-                throw new Exception("RECORD_UNAVAILABLE");
+                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
             }
 
             RunningRecordEntity record = optRecord.get();
@@ -269,13 +269,11 @@ public class RunningRecordService {
 
         } catch (NullPointerException e) { // principal이 없거나 형식에 맞지 않을 때
             throw new BaseException(BaseResponseStatus.WRONG_JWT_SIGN_TOKEN);
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
         } catch (Exception e) {
-            if (e.getMessage().equals("RECORD_UNAVAILABLE")) {
-                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
-            } else {
-                System.out.println("e = " + e);
-                throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
-            }
+            System.out.println("e = " + e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
@@ -346,7 +344,7 @@ public class RunningRecordService {
         try {
             Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
             if (club.isEmpty()) {
-                throw new Exception("CLUB_UNAVAILABLE");
+                throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
             }
             List<MemberStatusEntity> statusList = memberStatusRepository.findByClubIdxAndStatus(club.get(), "active");
 
@@ -364,13 +362,13 @@ public class RunningRecordService {
 
             return dailyRes;
 
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
+        } catch (NullPointerException e) {
+            throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
         } catch (Exception e) {
-            if (e.getMessage().equals("CLUB_UNAVAILABLE")) {
-                throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
-            } else {
-                System.out.println("e = " + e);
-                throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
-            }
+            System.out.println("e = " + e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
