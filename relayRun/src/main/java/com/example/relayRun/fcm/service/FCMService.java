@@ -82,14 +82,15 @@ public class FCMService {
                 .build();
     }
 
-    public void deleteDeviceToken(PostDeviceReq req) throws BaseException {
-        Optional<UserEntity> optionalUser = userRepository.findByEmail(req.getEmail());
+    public void deleteDeviceToken(Principal principal, PostDeviceReq req) throws BaseException {
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(principal.getName());
         if (optionalUser.isEmpty())
             throw new BaseException(BaseResponseStatus.FAILED_TO_LOGIN);
         UserEntity user = optionalUser.get();
         Optional<UserDeviceEntity> optionalDevice = userDeviceRepository.findByUserDeviceTokenAndUserIdx(req.getUserDeviceID(), user);
         if (optionalDevice.isEmpty())
             throw new BaseException(BaseResponseStatus.POST_ALARM_INVALID_FCM_TOKEN);
+        log.info(user.getUserIdx() + " 디바이스 토큰 삭제 중");
         UserDeviceEntity userDevice = optionalDevice.get();
         userDeviceRepository.delete(userDevice);
     }
