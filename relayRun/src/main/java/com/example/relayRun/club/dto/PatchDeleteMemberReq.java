@@ -10,8 +10,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ApiModel(value = "멤버 강퇴 모델")
+@ApiModel(value = "멤버 변경 모델")
 public class PatchDeleteMemberReq {
-    @ApiModelProperty(example = "강퇴 유저 프로필 idx", required = true)
+    @ApiModelProperty(example = "나갈/강퇴할 유저 프로필 idx", required = true)
     private Long userProfileIdx;
 }

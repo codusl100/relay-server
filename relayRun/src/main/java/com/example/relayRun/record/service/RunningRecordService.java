@@ -23,6 +23,7 @@ import com.example.relayRun.util.RecordDataHandler;
 import org.hibernate.NonUniqueResultException;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Tuple;
@@ -32,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -75,9 +77,10 @@ public class RunningRecordService {
      */
     public PostRunningInitRes startRunning(Principal principal, PostRunningInitReq runningInitReq) throws BaseException {
         try{
-            Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusIs(
+            Optional<MemberStatusEntity> optionalMemberStatus = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(
                     runningInitReq.getProfileIdx(),
-                    "ACCEPTED"
+                    "ACCEPTED",
+                    "active"
             );
             if (optionalMemberStatus.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
@@ -96,12 +99,11 @@ public class RunningRecordService {
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL);
             MemberStatusEntity memberStatus = optionalMemberStatus.get();
 
-            RunningRecordEntity recordEntity = new RunningRecordEntity();
-            recordEntity.setMemberStatusIdx(memberStatus);
-            recordEntity.setDistance(0.0f);
-            recordEntity.setTime(0.0f);
-            recordEntity.setPace(0.0f);
-            recordEntity = runningRecordRepository.save(recordEntity);
+            // 오늘 뛴 기록이 있는지 확인
+            Optional<Long> recordIdx = runningRecordRepository.selectByMemberStatusAndDateAndStatus(Arrays.asList(memberStatus), LocalDate.now(), "active");
+            if (!recordIdx.isEmpty()) {
+                throw new BaseException(BaseResponseStatus.POST_RECORD_ALREADY_RUN);
+            }
 
             Optional<TimeTableEntity> optionalTimeTable = timeTableRepository.findByMemberStatusIdxAndDayAndStartLessThanEqualAndEndGreaterThanEqual(
                     memberStatus, RecordDataHandler.toIntDay(LocalDate.now().getDayOfWeek()), LocalTime.now(), LocalTime.now()
@@ -109,6 +111,15 @@ public class RunningRecordService {
             if (optionalTimeTable.isEmpty())
                 throw new BaseException(BaseResponseStatus.POST_RECORD_NO_TIMETABLE);
             TimeTableEntity timeTable = optionalTimeTable.get();
+
+            RunningRecordEntity recordEntity = new RunningRecordEntity();
+            recordEntity.setMemberStatusIdx(memberStatus);
+            recordEntity.setDistance(0.0f);
+            recordEntity.setTime(0.0f);
+            recordEntity.setPace(0.0f);
+            recordEntity.setGoal(timeTable.getGoal());
+            recordEntity.setGoalType(timeTable.getGoalType());
+            recordEntity = runningRecordRepository.save(recordEntity);
 
             return PostRunningInitRes.builder()
                     .runningRecordIdx(recordEntity.getRunningRecordIdx())
@@ -220,7 +231,7 @@ public class RunningRecordService {
 
 
     /**
-     * 기록 세부 조회 GET
+     * 기록 idx로 조회 GET
      * @param idx
      * @return
      * @throws BaseException
@@ -229,7 +240,7 @@ public class RunningRecordService {
         try {
             Optional<RunningRecordEntity> optRecord = runningRecordRepository.findByRunningRecordIdxAndStatus(idx, "active");
             if (optRecord.isEmpty()) {
-                throw new Exception("RECORD_UNAVAILABLE");
+                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
             }
 
             RunningRecordEntity record = optRecord.get();
@@ -264,30 +275,29 @@ public class RunningRecordService {
                     .distance(record.getDistance())
                     .pace(record.getPace())
                     .goalStatus(record.getGoalStatus())
+                    .goalType(record.getGoalType())
+                    .goalValue(record.getGoal())
                     .locationList(locationList)
                     .build();
 
         } catch (NullPointerException e) { // principal이 없거나 형식에 맞지 않을 때
             throw new BaseException(BaseResponseStatus.WRONG_JWT_SIGN_TOKEN);
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
         } catch (Exception e) {
-            if (e.getMessage().equals("RECORD_UNAVAILABLE")) {
-                throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
-            } else {
-                System.out.println("e = " + e);
-                throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
-            }
+            System.out.println("e = " + e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
-    public GetRecordByIdxRes setProfileGoalInfo(GetRecordByIdxRes recordByIdxRes, Long userProfileIdx, LocalDate date) {
-        Optional<MemberStatusEntity> optionalMemberStatusEntity = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(userProfileIdx, "ACCEPTED", "active");
-        Optional<TimeTableEntity> optionalTimeTableEntity = timeTableRepository.findByMemberStatusIdxAndDay(optionalMemberStatusEntity.get(), RecordDataHandler.toIntDay(date.getDayOfWeek()));
-        recordByIdxRes.setGoalType(optionalTimeTableEntity.get().getGoalType());
-        recordByIdxRes.setGoalValue(optionalTimeTableEntity.get().getGoal());
-        return recordByIdxRes;
-    }
-
-
+    /**
+     * 프로필 데일리 기록 GET
+     * @param principal
+     * @param profileIdx
+     * @param date
+     * @return
+     * @throws BaseException
+     */
     public GetRecordByIdxRes getRecordByDate(Principal principal, Long profileIdx, LocalDate date) throws BaseException {
         // 프로필이 속한 모든 지원 목록
         List<MemberStatusEntity> statusList = memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndStatus(profileIdx, "active");
@@ -299,20 +309,19 @@ public class RunningRecordService {
                 throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
             }
             GetRecordByIdxRes result = getRecordByIdx(principal, recordIdx.get());
-            result = setProfileGoalInfo(result, profileIdx, date);
             return result;
         } catch (BaseException e) {
             // 날짜에 해당하는 기록이 없을 때
             throw new BaseException((e.getStatus()));
-        } catch (NonUniqueResultException e) {
+        } catch (IncorrectResultSizeDataAccessException e) {
             // 같은 날짜에 두개 이상 기록이 있을 때
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(BaseResponseStatus.DUPLICATE_RECORD);
         }
     }
 
 
     /**
-     * 개인 기록 일별 요약 GET회 (프로필이 많아지는 경우에만 사용)
+     * 개인 기록 일별 요약 GET (프로필이 많아지는 경우에만 사용, 지금은 사용 x)
      * @param principal
      * @param date
      * @return
@@ -347,7 +356,7 @@ public class RunningRecordService {
     }
 
     /**
-     * 그룹 기록 일별 요약 GET
+     * 그룹 기록 일별(데일리) 요약 GET
      * @param clubIdx
      * @param date
      * @return
@@ -356,22 +365,31 @@ public class RunningRecordService {
         try {
             Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
             if (club.isEmpty()) {
-                throw new Exception("CLUB_UNAVAILABLE");
-            }
-            List<RunningRecordEntity> records = runningRecordRepository
-                    .findByMemberStatusIdx_ClubIdxAndCreatedAtBetweenAndRunningStatus(club.get(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), "finish");
-
-            GetDailyRes result = RecordDataHandler.get_summary(records, date);
-            result.setGoalType(club.get().getGoalType());
-            result.setGoalValue(club.get().getGoal());
-            return result;
-        } catch (Exception e) {
-            if (e.getMessage().equals("CLUB_UNAVAILABLE")) {
                 throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
-            } else {
-                System.out.println("e = " + e);
-                throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
             }
+            List<MemberStatusEntity> statusList = memberStatusRepository.findByClubIdxAndStatus(club.get(), "active");
+
+            Tuple record = runningRecordRepository
+                    .selectByMemberStatusAndDateAndStatus_Club(statusList, date, "active");
+
+            GetDailyRes dailyRes = GetDailyRes.builder()
+                    .date(date)
+                    .totalTime(record.get(1, Double.class))
+                    .totalDist(record.get(2, Double.class))
+                    .avgPace(record.get(3, Double.class))
+                    .goalType(club.get().getGoalType())
+                    .goalValue(club.get().getGoal())
+                    .build();
+
+            return dailyRes;
+
+        } catch (BaseException e) {
+            throw new BaseException(e.getStatus());
+        } catch (NullPointerException e) {
+            throw new BaseException(BaseResponseStatus.RECORD_UNAVAILABLE);
+        } catch (Exception e) {
+            System.out.println("e = " + e);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
@@ -416,6 +434,14 @@ public class RunningRecordService {
         }
     }
 
+    /**
+     * 그룹 먼슬리 GET
+     * @param clubIdx
+     * @param year
+     * @param month
+     * @return
+     * @throws BaseException
+     */
     public List<GetCalender> getClubCalender(Long clubIdx, Integer year, Integer month) throws BaseException {
         Optional<ClubEntity> club = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (club.isEmpty()) {
