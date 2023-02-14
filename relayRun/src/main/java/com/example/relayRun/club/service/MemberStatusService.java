@@ -83,7 +83,7 @@ public class MemberStatusService {
             memberStatusRepository.save(memberStatusEntity);
 
             // clubIdx로 누적 memberstatus 조회
-            Long num = memberStatusRepository.findByClubIdx(club.get().getClubIdx());
+            Long num = memberStatusRepository.findByClubIdx(club.get().getClubIdx(), "ACCEPTED");
             System.out.println("신청 인원 수 : "+ num);
             if(num >= club.get().getMaxNum()) { // maxNum보다 신청인원 많으면
                 club.get().changeRecruitStatus("finished");
