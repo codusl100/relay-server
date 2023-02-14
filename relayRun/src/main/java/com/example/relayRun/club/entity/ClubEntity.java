@@ -54,6 +54,9 @@ public class ClubEntity extends BaseTimeEntity {
     @Column(columnDefinition = "varchar(10) default 'ACTIVE'")
     private String status;
 
+    public void changeRecruitStatus(String recruitStatus) {
+        this.recruitStatus = recruitStatus;
+    }
     @Builder
     public ClubEntity(Long clubIdx, String name, String content, String imgURL, UserProfileEntity hostIdx,
                       Integer maxNum, Integer level, GoalType goalType, Float goal, String recruitStatus, String status){

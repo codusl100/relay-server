@@ -16,6 +16,7 @@ public enum BaseResponseStatus {
     FAILED_TO_LOGIN(false, 2007, "없는 아이디이거나 비밀번호가 틀렸습니다."),
     FAILED_TO_SEARCH(false, 2008, "검색을 실패하였습니다."),
     FAILED_TO_FIND_URL(false, 2009,"요청할 수 없는 url입니다."),
+    FAILED_TO_APPLY_CLUB(false, 2010, "그룹 모집이 마감되었습니다."),
 
     // 달리기단;
     RECORD_UNAVAILABLE(false, 2100,"기록이 존재하지 않습니다."),
