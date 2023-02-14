@@ -42,6 +42,13 @@ public class RunningRecordEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private Float time;
 
+    @Column(nullable = true)
+    private Float goal;
+
+    @Column(name = "goalType", nullable = true)
+    @Enumerated(EnumType.STRING)
+    private GoalType goalType;
+
     @Column(columnDefinition = "varchar(1) default 'n'")
     private String goalStatus;
 
