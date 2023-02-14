@@ -297,14 +297,22 @@ public class MemberStatusService {
         Optional<MemberStatusEntity> optionalMemberStatusEntity =
                 memberStatusRepository.findByUserProfileIdx_UserProfileIdxAndApplyStatusAndStatus(
                         userProfileIdx, "ACCEPTED", "active");
+        // 그룹에 들어가있지 않을 경우
         if (optionalMemberStatusEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER_STATUS);
         }
         MemberStatusEntity memberStatusEntity = optionalMemberStatusEntity.get();
 
+        // 요청한 club이 속한 그룹의 idx가 아닐 경우
         if (!memberStatusEntity.getClubIdx().equals(optionalClubEntity.get())) {
             throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
         }
+
+        // 방장일 경우
+        if (userProfileEntity.equals(optionalClubEntity.get().getHostIdx())) {
+            throw new BaseException(BaseResponseStatus.PATCH_HOST_DROPPED_INVALID);
+        }
+
         memberStatusEntity.setApplyStatus("LEFT");
         memberStatusRepository.save(memberStatusEntity);
     }
