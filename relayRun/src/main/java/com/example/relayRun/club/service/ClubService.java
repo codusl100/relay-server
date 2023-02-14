@@ -90,7 +90,7 @@ public class ClubService {
     public List<GetClubDetailRes> getClubsByName(String search) throws BaseException {
         try {
             List<GetClubDetailRes> getClubDetailResList = new ArrayList<>();
-            List<ClubEntity> clubEntityList = clubRepository.findByNameContainingAndStatus(search, "active");
+            List<ClubEntity> clubEntityList = clubRepository.findByNameContainingAndStatusOrderByCreatedAtDesc(search, "active");
             String now_date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             for (ClubEntity clubEntity : clubEntityList) {
                 GetClubDetailRes getClubDetailRes = getClubDetail(clubEntity.getClubIdx(), now_date);
@@ -222,7 +222,7 @@ public class ClubService {
             memberStatusRepository.save(memberStatusEntity);
 
             // host timetable update
-            memberStatusService.createTimeTable(memberStatusEntity.getMemberStatusIdx(), clubReq.getTimeTable());
+            memberStatusService.createTimeTable(memberStatusEntity, clubReq.getTimeTable());
 
         } catch (BaseException e) {
             throw new BaseException(e.getStatus());
@@ -241,7 +241,7 @@ public class ClubService {
         }
         UserEntity userEntity = optionalUserEntity.get();
 
-        Optional<ClubEntity> optionalClubEntity = clubRepository.findById(clubIdx);
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (optionalClubEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
         }
@@ -262,7 +262,7 @@ public class ClubService {
         }
         UserEntity userEntity = optionalUserEntity.get();
 
-        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdx(clubIdx);
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (optionalClubEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
         }
@@ -284,7 +284,7 @@ public class ClubService {
     }
 
     public void updateClubRecruitFinished(Long clubIdx) throws BaseException {
-        Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
+        Optional<ClubEntity> optional = clubRepository.findByClubIdxAndRecruitStatusAndStatus(clubIdx, "recruiting", "active");
         if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
         }
@@ -294,7 +294,7 @@ public class ClubService {
     }
 
     public void updateClubRecruitRecruiting(Long clubIdx) throws BaseException {
-        Optional<ClubEntity> optional = clubRepository.findByClubIdx(clubIdx);
+        Optional<ClubEntity> optional = clubRepository.findByClubIdxAndRecruitStatusAndStatus(clubIdx, "finished", "active");
         if (optional.isEmpty()) {
             throw new BaseException(BaseResponseStatus.CLUB_UNAVAILABLE);
         }
@@ -310,7 +310,7 @@ public class ClubService {
         }
         UserEntity userEntity = optionalUserEntity.get();
 
-        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdx(clubIdx);
+        Optional<ClubEntity> optionalClubEntity = clubRepository.findByClubIdxAndStatus(clubIdx, "active");
         if (optionalClubEntity.isEmpty()) {
             throw new BaseException(BaseResponseStatus.PATCH_CLUB_ID_WRONG);
         }
