@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TimeTableRepository extends JpaRepository<TimeTableEntity, Long> {
-    @Query(value = "select time_table_idx from time_table left join member_status on time_table.member_status_idx = member_status.member_status_idx where member_status.club_idx = :clubIdx and time_table.day = :day and ((:start between time_table.start and time_table.end) or (:end between time_table.start and time_table.end) or (:start <= time_table.start and :end >= time_table.end))", nativeQuery = true)
+    @Query(value = "select time_table_idx from time_table left join member_status on time_table.member_status_idx = member_status.member_status_idx where member_status.club_idx = :clubIdx and member_status.apply_status = 'ACCEPTED' and time_table.day = :day and ((:start between time_table.start and time_table.end) or (:end between time_table.start and time_table.end) or (:start <= time_table.start and :end >= time_table.end))", nativeQuery = true)
     List<Long> selectDuplicateTimeTable(@Param(value = "clubIdx") Long clubIdx,
                                         @Param(value = "day") Integer day,
                                         @Param(value = "start") LocalTime start,
