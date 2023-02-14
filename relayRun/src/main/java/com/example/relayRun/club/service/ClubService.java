@@ -12,8 +12,8 @@ import com.example.relayRun.user.repository.UserProfileRepository;
 import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
-import org.hibernate.NonUniqueResultException;
 import com.example.relayRun.record.service.RunningRecordService;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -226,7 +226,7 @@ public class ClubService {
 
         } catch (BaseException e) {
             throw new BaseException(e.getStatus());
-        } catch (NonUniqueResultException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
+        } catch (IncorrectResultSizeDataAccessException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
             throw new BaseException(BaseResponseStatus.ERROR_DUPLICATE_CLUB);
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.POST_CLUBS_FAIL);

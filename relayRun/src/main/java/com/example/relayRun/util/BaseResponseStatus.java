@@ -21,6 +21,7 @@ public enum BaseResponseStatus {
     // 달리기단;
     RECORD_UNAVAILABLE(false, 2100,"기록이 존재하지 않습니다."),
     INVALID_DATE_FORMAT(false, 2101, "yyyy-mm-dd의 날짜 형식을 입력해주세요."),
+    DUPLICATE_RECORD(false, 2102, "해당 날짜에 기록이 두개 이상 존재합니다. (서버 문의)"),
 
     CLUB_UNAVAILABLE(false, 2200, "존재하지 않는 그룹입니다."),
     CLUB_CLOSED(false, 2201, "모집이 완료된 그룹입니다."),
@@ -49,6 +50,8 @@ public enum BaseResponseStatus {
     POST_RECORD_ALREADY_FINISH(false, 4904, "이미 끝난 기록입니다."),
     POST_RECORD_NO_PROFILE_IDX(false, 4905, "존재하지 않는 프로필 아이디입니다."),
     POST_RECORD_NOT_MATCH_PARAM_PRINCIPAL(false, 4906, "요청한 프로필 아이디와 로그인 아이디가 일치하지 않습니다."),
+    POST_RECORD_ALREADY_RUN(false, 4907, "이미 오늘 뛴 기록이 있습니다."),
+
     POST_USERS_INVALID_EMAIL(false, 5000, "이메일 양식이 맞지 않습니다."),
     POST_USERS_INVALID_PWD(false, 5001, "비밀번호 양식이 맞지 않습니다."),
     POST_REVIEW_IMG_ERROR(false, 5001, "리뷰 이미지 에러입니다."),

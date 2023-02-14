@@ -14,7 +14,7 @@ import com.example.relayRun.user.repository.UserRepository;
 import com.example.relayRun.util.BaseException;
 import com.example.relayRun.util.BaseResponseStatus;
 import com.example.relayRun.util.RecordDataHandler;
-import org.hibernate.NonUniqueResultException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,7 +92,7 @@ public class MemberStatusService {
 
         } catch (BaseException e) { // profile 존재 x, 그룹 존재 x, 시간표 등록 실패일 경우
             throw new BaseException(e.getStatus());
-        } catch (NonUniqueResultException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
+        } catch (IncorrectResultSizeDataAccessException e) { // 두개 이상의 그룹에 들어가있는 비정상 상황
             throw new BaseException(BaseResponseStatus.ERROR_DUPLICATE_CLUB);
         } catch (Exception e) { // 이외의 경우 에러처리
             throw new BaseException(BaseResponseStatus.POST_MEMBER_STATUS_FAIL);

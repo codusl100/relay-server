@@ -61,7 +61,10 @@ public class MemberStatusController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-    @ApiOperation(value = "시간표 수정", notes = "path variable로 수정하고자 하는 유저의 userProfileIdx, body로는 해당 유저의 시간표 정보를 리스트 형식으로 보내면 시간표 수정이 완료됩니다.")
+    @ApiOperation(value = "시간표 수정", notes = "path variable로 수정하고자 하는 유저의 userProfileIdx, body로는 해당 유저의 시간표 정보를 리스트 형식으로 보내면 시간표 수정이 완료됩니다."
+            + "\n\n기존 시간표는 삭제되므로, 특정 날만 수정을 원할 경우 그 날의 수정사항과 원래 있던 정보를 다 전달해주셔야 합니다.\n" +
+            "ex) 월수금 10~12로 등록되어있는 것 중 월요일만 12~14로 바꾸고 싶을 경우,\n" +
+            "월요일 12~14, 수요일 10~12, 금요일 10~12로 전부 보내주셔야 합니다.")
     @ResponseBody
     @PostMapping("/time-tables/{userProfileIdx}")
     public BaseResponse<String> updateTimeTable(
