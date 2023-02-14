@@ -289,6 +289,9 @@ public class MemberStatusService {
         }
         MemberStatusEntity memberStatusEntity = optionalMemberStatusEntity.get();
 
+        if (!memberStatusEntity.getClubIdx().equals(optionalClubEntity.get())) {
+            throw new BaseException(BaseResponseStatus.POST_RECORD_INVALID_CLUB_ACCESS);
+        }
         memberStatusEntity.setApplyStatus("LEFT");
         memberStatusRepository.save(memberStatusEntity);
     }
