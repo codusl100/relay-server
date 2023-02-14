@@ -4,6 +4,8 @@ import com.example.relayRun.club.entity.ClubEntity;
 import com.example.relayRun.club.entity.MemberStatusEntity;
 import com.example.relayRun.club.repository.ClubRepository;
 import com.example.relayRun.club.repository.MemberStatusRepository;
+import com.example.relayRun.event.BatonTouchEvent;
+import com.example.relayRun.event.NotifyEventPublisher;
 import com.example.relayRun.record.dto.*;
 import com.example.relayRun.record.entity.LocationEntity;
 import com.example.relayRun.record.entity.RunningRecordEntity;
@@ -46,6 +48,8 @@ public class RunningRecordService {
     UserRepository userRepository;
     ClubRepository clubRepository;
     TimeTableRepository timeTableRepository;
+
+    NotifyEventPublisher notifyEventPublisher;
     @Autowired
     public RunningRecordService(RunningRecordRepository runningRecordRepository,
                                 LocationRepository locationRepository,
@@ -53,7 +57,8 @@ public class RunningRecordService {
                                 TimeTableRepository timeTableRepository,
                                 UserProfileRepository userProfileRepository,
                                 UserRepository userRepository,
-                                ClubRepository clubRepository) {
+                                ClubRepository clubRepository,
+                                NotifyEventPublisher notifyEventPublisher) {
         this.runningRecordRepository = runningRecordRepository;
         this.locationRepository = locationRepository;
         this.memberStatusRepository = memberStatusRepository;
@@ -61,6 +66,7 @@ public class RunningRecordService {
         this.userProfileRepository = userProfileRepository;
         this.clubRepository = clubRepository;
         this.timeTableRepository = timeTableRepository;
+        this.notifyEventPublisher = notifyEventPublisher;
     }
 
     /**
@@ -178,6 +184,12 @@ public class RunningRecordService {
             }
             locationRepository.saveAll(locations);
             runningRecordRepository.save(oldRecord);
+            notifyEventPublisher.publishNotifyEvent(
+                    BatonTouchEvent.builder()
+                        .fromUserProfile(oldRecord.getMemberStatusIdx().getUserProfileIdx().getUserProfileIdx())
+                        .day(timeTable.getDay())
+                        .endTime(timeTable.getEnd()).build()
+            );
             return new PostRunningFinishRes(isSuccess);
         } catch (ParseException e) {
             throw new BaseException(BaseResponseStatus.POST_PARSE_ERROR);

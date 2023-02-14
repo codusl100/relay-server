@@ -22,6 +22,19 @@ public interface TimeTableRepository extends JpaRepository<TimeTableEntity, Long
             MemberStatusEntity memberStatusIdx,
             int day, LocalTime start, LocalTime end
     );
+
+    List<TimeTableEntity> findAllByDay(int day);
     Optional<TimeTableEntity> findByMemberStatusIdxAndDay(MemberStatusEntity memberStatus, int day);
     Optional<TimeTableEntity> findByMemberStatusIdx_MemberStatusIdxAndDay(Long memberStatusIdx, int day);
+
+    @Query(value = "select tt.time_table_idx,tt.created_at, tt.updated_at,\n" +
+            "       tt.day, tt.end, tt.start, tt.goal_type, tt.goal, tt.member_status_idx, tt.status  from time_table tt\n" +
+            "left join member_status ms on tt.member_status_idx = ms.member_status_idx\n" +
+            "where tt.day = :day\n" +
+            "AND ms.club_idx = :clubIdx\n" +
+            "AND tt.start >= :end\n" +
+            "order by tt.start limit 1",nativeQuery = true)
+    Optional<TimeTableEntity> findByClubAndDayAndAfterTime(@Param(value = "clubIdx") Long clubIdx,
+                                                           @Param(value = "day") int day,
+                                                           @Param(value = "end") String end);
 }

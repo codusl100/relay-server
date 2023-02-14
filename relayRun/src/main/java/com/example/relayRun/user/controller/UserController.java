@@ -1,6 +1,7 @@
 package com.example.relayRun.user.controller;
 
 
+import com.example.relayRun.fcm.service.FCMService;
 import com.example.relayRun.jwt.dto.TokenDto;
 import com.example.relayRun.user.dto.*;
 import com.example.relayRun.user.service.UserProfileService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -28,10 +30,11 @@ public class UserController {
 
     private UserService userService;
     private UserProfileService userProfileService;
-
-    public UserController(UserService userService, UserProfileService userProfileService) {
+    private FCMService fcmService;
+    public UserController(UserService userService, UserProfileService userProfileService, FCMService fcmService) {
         this.userService = userService;
         this.userProfileService = userProfileService;
+        this.fcmService = fcmService;
     }
 
     @ResponseBody
@@ -57,7 +60,6 @@ public class UserController {
         try {
             TokenDto token = this.userService.logIn(user);
             return new BaseResponse<>(token);
-
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

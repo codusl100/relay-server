@@ -57,4 +57,5 @@ public class RunningRecordEntity extends BaseTimeEntity {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="recordIdx", orphanRemoval = true)
     private List<LocationEntity> locations = new ArrayList<>();
+
 }
