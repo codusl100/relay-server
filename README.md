@@ -2,8 +2,8 @@
 
 > 달리기를 쉽고 재미있게 할 수 있는 방법은 없을까?
 > 이제는 함께 이어달리면서 달리기 습관을 만들어보자!
-> [앱 소개 영상 보러가기](https://www.youtube.com/watch?v=3TajtI-R54U&ab_channel=%EC%9E%84%EC%97%B0%EC%A7%80)
 > 
+[앱 소개 영상 보러가기](https://www.youtube.com/watch?v=3TajtI-R54U&ab_channel=%EC%9E%84%EC%97%B0%EC%A7%80) 
 
 운동을 꾸준히 하기로 마음 먹었지만 쉽게 습관화하지 못했던 경험이 있지 않으신가요?
 
